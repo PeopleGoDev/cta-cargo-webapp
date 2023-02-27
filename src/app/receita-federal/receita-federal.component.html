@@ -1,0 +1,155 @@
+<div class="main-content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card card-plain">
+                    <div class="header">
+                        <h4 class="title">Receita Federal</h4>
+                        <p class="category">Submeter Arquivos</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12" style="margin-bottom: 10px;">
+                <dx-toolbar>
+                    <dxi-item location="before">
+                        <div *dxTemplate>
+                            <div id="panel1" #panel1 style="display: table; vertical-align: middle;">
+                                <div style="display: table-cell">Data do Voo&nbsp;</div>
+                                <div style="display: table-cell">
+                                    <dx-date-box [value]="filtroDataVoo" type="date" width="115"
+                                        (onValueChanged)="handleValueDataChangeDataVoo($event)"></dx-date-box>
+                                </div>
+                                <div style="display: table-cell">&nbsp;</div>
+                                <div style="display: table-cell">
+                                    <dx-button-group [items]="botoesGBItems" accessKey="vooid" keyExpr="vooid"
+                                        [selectedItemKeys]="[curVoo]" (onItemClick)="OnItemClick($event)">
+                                    </dx-button-group>
+                                </div>
+                            </div>
+                        </div>
+                    </dxi-item>
+                    <dxi-item location="after" widget="dxButton" [options]="refreshIcon">
+                    </dxi-item>
+                </dx-toolbar>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <dx-data-grid id="tasks" [dataSource]="vooDetalheLista" keyExpr="VooId" [columnAutoWidth]="true"
+                    [wordWrapEnabled]="true" [showBorders]="true" (onRowPrepared)="OnRowPrepared($event)"
+                    [height]="120">
+                    <dxo-load-panel [enabled]="false"></dxo-load-panel>
+                    <dxi-column dataField="Numero" caption="Voo #" [width]="150" cellTemplate="numeroTemplate">
+                        <div *dxTemplate="let data of 'numeroTemplate'">
+                            <i *ngIf="data.data.StatusId == 1 && data.data.SituacaoRFBId == 0" class="dx-icon-check"
+                                style="color: green"></i>
+                            <i *ngIf="data.data.StatusId == 2 && data.data.SituacaoRFBId == 3" class="dx-icon-check"
+                                style="color: green"></i>
+                            <i *ngIf="data.data.StatusId == 2 && data.data.SituacaoRFBId == 1" class="dx-icon-info"
+                                style="color: blue"></i>
+                            {{ data.value }}<br />
+                            {{ statusData[data.data.StatusId].Descricao}}
+                        </div>
+                    </dxi-column>
+                    <dxi-column dataField="DataHoraSaidaEstimada" caption="Hora Saida Estimada" dataType="datetime">
+                    </dxi-column>
+                    <dxi-column dataField="DataHoraSaidaReal" caption="Hora Saida Atual" dataType="datetime">
+                    </dxi-column>
+                    <dxi-column dataField="DataHoraChegadaEstimada" caption="Hora Chegada Estimada" dataType="datetime">
+                    </dxi-column>
+                    <dxi-column dataField="DataHoraChegadaReal" caption="Hora Chegada Atual" dataType="datetime">
+                    </dxi-column>
+                    <dxi-column dataField="PortoOrigemId" caption="Porto Origem">
+                        <dxo-lookup [dataSource]="portosData" displayExpr="Codigo" valueExpr="PortoId">
+                        </dxo-lookup>
+                    </dxi-column>
+                    <dxi-column dataField="PortoDestinoId" caption="Porto Destino">
+                        <dxo-lookup [dataSource]="portosData" displayExpr="Codigo" valueExpr="PortoId">
+                        </dxo-lookup>
+                    </dxi-column>
+                    <dxi-column dataField="SituacaoRFBId" caption="Situação RFB">
+                        <dxo-lookup [dataSource]="statusRFB" displayExpr="Descricao" valueExpr="Id">
+                        </dxo-lookup>
+                    </dxi-column>
+                    <dxi-column dataField="Reenviar" caption="Reenviar">
+                    </dxi-column>
+                </dx-data-grid>
+            </div>
+        </div>
+        <br/>
+        <div class="row">
+            <div class="col-md-12">
+                <dx-data-grid id="tasks" [dataSource]="mastersData" #masterDataGrid keyExpr="MasterId"
+                    [columnAutoWidth]="true" [wordWrapEnabled]="true" [showBorders]="true"
+                    (onRowPrepared)="OnMasterRowPrepared($event)">
+                    <dxo-load-panel [enabled]="false"></dxo-load-panel>
+                    <dxi-column dataField="Numero" caption="MAWB/AWB" [width]="150" cellTemplate="awbTemplate">
+                        <div *dxTemplate="let data of 'awbTemplate'">
+                            <i *ngIf="data.data.StatusId == 1" class="dx-icon-check" style="color: green"></i>
+                            <i *ngIf="data.data.StatusId == 0" class="dx-icon-info" style="color: blue"></i>
+                            {{ data.value.substring(3,0) }}-{{ data.value.substring(11,3) }}<br />
+                            {{ statusData[data.data.StatusId].Descricao}}
+                        </div>
+                    </dxi-column>
+
+                    <dxi-column caption="Peso/Volume">
+                        <dxi-column dataField="TotalPecas" caption="Volumes" dataType="number" [width]="70">
+                        </dxi-column>
+                        <dxi-column dataField="PesoTotalBruto" caption="Peso Total" dataType="number" format="decimal"
+                            [editorOptions]="{
+                            format: 'decimal',
+                            precision: 3,
+                            showClearButton: true }" [width]="90">
+                            <dxo-format type="fixedPoint" [precision]="3">
+                            </dxo-format>
+                        </dxi-column>
+                        <dxi-column dataField="PesoTotalBrutoUN" caption="Peso Unidade" alignment="right" [width]="90">
+                        </dxi-column>
+                        <dxi-column dataField="DescricaoMercadoria" caption="Desc Merc" [width]="170"></dxi-column>
+                    </dxi-column>
+                    <dxi-column caption="Valor Frete">
+                        <dxi-column dataField="ValorFretePP" caption="Frete PrePaid" dataType="number" format="decimal"
+                            [editorOptions]="{
+                            format: 'decimal',
+                            precision: 3,
+                            showClearButton: true }" [width]="100">
+                            <dxo-format type="fixedPoint" [precision]="3">
+                            </dxo-format>
+                        </dxi-column>
+                        <dxi-column dataField="ValorFretePPUN" caption="Moeda" alignment="right" [width]="70">
+                        </dxi-column>
+                        <dxi-column dataField="ValorFreteFC" caption="Frete Collect" dataType="number" format="decimal"
+                            [editorOptions]="{
+                            format: 'decimal',
+                            precision: 3,
+                            showClearButton: true }" [width]="100">
+                            <dxo-format type="fixedPoint" [precision]="3">
+                            </dxo-format>
+                        </dxi-column>
+                        <dxi-column dataField="ValorFreteFCUN" caption="Moeda" alignment="right" [width]="70">
+                        </dxi-column>
+                    </dxi-column>
+                    <dxi-column caption="Outras Informações" [visible]="true">
+                        <dxi-column dataField="SituacaoRFB" caption="Situação RFB" [width]="110">
+                            <dxo-lookup [dataSource]="statusRFB" displayExpr="Descricao" valueExpr="Id">
+                            </dxo-lookup>
+                        </dxi-column>
+                        <dxi-column dataField="DescricoErroRFB" caption="Erro RFB">
+                        </dxi-column>
+                    </dxi-column>
+
+                </dx-data-grid>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12" style="margin-top: 20px;">
+                <app-button (buttonClicked)="OnClickUpload($event)"
+                    [isButtonOrange]="true" [isDisabled]="!botaoUploadEnabled" [mobileFull]="true" id="modal-create-master-group-link">
+                    Submeter Receita Federal
+                </app-button>
+            </div>
+        </div>
+    </div>
+</div>

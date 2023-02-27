@@ -1,0 +1,69 @@
+<div class="main-content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card card-plain">
+                    <div class="header">
+                        <h4 class="title">Natureza da Carga</h4>
+                        <p class="category">Manutenção de Natureza de Carga</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <dx-data-grid id="dataGrid" #dataGrid keyExpr="NaturezaCargaId" [dataSource]="naturezas" [columnAutoWidth]="true"
+                    [height]="470" [hoverStateEnabled]="true" [showBorders]="true"
+                    (onRowUpdating)="onRowUpdating($event)" (onRowInserting)="onRowInserting($event)"
+                    (onEditorPreparing)="onEditorPreparing($event)" (onToolbarPreparing)="onToolbarPreparing($event)">
+                    <dxo-load-panel [enabled]="false" [showPane]="false" [showIndicator]="false"></dxo-load-panel>
+                    <dxo-paging [pageSize]="10"></dxo-paging>
+                    <dxo-pager [showPageSizeSelector]="false" [infoText]="'Página {0} de {1} ({2} itens)'"
+                        [showInfo]="true" [visible]="true">
+                    </dxo-pager>
+                    <dxo-editing mode="popup" [allowUpdating]="true" [allowAdding]="true">
+                        <dxo-popup title="Editar/Incluir Porto" [showTitle]="false" [width]="700" [height]="535">
+                            <dxi-toolbar-item widget="dxButton" location="after" toolbar="bottom" [options]="{
+                                text: 'Salvar',
+                                onClick: onSaveEditor
+                            }">
+                            </dxi-toolbar-item>
+                            <dxi-toolbar-item widget="dxButton" location="after" toolbar="bottom" [options]="{
+                                text: 'Cancelar',
+                                onClick: onCancelEditor
+                            }">
+                            </dxi-toolbar-item>
+                            <dxi-toolbar-item widget="dxButton"
+                                location="before" toolbar="bottom" [options]="{
+                                text: 'Excluir',
+                                type: 'danger',
+                                visible: botaoExcluirVisivel,
+                                onClick: onDeleteEditor
+                            }">
+                            </dxi-toolbar-item>
+                        </dxo-popup>
+                        <dxo-form>
+                            <dxi-item itemType="group" caption="Informações da Companhia Aérea" [colCount]="1">
+                                <dxi-item dataField="Codigo" [editorOptions]="{ maxLength: 3 }">
+                                    <dxi-validation-rule type="required"></dxi-validation-rule>
+                                    <dxi-validation-rule type="stringLength" min="3" message="Código porto requer 3 caracteres!"></dxi-validation-rule>
+                                </dxi-item>
+                                <dxi-item dataField="Descricao" [editorOptions]="{ maxLength: 100 }">
+                                    <dxi-validation-rule type="required"></dxi-validation-rule>
+                                </dxi-item>
+                            </dxi-item>
+                        </dxo-form>
+                    </dxo-editing>
+                    <dxi-column type="buttons" caption="Editar" width="50">
+                        <dxi-button name="edit" hint="Editar" icon="edit"></dxi-button>
+                    </dxi-column>
+                    <dxi-column dataField="Codigo" width="110"></dxi-column>
+                    <dxi-column dataField="Descricao" caption="Descrição"></dxi-column>
+                </dx-data-grid>
+            </div>
+        </div>
+    </div>
+</div>
+<dx-load-panel #loadPanel shadingColor="rgba(0,0,0,0.4)" [(visible)]="loadingVisible" [showIndicator]="true"
+    [showPane]="true" [shading]="false" [closeOnOutsideClick]="false">
+</dx-load-panel>

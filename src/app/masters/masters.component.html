@@ -1,0 +1,416 @@
+<div class="main-content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card card-plain">
+                    <div class="header">
+                        <h4 class="title">Masters</h4>
+                        <p class="category">Selecione o Voo para Listar as Masters</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12" style="margin-bottom: 10px;">
+                <dx-toolbar>
+                    <dxi-item location="before" widget="dxSelectBox" [options]="selectFiltro">
+                    </dxi-item>
+                    <dxi-item location="before">
+                        <div *dxTemplate>
+                            <div id="panel1" #panel1 style="display: table; vertical-align: middle;">
+                                <div style="display: table-cell">Data do Voo&nbsp;</div>
+                                <div style="display: table-cell">
+                                    <dx-date-box [value]="filtroDataVoo" type="date" width="115"
+                                        (onValueChanged)="handleValueDataChangeDataVoo($event)"></dx-date-box>
+                                </div>
+                                <div style="display: table-cell">&nbsp;</div>
+                                <div style="display: table-cell">
+                                    <dx-button-group [items]="botoesGBItems" accessKey="vooid" keyExpr="vooid"
+                                        [selectedItemKeys]="[curVoo]" (onItemClick)="onItemClick($event)">
+                                    </dx-button-group>
+                                </div>
+                            </div>
+                        </div>
+                    </dxi-item>
+                    <dxi-item location="before">
+                        <div *dxTemplate>
+                            <div id="panel2" #panel2 style="display: table; vertical-align: middle; display: none;">
+                                <div style="display: table-cell">Data de Emissão&nbsp;</div>
+                                <div style="display: table-cell">
+                                    <dx-date-box [value]="filtroData" type="date" width="115"
+                                        (onValueChanged)="handleValueDataChange($event)"></dx-date-box>
+                                </div>
+                                <div style="display: table-cell">&nbsp;Até&nbsp;</div>
+                                <div style="display: table-cell">
+                                    <dx-date-box [value]="filtroDataFinal" type="date" width="115"
+                                        (onValueChanged)="handleValueDataChangeFinal($event)"></dx-date-box>
+                                </div>
+                            </div>
+                        </div>
+                    </dxi-item>
+                    <dxi-item location="before">
+                        <div *dxTemplate>
+                            <div id="panel3" #panel3 style="display: table; vertical-align: middle; display: none;">
+                                <dx-validation-group id="consultaMaster">
+                                    <div style="display: table-cell">Número &nbsp;</div>
+                                    <div style="display: table-cell">
+                                        <dx-text-box [(value)]="textoMaster" width="155" mask="000-00000000">
+                                            <dx-validator>
+                                                <dxi-validation-rule type="required"
+                                                    message="Número do Master requerido!">
+                                                </dxi-validation-rule>
+                                                <dxi-validation-rule type="stringLength" [min]="11"
+                                                    message="O número do Master requer 11 digitos!">
+                                                </dxi-validation-rule>
+                                                <dxi-validation-rule type="custom" message="Numero do Master invalido!"
+                                                    [validationCallback]="ValidaMasterNumero">
+                                                </dxi-validation-rule>
+                                            </dx-validator>
+                                        </dx-text-box>
+                                    </div>
+                                    <div style="display: table-cell">&nbsp;</div>
+                                    <div style="display: table-cell">
+                                        <dx-button stylingMode="contained" text="Consultar" type="normal" [width]="120"
+                                            [validationGroup]="consultaMaster" icon="search"
+                                            (onClick)="onSearchClick($event)">
+                                        </dx-button>
+                                    </div>
+                                </dx-validation-group>
+                            </div>
+                        </div>
+                    </dxi-item>
+                    <dxi-item location="after">
+                        <div *dxTemplate>
+                            <dx-button stylingMode="contained" icon="trash" text="Excluir" type="normal"
+                                hint="Excluir Master Selecionado"
+                                [disabled]="rfbNonProcessedRows.length == 0 || rfbNonProcessedRows.length != selectedRows.length"
+                                (click)="deleteMasterEdition($event)">
+                            </dx-button>
+                        </div>
+                    </dxi-item>
+                    <dxi-item location="after">
+                        <div *dxTemplate>
+                            <dx-button stylingMode="contained" icon="edit" text="Liberar Edição" type="normal"
+                                hint="Liberar Master para Edição"
+                                [disabled]="rfbProcessedRows.length == 0 || rfbProcessedRows.length != selectedRows.length"
+                                (click)="releaseMasterEdition($event)">
+                            </dx-button>
+                        </div>
+                    </dxi-item>
+                    <dxi-item location="after">
+                        <dx-button stylingMode="contained" icon="refresh" text="Refresh" type="normal"
+                            hint="Refresh" (click)="refreshGrid()">
+                        </dx-button>
+                    </dxi-item>
+                    <dxi-item location="after">
+                        <dx-button stylingMode="contained" icon="plus" text="Adicionar Master" type="normal"
+                            hint="Adicionar Master" [disabled]="!vooData || vooData.length === 0"
+                            (click)="addRow($event)">
+                        </dx-button>
+                    </dxi-item>
+                    <dxi-item location="after" widget="dxButton" [options]="excelIcon">
+                        <dx-button stylingMode="contained" icon="xlsxfile" text="Exportar" type="normal"
+                            hint="Exportar Excel" [disabled]="!mastersData || mastersData.length === 0"
+                            (click)="exportToExcel($event)">
+                        </dx-button>
+                    </dxi-item>
+                </dx-toolbar>
+            </div>
+        </div>
+        <div class="row box-2">
+            <div class="col-md-12">
+                <dx-data-grid id="gridContainer" #dataGrid [dataSource]="mastersData" keyExpr="MasterId"
+                    [hoverStateEnabled]="true" [showBorders]="true" [columnAutoWidth]="false"
+                    [masterDetail]="{ enabled: false, template: 'detail' }" [(selectedRowKeys)]="selectedRows"
+                    (onSelectionChanged)="selectionChangedHandler()" (onRowUpdating)="onRowUpdating($event)"
+                    (onRowInserting)="onRowInserting($event)" (onToolbarPreparing)="onToolbarPreparing($event)"
+                    (onEditorPreparing)="onEditorPreparing($event)" (onEditingStart)="onEditingStart($event)">
+                    <dxo-filter-row [visible]="true"></dxo-filter-row>
+                    <dxo-header-filter [visible]="true"></dxo-header-filter>
+                    <dxo-selection mode="multiple" showCheckBoxesMode="none"></dxo-selection>
+                    <dxo-load-panel [enabled]="false"></dxo-load-panel>
+                    <dxo-paging [pageSize]="9"></dxo-paging>
+                    <dxo-pager [showPageSizeSelector]="false" [infoText]="'Página {0} de {1} ({2} itens)'"
+                        [showInfo]="true" [visible]="true">
+                    </dxo-pager>
+                    <dxo-editing mode="popup" [allowUpdating]="true" [allowAdding]="permitirEdicao()">
+                        <dxo-popup title="Editar/Incluir Master" [showTitle]="false" [fullScreen]="true">
+                            <dxi-toolbar-item widget="dxButton" location="after" toolbar="bottom" [options]="{
+                                text: 'Salvar',
+                                onClick: onEditSave,
+                                visible: !editarSomenteLeitura || reeviarVoo
+                            }">
+                            </dxi-toolbar-item>
+                            <dxi-toolbar-item widget="dxButton" location="after" toolbar="bottom" [options]="{
+                                text: 'Cancelar',
+                                onClick: onEditCancel
+                            }">
+                            </dxi-toolbar-item>
+                        </dxo-popup>
+                        <dxo-form [colCount]="3">
+                            <dxi-item itemType="group" [colCount]="3" [colSpan]="3">
+                                <dxi-item dataField="Numero" [colSpan]="1"
+                                    [editorOptions]="{ maxLength: 12, mask: '000-00000000' }">
+                                    <dxi-validation-rule type="required"></dxi-validation-rule>
+                                    <dxi-validation-rule type="custom" message="Numero do Master invalido!"
+                                        [validationCallback]="ValidaMasterNumero">
+                                    </dxi-validation-rule>
+                                </dxi-item>
+                                <dxi-item dataField="ConsolidadoDireto">
+                                    <dxi-validation-rule type="required"></dxi-validation-rule>
+                                </dxi-item>
+                                <dxi-item dataField="NumeroVooXML">
+                                    <dxi-validation-rule type="required"></dxi-validation-rule>
+                                </dxi-item>
+                            </dxi-item>
+
+                            <dxi-item itemType="group" caption="Remetente" [colCount]="3" [colSpan]="3">
+                                <dxi-item dataField="RemetenteNome" [editorOptions]="{ maxLength: 60 }">
+                                    <dxi-validation-rule type="required"></dxi-validation-rule>
+                                </dxi-item>
+                                <dxi-item dataField="RemetenteEndereco" [editorOptions]="{ maxLength: 60 }">
+                                </dxi-item>
+                                <dxi-item dataField="RemetenteCidade" [editorOptions]="{ maxLength: 60 }">
+                                </dxi-item>
+                                <dxi-item dataField="RemetentePostal" [editorOptions]="{ maxLength: 15 }">
+                                </dxi-item>
+                                <dxi-item dataField="RemetentePaisCodigo" [editorOptions]="{ maxLength: 2 }">
+                                    <dxi-validation-rule type="required"></dxi-validation-rule>
+                                </dxi-item>
+                            </dxi-item>
+
+                            <dxi-item itemType="group" caption="Destinatario" [colCount]="3" [colSpan]="3">
+                                <dxi-item dataField="ConsignatarioCNPJ" [editorOptions]="{ maxLength: 14 }">
+                                    <dxi-validation-rule type="required"></dxi-validation-rule>
+                                    <dxi-validation-rule type="custom" [validationCallback]="ValidaCnpj"
+                                        message="CNPJ/CPF/Passporte invalido!">
+                                    </dxi-validation-rule>
+                                </dxi-item>
+                                <dxi-item dataField="ConsignatarioNome" [editorOptions]="{ maxLength: 60 }">
+                                    <dxi-validation-rule type="required"></dxi-validation-rule>
+                                </dxi-item>
+                                <dxi-item dataField="ConsignatarioEndereco" [editorOptions]="{ maxLength: 60 }">
+                                </dxi-item>
+                                <dxi-item dataField="ConsignatarioCidade" [editorOptions]="{ maxLength: 60 }">
+                                </dxi-item>
+                                <dxi-item dataField="ConsignatarioPostal" [editorOptions]="{ maxLength: 15 }">
+                                </dxi-item>
+                                <dxi-item dataField="ConsignatarioPaisCodigo" [editorOptions]="{ maxLength: 2 }">
+                                    <dxi-validation-rule type="required"></dxi-validation-rule>
+                                </dxi-item>
+                            </dxi-item>
+
+                            <dxi-item itemType="group" caption="Quantidade/Peso" [colCount]="3" [colSpan]="3">
+                                <dxi-item dataField="TotalPecas">
+                                    <dxi-validation-rule type="required"></dxi-validation-rule>
+                                </dxi-item>
+                                <dxi-item dataField="PesoTotalBruto" editorType="dxNumberBox">
+                                    <dxi-validation-rule type="required"></dxi-validation-rule>
+                                </dxi-item>
+                                <dxi-item dataField="PesoTotalBrutoUN" [editorOptions]="{ maxLength: 3 }">
+                                    <dxi-validation-rule type="required"></dxi-validation-rule>
+                                </dxi-item>
+                                <dxi-item dataField="TotalParcial" [editorOptions]="{ maxLength: 1 }">
+                                    <dxi-validation-rule type="required"></dxi-validation-rule>
+                                </dxi-item>
+                                <dxi-item dataField="AeroportoOrigemCodigo" [editorOptions]="{ maxLength: 3 }">
+                                    <dxi-validation-rule type="required"></dxi-validation-rule>
+                                    <dxi-validation-rule type="stringLength" min="3"
+                                        message="Código Porto requer 3 caracteres!"></dxi-validation-rule>
+                                </dxi-item>
+                                <dxi-item dataField="AeroportoDestinoCodigo" [editorOptions]="{ maxLength: 3 }">
+                                    <dxi-validation-rule type="required"></dxi-validation-rule>
+                                    <dxi-validation-rule type="stringLength" min="3"
+                                        message="Código Porto requer 3 caracteres!"></dxi-validation-rule>
+                                </dxi-item>
+                                <dxi-item dataField="DescricaoMercadoria" [editorOptions]="{ maxLength: 70 }">
+                                    <dxi-validation-rule type="required"></dxi-validation-rule>
+                                </dxi-item>
+                                <dxi-item dataField="NaturezaCarga" [editorOptions]="{ maxLength: 3 }">
+                                    <dxi-validation-rule type="custom" message="Natureza da Operação Invalida!"
+                                        [validationCallback]="validarNaturezaOperacao">
+                                    </dxi-validation-rule>
+                                </dxi-item>
+                                <dxi-item dataField="NCMLista">
+                                    <dxi-validation-rule type="required"></dxi-validation-rule>
+                                </dxi-item>
+                            </dxi-item>
+
+                            <dxi-item itemType="group" caption="Frete" [colCount]="2" [colSpan]="1">
+                                <dxi-item dataField="ValorFretePP" editorType="dxNumberBox">
+                                    <dxi-validation-rule type="required"></dxi-validation-rule>
+                                </dxi-item>
+                                <dxi-item dataField="ValorFretePPUN" [editorOptions]="{ maxLength: 3 }">
+                                    <dxi-validation-rule type="required"></dxi-validation-rule>
+                                </dxi-item>
+                                <dxi-item dataField="ValorFreteFC" editorType="dxNumberBox">
+                                    <dxi-validation-rule type="required"></dxi-validation-rule>
+                                </dxi-item>
+                                <dxi-item dataField="ValorFreteFCUN" [editorOptions]="{ maxLength: 3 }">
+                                    <dxi-validation-rule type="required"></dxi-validation-rule>
+                                </dxi-item>
+                            </dxi-item>
+
+                            <dxi-item itemType="group" caption="Outras Informações" [colCount]="2" [colSpan]="2">
+                                <dxi-item dataField="DataEmissaoXML">
+                                    <dxi-validation-rule type="required"></dxi-validation-rule>
+                                </dxi-item>
+                            </dxi-item>
+
+                        </dxo-form>
+                    </dxo-editing>
+                    <dxi-column type="buttons" width="70" caption="Editar">
+                        <dxi-button name="edit" hint="Editar" icon="edit" [visible]="isEditVisible"></dxi-button>
+                        <dxi-button name="edit" hint="Visualizar" icon="find" [visible]="isViewVisible"></dxi-button>
+                        <dxi-button name="verificarStatus" hint="Verificar Status da Carga RFB" icon="refresh"
+                            [onClick]="onClickVerificarStatus" [visible]="isCheckStatusAvailable"></dxi-button>
+                    </dxi-column>
+                    <dxi-column dataField="Numero" caption="MAWB/AWB" width="180" cellTemplate="awbTemplate"
+                        cssClass="word-wrap">
+                        <div *dxTemplate="let data of 'awbTemplate'">
+                            {{ data.value | master }}
+                            <div *ngFor="let erro of data.data.Erros" style="color: red" class="word-wrap">
+                                {{ erro.Erro }}
+                            </div>
+                        </div>
+                    </dxi-column>
+                    <dxi-column dataField="NumeroVooXML" caption="# Voo" width="80"></dxi-column>
+                    <dxi-column dataField="StatusId" caption="Status" [allowEditing]="false" width="180"
+                        cssClass="word-wrap">
+                        <dxo-lookup [dataSource]="statusData" displayExpr="Descricao" valueExpr="Id">
+                        </dxo-lookup>
+                    </dxi-column>
+                    <dxi-column dataField="AeroportoOrigemCodigo" caption="Porto Origem" width="100">
+                    </dxi-column>
+                    <dxi-column dataField="AeroportoDestinoCodigo" caption="Porto Destino" width="100">
+                    </dxi-column>
+                    <dxi-column dataField="NaturezaCarga" caption="Natureza da Carga" width="100">
+                    </dxi-column>
+                    <dxi-column dataField="ConsolidadoDireto" caption="Consolidado/Direto" width="100">
+                        <dxo-lookup [dataSource]="consolidadoDiretoData" displayExpr="Descricao" valueExpr="Codigo">
+                        </dxo-lookup>
+                    </dxi-column>
+                    <dxi-column caption="Remetente">
+                        <dxi-column dataField="RemetenteNome" caption="Nome" width="180" cssClass="word-wrap">
+                        </dxi-column>
+                        <dxi-column dataField="RemetenteEndereco" caption="Endereço" width="180" cssClass="word-wrap">
+                        </dxi-column>
+                        <dxi-column dataField="RemetentePostal" caption="Postal" width="80"></dxi-column>
+                        <dxi-column dataField="RemetenteCidade" caption="Cidade" width="180"></dxi-column>
+                        <dxi-column dataField="RemetentePaisCodigo" caption="Pais" width="60"></dxi-column>
+                    </dxi-column>
+                    <dxi-column caption="Destinatario">
+                        <dxi-column dataField="ConsignatarioNome" caption="Nome" width="180" cssClass="word-wrap">
+                        </dxi-column>
+                        <dxi-column dataField="ConsignatarioEndereco" caption="Endereço" width="180"
+                            cssClass="word-wrap"></dxi-column>
+                        <dxi-column dataField="ConsignatarioPostal" caption="Postal" width="80"></dxi-column>
+                        <dxi-column dataField="ConsignatarioCidade" caption="Cidade" width="180"></dxi-column>
+                        <dxi-column dataField="ConsignatarioPaisCodigo" caption="Pais" width="60"></dxi-column>
+                        <dxi-column dataField="ConsignatarioCNPJ" caption="CNPJ" width="140"></dxi-column>
+                    </dxi-column>
+                    <dxi-column caption="Peso/Volume">
+                        <dxi-column dataField="TotalPecas" caption="Volumes" dataType="number" width="110"></dxi-column>
+                        <dxi-column dataField="PesoTotalBruto" caption="Peso Total" dataType="number" width="110"
+                            format="decimal" [editorOptions]="{
+                            format: 'decimal',
+                            precision: 3,
+                            showClearButton: true }">
+                            <dxo-format type="fixedPoint" [precision]="3">
+                            </dxo-format>
+                        </dxi-column>
+                        <dxi-column dataField="PesoTotalBrutoUN" caption="Peso Unidade" alignment="right" width="110">
+                            <dxo-lookup [dataSource]="pesoUnidade" displayExpr="Codigo" valueExpr="Codigo" width="70">
+                            </dxo-lookup>
+                        </dxi-column>
+                        <dxi-column dataField="DescricaoMercadoria" caption="Desc Merc" width="180"
+                            cssClass="word-wrap"></dxi-column>
+                        <dxi-column dataField="NCMLista" caption="Lista NCM" width="150"
+                            editCellTemplate="dataCellTemplate" cssClass="word-wrap">
+                        </dxi-column>
+                        <dxi-column dataField="TotalParcial" caption="Total / Parcial" alignment="center" width="130">
+                        </dxi-column>
+                    </dxi-column>
+                    <dxi-column caption="Valor Frete">
+                        <dxi-column dataField="ValorFretePP" caption="Frete PrePaid" dataType="number" width="110"
+                            format="decimal" [editorOptions]="{
+                            format: 'decimal',
+                            precision: 3,
+                            showClearButton: true }">
+                            <dxo-format type="fixedPoint" [precision]="3">
+                            </dxo-format>
+                        </dxi-column>
+                        <dxi-column dataField="ValorFretePPUN" caption="Moeda" width="60" alignment="right">
+                        </dxi-column>
+                        <dxi-column dataField="ValorFreteFC" caption="Frete Collect" dataType="number" width="110"
+                            format="decimal" [editorOptions]="{
+                            format: 'decimal',
+                            precision: 3,
+                            showClearButton: true }">
+                            <dxo-format type="fixedPoint" [precision]="3">
+                            </dxo-format>
+                        </dxi-column>
+                        <dxi-column dataField="ValorFreteFCUN" caption="Moeda" width="90" alignment="right">
+                        </dxi-column>
+                    </dxi-column>
+                    <dxi-column caption="Outras Informações" [visible]="true">
+                        <dxi-column dataField="DataEmissaoXML" caption="Data/Hora Emissão" width="140"
+                            dataType="datetime">
+                        </dxi-column>
+                        <dxi-column dataField="UsuarioCriacao" caption="Usuário Criação" width="140">
+                        </dxi-column>
+                        <dxi-column dataField="DataCriacao" caption="Data/Hora Criação" width="140" dataType="datetime">
+                        </dxi-column>
+                    </dxi-column>
+                    <dxi-column caption="Informações RFB">
+                        <dxi-column dataField="SituacaoRFB" width="140" caption="Status" [allowEditing]="false">
+                            <dxo-lookup [dataSource]="statusRFB" displayExpr="Descricao" valueExpr="Id">
+                            </dxo-lookup>
+                        </dxi-column>
+
+                        <dxi-column dataField="ProtocoloRFB" width="160" caption="Número Protocolo"
+                            [allowEditing]="false">
+                        </dxi-column>
+                        <dxi-column dataField="DataProtocoloRFB" width="170" caption="Data Protocolado"
+                            [allowEditing]="false">
+                        </dxi-column>
+                        <dxi-column dataField="CodigoErroRFB" width="130"></dxi-column>
+                        <dxi-column dataField="DescricoErroRFB" width="310" cssClass="word-wrap"></dxi-column>
+                    </dxi-column>
+                    <dxo-export [enabled]="true"></dxo-export>
+
+                    <div *dxTemplate="let cell of 'dataCellTemplate'">
+                        <dx-tag-box [value]="cell.value" [searchEnabled]="false" [acceptCustomValue]="true"
+                            [showMultiTagOnly]="false" [openOnFieldClick]="false" [items]="cell.value"
+                            [items]="cell.value" (onValueChanged)="OnNCMValueChanged($event, cell)">
+                        </dx-tag-box>
+                    </div>
+
+                    <div *dxTemplate="let master of 'detail'">
+                        <div class="master-detail-caption">Lista de Houses Associados</div>
+                        <dx-data-grid [dataSource]="master.data.Houses" [showBorders]="true" [columnAutoWidth]="true">
+                            <dxi-column dataField="Numero"></dxi-column>
+                            <dxi-column dataField="PesoTotalBruto"></dxi-column>
+                            <dxi-column dataField="PesoTotalBrutoUN"></dxi-column>
+                            <dxi-column dataField="TotalVolumes"></dxi-column>
+                            <dxi-column dataField="ValorFretePP"></dxi-column>
+                            <dxi-column dataField="ValorFretePPUN"></dxi-column>
+                            <dxi-column dataField="ValorFreteFC"></dxi-column>
+                            <dxi-column dataField="ValorFreteFCUN"></dxi-column>
+                            <dxi-column dataField="DescricaoMercadoria"></dxi-column>
+                            <dxi-column dataField="ConsignatarioNome"></dxi-column>
+                            <dxi-column dataField="ConsignatarioEndereco"></dxi-column>
+                            <dxi-column dataField="ConsignatarioPostal"></dxi-column>
+                            <dxi-column dataField="ConsignatarioCidade"></dxi-column>
+                            <dxi-column dataField="ConsignatarioPaisCodigo"></dxi-column>
+                            <dxi-column dataField="ConsignatarioSubdivisao"></dxi-column>
+                            <dxi-column dataField="ConsignatarioCNPJ"></dxi-column>
+                            <dxi-column dataField="Status"></dxi-column>
+                            <dxi-column dataField="SituacaoRFB"></dxi-column>
+                        </dx-data-grid>
+                    </div>
+                </dx-data-grid>
+            </div>
+        </div>
+    </div>
+</div>

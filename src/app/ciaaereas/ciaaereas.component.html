@@ -1,0 +1,124 @@
+<div class="main-content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card card-plain">
+                    <div class="header">
+                        <h4 class="title">Companhias Aéreas</h4>
+                        <p class="category">Lista de companhias aéreas</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <dx-data-grid id="dataGrid" #dataGrid keyExpr="CiaId" [dataSource]="dataSource" [columnAutoWidth]="true"
+                    [height]="400" [hoverStateEnabled]="true" [showBorders]="true"
+                    (onRowUpdating)="onRowUpdating($event)" (onRowInserting)="onRowInserting($event)"
+                    (onToolbarPreparing)="onToolbarPreparing($event)" (onEditorPreparing)="onEditorPreparing($event)">
+                    <dxo-load-panel [enabled]="false" [showPane]="false" [showIndicator]="false"></dxo-load-panel>
+                    <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[15, 25, 50, 100]"></dxo-pager>
+                    <dxo-editing mode="popup" [allowUpdating]="true" [allowAdding]="true"
+                        (onFieldDataChanged)="onFieldDataChanged($event)">
+                        <dxo-popup title="Editar/Incluir Companhia Aérea" [showTitle]="false" [width]="700"
+                            [height]="535">
+                        </dxo-popup>
+                        <dxo-form>
+                            <dxi-item itemType="group" caption="Informações da Companhia Aérea" [colCount]="2"
+                                [colSpan]="2">
+                                <dxi-item dataField="Nome" [editorOptions]="{ maxLength: 50 }">
+                                    <dxi-validation-rule type="required"></dxi-validation-rule>
+                                </dxi-item>
+                                <dxi-item dataField="CNPJ" [editorOptions]="{ maxLength: 14 }">
+                                    <dxi-validation-rule type="required"></dxi-validation-rule>
+                                    <dxi-validation-rule type="custom" [validationCallback]="validaCnpj"
+                                        message="CNPJ invalido!">
+                                    </dxi-validation-rule>
+                                </dxi-item>
+                                <dxi-item dataField="Endereco1" [editorOptions]="{ maxLength: 60 }">
+                                    <dxi-validation-rule type="required"></dxi-validation-rule>
+                                </dxi-item>
+                                <dxi-item dataField="Endereco2" [editorOptions]="{ maxLength: 60 }">
+                                </dxi-item>
+                                <dxi-item dataField="Cidade" [editorOptions]="{ maxLength: 60 }">
+                                    <dxi-validation-rule type="required"></dxi-validation-rule>
+                                </dxi-item>
+                                <dxi-item dataField="Estado" [editorOptions]="{ maxLength: 3 }">
+                                    <dxi-validation-rule type="required"></dxi-validation-rule>
+                                </dxi-item>
+                                <dxi-item dataField="Pais" [editorOptions]="{ maxLength: 2 }">
+                                    <dxi-validation-rule type="required"></dxi-validation-rule>
+                                </dxi-item>
+                                <dxi-item dataField="Numero" [editorOptions]="{ maxLength: 10 }">
+                                    <dxi-validation-rule type="required"></dxi-validation-rule>
+                                </dxi-item>
+                                <dxi-item itemType="EmptyItem" [colCount]="2" [colSpan]="2">
+                                    <br/>
+                                </dxi-item>
+                                <dxi-item *ngIf="newrowBotao" itemType="button" caption="Excluir" [buttonOptions]="buttonOptions">
+                                </dxi-item>
+                            </dxi-item>
+                        </dxo-form>
+                    </dxo-editing>
+                    <dxi-column type="buttons" caption="Editar" width="50">
+                        <dxi-button name="edit" hint="Editar" icon="edit"></dxi-button>
+                    </dxi-column>
+                    <dxo-selection mode="single"></dxo-selection>
+                    <dxo-scrolling mode="virtual"></dxo-scrolling>
+                    <dxo-paging [pageSize]="10"></dxo-paging>
+                    <dxi-column dataField="CiaID" [width]="70" caption="Id" [visible]="false"></dxi-column>
+                    <dxi-column dataField="Nome" width="220"></dxi-column>
+                    <dxi-column dataField="CNPJ" width="150" cellTemplate="cnpjTemplate">
+                        <div *dxTemplate="let data of 'cnpjTemplate'">
+                            {{ data.value | cnpj }}
+                        </div></dxi-column>
+                    <dxi-column dataField="Endereco1" width="220"></dxi-column>
+                    <dxi-column dataField="Endereco2" width="220"></dxi-column>
+                    <dxi-column dataField="Cidade" width="220"></dxi-column>
+                    <dxi-column dataField="Estado" width="70"></dxi-column>
+                    <dxi-column dataField="Pais" width="70"></dxi-column>
+                    <dxi-column dataField="Numero" caption="Código" width="120"></dxi-column>
+                    <dxi-column dataField="ArquivoCertificado" width="220"></dxi-column>
+                    <dxi-column dataField="DataExpiracaoCertificado" width="120"></dxi-column>
+                    <dxi-column type="buttons" caption="Novo Certificado" width="120">
+                        <dxi-button name="upload" hint="Enviar Novo Certifado" icon="upload"
+                            [onClick]="onClickCertificado"></dxi-button>
+                    </dxi-column>
+                    <dxo-export [enabled]="true"></dxo-export>
+                </dx-data-grid>
+                <dx-popup [width]="400" [height]="280" [showTitle]="true" title="Enviar Certificado Digital"
+                    [dragEnabled]="false" [closeOnOutsideClick]="false" [(visible)]="popupVisible">
+                    <div *dxTemplate="let data of 'content'">
+                        <p>
+                            <b>Arqiuvo Selecionado:</b>
+                            <span>{{ curfile ? curfile.name : '' }}</span>
+                        </p>
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown"
+                            (click)="onClickSelecionarCertificado()">Selecinar</a>
+                        <input #fileInput type="file" (change)="onFilesAdded()" style="display: none" />
+                        <div *ngIf="curfile != undefined" class="dx-field">
+                            <div class="dx-field-label">Password mode</div>
+                            <div class="dx-field-value" autocomplete="off">
+                                <dx-text-box [(mode)]="passwordMode" placeholder="Senha do Certificado" [showClearButton]="true" 
+                                [(value)]="textBoxValue" autocomplete="new-password">
+                                <dxi-button name="today" location="after" [options]="passwordButton"></dxi-button>
+                                    <dx-validator>
+                                        <dxi-validation-rule type="required"
+                                            message="Senha do Certificado Digital é requerida!">
+                                        </dxi-validation-rule>
+                                    </dx-validator>
+                                </dx-text-box>
+                                <br />
+                                <dx-button text="Salvar" (onClick)="onClickEnviarCertificado($event)"></dx-button>
+                            </div>
+                        </div>
+                        <div *ngIf="arquivoErro" class="alert alert-danger" role="alert">{{ arquivoErro }}</div>
+                    </div>
+                </dx-popup>
+            </div>
+        </div>
+    </div>
+</div>
+<dx-load-panel #loadPanel shadingColor="rgba(0,0,0,0.4)" [(visible)]="loadingVisible" [showIndicator]="true"
+    [showPane]="true" [shading]="false" [closeOnOutsideClick]="false">
+</dx-load-panel>

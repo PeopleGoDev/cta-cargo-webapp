@@ -1,0 +1,56 @@
+﻿<div
+  (click)="onFocus(input)"
+  [ngClass]="{
+    'a-input--disable': !!isDisabled,
+    'a-input--readonly': !!isReadonly,
+    'a-input--invalid': !!messageError,
+    'focus': blurInput || focusInput,
+    'a-input--date a-icon': isCalendar
+  }"
+  class="a-input"
+>
+  <label [attr.for]="inputId" [title]="label" *ngIf="!messageError || !isInternalError" class="a-input__label">
+    {{ label }}
+    <span *ngIf="afterLabel" class="a-input__label--after">
+      {{ afterLabel }}
+    </span>
+  </label>
+  <picture *ngIf="figureUrl && figureAlt" class="a-input__figure">
+    <img [alt]="figureAlt" [src]="figureUrl" class="a-input__figure-img" />
+  </picture>
+  <label
+    [attr.for]="inputId"
+    [innerHTML]="messageError"
+    [title]="messageError"
+    *ngIf="messageError && isInternalError"
+    class="a-input__label a-input__label--invalid-inner"
+  >
+  </label>
+  <input
+    (blur)="onBlur($event)"
+    (focus)="onFocus(input)"
+    (keydown)="pressKey($event)"
+    [(ngModel)]="value"
+    [attr.aria-disabled]="!!isDisabled"
+    [attr.aria-invalid]="messageError ? 'true' : null"
+    [attr.aria-required]="isRequired"
+    [disabled]="!!isDisabled"
+    [id]="inputId"
+    [maxlength]="maxlength"
+    [minlength]="minlength"
+    [name]="name"
+    [placeholder]="placeholder"
+    [readonly]="isReadonly"
+    [required]="isRequired"
+    [tabindex]="isReadonly ? -1 : 0"
+    [textMask]="mask"
+    [type]="type"
+    [autocomplete]="autocomplete"
+    #input
+    class="a-input__input {{ upperCase ? 'upperCase' : '' }}"
+  />
+</div>
+
+<gol-notification [hasError]="true" *ngIf="messageError && !isInternalError">
+  <span [innerHTML]="messageError"></span>
+</gol-notification>

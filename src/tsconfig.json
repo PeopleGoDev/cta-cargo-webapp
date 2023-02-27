@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "baseUrl": "",
+    "declaration": false,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "lib": ["es6", "dom"],
+    "mapRoot": "./",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "outDir": "../dist/out-tsc",
+    "sourceMap": true,
+    "target": "es5",
+    "allowJs":true,
+    "typeRoots": [
+      "../node_modules/@types"
+    ],
+    "paths": {
+      "jszip": ["node_modules/jszip/dist/jszip.min.js"],
+      "@core/*": ["app/@core/*"],
+      "@shared/*": ["app/@shared/*"]
+    }
+  },
+  "exclude": ["./environments/environment.dev.ts", "./environments/environment.prod.ts"]
+}

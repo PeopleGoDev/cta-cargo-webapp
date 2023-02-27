@@ -1,0 +1,16 @@
+::ng-deep .buttons-line {
+    display: flex;
+    flex-grow: 0;
+    width: 100%;
+    height: 35px;
+    font-size: 130%;
+    opacity: 0.6;
+    text-align: center;
+    justify-content: space-between;
+}
+
+::ng-deep .buttons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: baseline;
+}

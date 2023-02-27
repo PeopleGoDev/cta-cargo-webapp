@@ -1,0 +1,12 @@
+
+<div class="wrapper">
+  <div class="sidebar" data-color="orange" data-image="">
+      <app-sidebar></app-sidebar>
+      <div class="sidebar-background" style="background-image: url(assets/img/cargo-banner-03.jpg)"></div>
+  </div>
+
+  <div class="main-panel" #mainContent>
+      <navbar-cmp></navbar-cmp>
+      <router-outlet (activate)="onActivate($event)"></router-outlet>
+  </div>
+</div>

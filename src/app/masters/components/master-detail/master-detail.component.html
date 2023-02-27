@@ -1,0 +1,157 @@
+<div class="row">
+    <div class="col-md-3">
+        <h3 class="section-title">Informações do master</h3>
+    </div>
+    <div class="col-md-9">
+        <div class="row">
+            <div class="col-md-4 form-between-lines">
+                <app-input [isRequired]="true" inputId="full-name" label="Número do Master"
+                    placeholder="Digite o número do Master" type="text" name="full-name" [isReadonly]="readyOnly">
+                </app-input>
+            </div>
+            <div class="col-md-4 form-between-lines">
+                <app-input [isRequired]="true" inputId="full-name" label="Consolidado / Direto"
+                    placeholder="Selecionar consolidado ou direto" type="text" name="consolidated-name"
+                    [isReadonly]="readyOnly"></app-input>
+            </div>
+            <div class="col-md-4 form-between-lines">
+                <app-input [isRequired]="true" inputId="full-name" label="Hora da Emissão"
+                    placeholder="Digite a data de emissão" type="text" name="full-name" [isReadonly]="readyOnly">
+                </app-input>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 form-between-lines">
+                <app-select #selectSystem inputId="select" label="Porto de Origem" placeholder="Escolha uma opção"
+                    [list]="portList" [inputValue]="" [isDisabled]="false">
+                </app-select>
+            </div>
+            <div class="col-md-6 form-between-lines">
+                <app-input [isRequired]="true" inputId="full-name" label="Porto de Destino"
+                    placeholder="Entre com o peso total" type="text" name="consolidated-name" [isReadonly]="readyOnly">
+                </app-input>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row section-division">
+    <div class="col-md-3">
+        <h3 class="section-title">Dados do remetente</h3>
+    </div>
+    <div class="col-md-9">
+        <div class="row">
+            <div class="col-md-6 form-between-lines">
+                <app-input [isRequired]="true" inputId="full-name" label="Nome" placeholder="Digite o nome do remetente"
+                    type="text" name="full-name" [isReadonly]="readyOnly"></app-input>
+            </div>
+            <div class="col-md-6 form-between-lines">
+                <app-input [isRequired]="true" inputId="full-name" label="Endereço"
+                    placeholder="Entre com o endereço do remetente" type="text" name="consolidated-name"
+                    [isReadonly]="readyOnly"></app-input>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 form-between-lines">
+                <app-input [isRequired]="true" inputId="full-name" label="Cidade"
+                    placeholder="Digite a cidade do rementente" type="text" name="full-name" [isReadonly]="readyOnly">
+                </app-input>
+            </div>
+            <div class="col-md-6 form-between-lines">
+                <app-input [isRequired]="true" inputId="full-name" label="Código Postal"
+                    placeholder="Digite o postal do remetente" type="text" name="full-name" [isReadonly]="readyOnly">
+                </app-input>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 form-between-lines">
+                <app-input [isRequired]="true" inputId="full-name" label="Estado / Província"
+                    placeholder="Entre com o endereço do remetente" type="text" name="consolidated-name"
+                    [isReadonly]="readyOnly"></app-input>
+            </div>
+            <div class="col-md-6 form-between-lines">
+                <app-input [isRequired]="true" inputId="full-name" label="Código País"
+                    placeholder="Digite a cidade do rementente" type="text" name="full-name" [isReadonly]="readyOnly">
+                </app-input>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row section-division">
+    <div class="col-md-3">
+        <h3 class="section-title">Dados do destinatário</h3>
+    </div>
+    <div class="col-md-9">
+        <!-- Destinatário -->
+        <div class="row">
+            <div class="col-md-6 form-between-lines">
+                <app-input [isRequired]="true" inputId="full-name" label="Nome" placeholder="Digite o nome do remetente"
+                    type="text" name="full-name" [isReadonly]="readyOnly"></app-input>
+            </div>
+            <div class="col-md-6 form-between-lines">
+                <app-input [isRequired]="true" inputId="full-name" label="Endereço"
+                    placeholder="Entre com o endereço do remetente" type="text" name="consolidated-name"
+                    [isReadonly]="readyOnly"></app-input>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 form-between-lines">
+                <app-input [isRequired]="true" inputId="full-name" label="Cidade"
+                    placeholder="Digite a cidade do rementente" type="text" name="full-name" [isReadonly]="readyOnly">
+                </app-input>
+            </div>
+            <div class="col-md-6 form-between-lines">
+                <app-input [isRequired]="true" inputId="full-name" label="Código Postal"
+                    placeholder="Digite o postal do remetente" type="text" name="full-name" [isReadonly]="readyOnly">
+                </app-input>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 form-between-lines">
+                <app-input [isRequired]="true" inputId="full-name" label="Estado / Província"
+                    placeholder="Entre com o endereço do remetente" type="text" name="consolidated-name"
+                    [isReadonly]="readyOnly"></app-input>
+            </div>
+            <div class="col-md-6 form-between-lines">
+                <app-input [isRequired]="true" inputId="full-name" label="Código País"
+                    placeholder="Digite a cidade do rementente" type="text" name="full-name" [isReadonly]="readyOnly">
+                </app-input>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row  section-division">
+    <div class="col-md-3">
+        <h3 class="section-title">Informação da carga</h3>
+    </div>
+    <div class="col-md-9">
+        <div class="row">
+            <div class="col-md-4 form-between-lines">
+                <app-input [isRequired]="true" inputId="full-name" label="Quantidade Total"
+                    placeholder="Entre com a quantidade total" type="text" name="full-name" [isReadonly]="readyOnly">
+                </app-input>
+            </div>
+            <div class="col-md-4 form-between-lines">
+                <app-input [isRequired]="true" inputId="full-name" label="Peso Total"
+                    placeholder="Entre com o peso total" type="text" name="consolidated-name" [isReadonly]="readyOnly">
+                </app-input>
+            </div>
+            <div class="col-md-4 form-between-lines">
+                <app-input [isRequired]="true" inputId="full-name" label="Unidade Peso"
+                    placeholder="Entre com a unidade" type="text" name="full-name" [isReadonly]="readyOnly">
+                </app-input>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-8 form-between-lines">
+                <app-input [isRequired]="true" inputId="full-name" label="Descrição Mercadoria"
+                    placeholder="Entre com a quantidade total" type="text" name="full-name" [isReadonly]="readyOnly">
+                </app-input>
+            </div>
+            <div class="col-md-4 form-between-lines">
+                <app-input [isRequired]="true" inputId="full-name" label="Natureza da Carga"
+                    placeholder="Entre com o peso total" type="text" name="consolidated-name" [isReadonly]="readyOnly">
+                </app-input>
+            </div>
+        </div>
+    </div>
+</div>

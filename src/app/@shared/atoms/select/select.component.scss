@@ -1,0 +1,154 @@
+// @import './../../../../assets/sass/theme.scss';
+@import "theme";
+
+.m-select {
+    user-select: none;
+  }
+  
+  .m-select__fieldset {
+    position: relative;
+  
+    &::after {
+      content: $icons-arrow-right;
+      font-size: 1.0714em;
+      color: $theme-main-color-1;
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%) rotate(90deg);
+      right: rem(25);
+      transition: all .2s ease;
+    }
+  }
+  
+  .m-select__label {
+    cursor: pointer
+  }
+  
+  .m-select__accordion--active {
+    .m-select__fieldset::after {
+      transform: translateY(-50%) rotate(-90deg);
+    }
+  }
+  
+  .m-select__fieldset--hidden-arrow::after {
+    content: none;
+  }
+  
+  .m-select__focus {
+    cursor: pointer;
+  }
+  
+  .m-select__accordion--active,
+  .m-select__fieldset--active {
+      background-color: $theme-main-color-2;
+      color: $theme-main-color-10;
+  
+    .m-select__fieldset-input {
+      color: $theme-main-color-10;
+    }
+  }
+  
+  .m-select__content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.2s ease-out;
+  }
+  
+  .m-select__list {
+    margin-top: 0;
+    margin-bottom: 0;
+    border-left: solid rem(1) $theme-main-color-10;
+    border-right: solid rem(1) $theme-main-color-10;
+    list-style: none;
+    padding: rem(12) rem(20);
+    background-color: $theme-main-color-2;
+  
+    &--scroll {
+      max-height: rem(200);
+      overflow: auto;
+  
+      &::-webkit-scrollbar {
+        width: rem(10);
+      }
+  
+      &::-webkit-scrollbar-track {
+        background: none;
+        border-left: solid rem(1);
+        border-color: $theme-main-color-10;
+      }
+  
+      &::-webkit-scrollbar-thumb {
+        background-color: $theme-main-color-3;
+      }
+  
+      &::-webkit-scrollbar-thumb:hover {
+        background-color: $theme-main-color-1;
+      }
+    }
+  }
+  
+  .m-select__list-item {
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+  
+  .m-select__list-item--space {
+    padding-top: rem(8);
+    padding-bottom: rem(8);
+  }
+  
+  .m-select__list-anchor {
+    color: $theme-main-color-10;
+    border: none;
+    background: none;
+    cursor: pointer;
+    padding-top: rem(15);
+    padding-bottom: rem(15);
+    display: block;
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+  
+    &--selected {
+      text-decoration: underline;
+    }
+  
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+  
+  .m-select__fieldset {
+    margin: 0;
+    text-align: left;
+    width: 100%;
+    display: block;
+    transition: all .2s ease;
+  
+    &:disabled {
+      border-color: $theme-main-color-4;
+      opacity: 0.4;
+  
+      img {
+        filter: grayscale(1);
+      }
+  
+      .a-input__input,
+      .a-input__label {
+        color: $theme-main-color-3;
+      }
+    }
+  }
+  
+  .m-select__fieldset-input {
+    text-align: left;
+    padding-left: 0;
+    pointer-events: none;
+  }
+  
+  @media only screen and (max-width: $media-xs) {
+    .m-select__fieldset {
+      padding-right: rem(45);
+    }
+  }
+  

@@ -1,0 +1,35 @@
+<div class="master-detail">
+    <div class="master-detail-title"><strong>{{ uld.MasterNumero | master }}</strong></div>
+    <div class="master-info-box">
+        <div class="master-info-box-field"><span>PESO&nbsp;
+            <strong>{{ calculateTotalWeightsPerUld() | number:'1.1-5' }}&nbsp;/&nbsp;{{ uld.MasterPeso | number:'1.1-5' }}</strong></span>
+        </div>
+        <div class="master-info-box-field"><span>PESO Unidade&nbsp;
+            <strong>{{ uld.MasterPesoUnidade }}</strong></span>
+        </div>
+        <div class="master-info-box-field"><span>peças &nbsp;
+            <strong>{{ calculateTotalPiecesPerUld() }}&nbsp;/&nbsp;{{ uld.MasterPecas }}</strong></span>
+        </div>
+        <div class="master-info-box-field"><span>PeSO %&nbsp;
+            <strong>{{ calculateWeightPerFlight() | percent:'1.2' }}</strong></span>
+        </div>
+    </div>
+    
+    <div><span class="master-info-box-field">Localização Aeronave</span>
+        <div>
+            <div *ngFor="let uld of uld.Ulds, let i = index" class="uld-detail-container" [ngClass]="{'sumary-detail-container-alternate' : !uld.MesmoVoo }">
+                <div><span>
+                    <strong>#{{ i+1 }}&nbsp;{{ uld.UldNumero }}</strong>
+                    </span>
+                </div>
+                <div><strong>Peças:&nbsp;</strong>{{ uld.QuantidadePecas | number:'1.0-0' }}</div>
+                <div><strong>Peso:&nbsp;</strong>{{ uld.Peso | number:'1.1-5' }}&nbsp;({{ uld.PesoUnidade }})</div>
+                <div><strong>Total/Parcial:&nbsp;</strong>{{ uld.TotalParcial }}</div>
+                <div><strong>Voo Número:&nbsp;</strong>{{ uld.VooNumero | voo }}</div>
+                <div><strong>Mesmo Voo:&nbsp;</strong>{{ uld.MesmoVoo ? 'Sim': 'Não' }}</div>
+                <div><strong>Chegada Estimada:&nbsp;</strong>{{ uld.DataHoraChegadaEstimada | date:"dd/MM HH:mm"}}</div>
+                <div><strong>Chegada Atual:&nbsp;</strong>{{ uld.DataHoraChegadaReal | date:"dd/MM HH:mm" }}</div>
+            </div>
+        </div>
+    </div>
+</div>

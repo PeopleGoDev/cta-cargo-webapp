@@ -1,0 +1,133 @@
+<div class="main-content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card card-plain">
+                    <div class="header">
+                        <h4 class="title">Receita Federal</h4>
+                        <p class="category">Submeter Houses</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12" style="margin-bottom: 10px;">
+                <dx-toolbar>
+                    <dxi-item location="before">
+                        <div *dxTemplate>
+                            <div id="panel1" #panel1 style="display: table; vertical-align: middle;">
+                                <div style="display: table-cell">Data de Processamento&nbsp;</div>
+                                <div style="display: table-cell">
+                                    <dx-date-box [value]="filtroDataProcessamento" type="date" width="115"
+                                        (onValueChanged)="onDataProcessamentoChanged($event)"></dx-date-box>
+                                </div>
+                            </div>
+                        </div>
+                    </dxi-item>
+                    <dxi-item location="after" widget="dxButton" [options]="refreshIcon">
+                    </dxi-item>
+                </dx-toolbar>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12" style="margin-bottom: 10px;">
+                <dx-toolbar>
+                    <dxi-item location="before">
+                        <div *dxTemplate>
+                            <div id="panel1" #panel1 style="display: table; vertical-align: middle;">
+                                <div style="display: table-cell">
+                                    <dx-button-group [items]="botoesGBItems" accessKey="agenteid" keyExpr="agenteid"
+                                        stylingMode="text" [selectedItemKeys]="[curAgenteDeCarga]"
+                                        (onItemClick)="onItemClick($event)">
+                                    </dx-button-group>
+                                </div>
+                            </div>
+                        </div>
+                    </dxi-item>
+                </dx-toolbar>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <dx-data-grid id="tasks" [dataSource]="dataHouse" #masterDataGrid keyExpr="HouseId"
+                    [columnAutoWidth]="true" [wordWrapEnabled]="true" [showBorders]="true"
+                    (onRowPrepared)="onGridRowPrepared($event)">
+                    <dxi-column dataField="Numero" caption="Número" [width]="150" cellTemplate="awbTemplate">
+                        <div *dxTemplate="let data of 'awbTemplate'">
+                            <i *ngIf="data.data.StatusId == 1" class="dx-icon-check" style="color: green"></i>
+                            <i *ngIf="data.data.StatusId == 0" class="dx-icon-info" style="color: blue"></i>
+                            {{ data.value }}<br />
+                            {{ statusData[data.data.StatusId].Descricao}}
+                        </div>
+                    </dxi-column>
+                    <dxi-column caption="Peso/Volume">
+                        <dxi-column dataField="TotalPecas" caption="Volumes" dataType="number" [width]="70">
+                        </dxi-column>
+                        <dxi-column dataField="PesoTotalBruto" caption="Peso Total" dataType="number" format="decimal"
+                            [editorOptions]="{
+                            format: 'decimal',
+                            precision: 3,
+                            showClearButton: true }" [width]="90">
+                            <dxo-format type="fixedPoint" [precision]="3">
+                            </dxo-format>
+                        </dxi-column>
+                        <dxi-column dataField="PesoTotalBrutoUN" caption="Peso Unidade" alignment="right" [width]="90">
+                        </dxi-column>
+                        <dxi-column dataField="DescricaoMercadoria" caption="Desc Merc" [width]="170"></dxi-column>
+                    </dxi-column>
+                    <dxi-column caption="Valor Frete">
+                        <dxi-column dataField="ValorFretePP" caption="Frete PrePaid" dataType="number" format="decimal"
+                            [editorOptions]="{
+                            format: 'decimal',
+                            precision: 3,
+                            showClearButton: true }" [width]="100">
+                            <dxo-format type="fixedPoint" [precision]="3">
+                            </dxo-format>
+                        </dxi-column>
+                        <dxi-column dataField="ValorFretePPUN" caption="Moeda" alignment="right" [width]="70">
+                        </dxi-column>
+                        <dxi-column dataField="ValorFreteFC" caption="Frete Collect" dataType="number" format="decimal"
+                            [editorOptions]="{
+                            format: 'decimal',
+                            precision: 3,
+                            showClearButton: true }" [width]="100">
+                            <dxo-format type="fixedPoint" [precision]="3">
+                            </dxo-format>
+                        </dxi-column>
+                        <dxi-column dataField="ValorFreteFCUN" caption="Moeda" alignment="right" [width]="70">
+                        </dxi-column>
+                    </dxi-column>
+                    <dxi-column caption="Outras Informações" [visible]="true">
+                        <dxi-column dataField="SituacaoRFB" caption="Situação RFB" [width]="110">
+                            <dxo-lookup [dataSource]="statusRFB" displayExpr="Descricao" valueExpr="Id">
+                            </dxo-lookup>
+                        </dxi-column>
+                        <dxi-column dataField="DescricoErroRFB" caption="Erro RFB">
+                        </dxi-column>
+                    </dxi-column>
+                </dx-data-grid>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12" style="margin-top: 20px;">
+                <dx-button stylingMode="contained" text="Upload" type="normal" [width]="120"
+                    [disabled]="!botaoUploadEnabled" icon="upload" (onClick)="onClickUpload($event)">
+                </dx-button>
+            </div>
+        </div>
+    </div>
+</div>
+<dx-popup #popconfirm [width]="400" [height]="280" [showTitle]="true" title="Atenção!" [dragEnabled]="false"
+    [closeOnOutsideClick]="false" [showCloseButton]="true" container=".dx-viewport">
+    <p>Você tem certeza que deseja submeter os Houses para a Receita Federal?</p>
+    <div class="buttons-line">
+        <div>
+            <dx-button stylingMode="contained" text="Confirmar" type="normal" [width]="120" (onClick)="popUpConfirm.visible = false">
+            </dx-button>
+        </div>
+        <div>
+            <dx-button stylingMode="outlined" text="Cancelar" type="normal" [width]="120" (onClick)="popUpConfirm.visible = false">
+            </dx-button>
+        </div>
+    </div>
+</dx-popup>

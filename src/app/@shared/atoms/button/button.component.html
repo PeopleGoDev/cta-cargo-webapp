@@ -1,0 +1,24 @@
+<button
+  #button
+  class="a-btn {{ customClass }}"
+  [id]="id"
+  [type]="type"
+  [attr.aria-disabled]="isDisabled || isDisabledOpacity"
+  [disabled]="isDisabled || isDisabledOpacity"
+  [ngClass]="{
+    'a-btn--lower': isLower,
+    'a-btn--orange': isButtonOrange,
+    'a-btn--disabled': isDisabled,
+    'a-btn--disabled-opacity': isDisabledOpacity,
+    'a-btn--mobile-full': mobileFull,
+    'a-btn--block': isBlock,
+    'a-btn--bright': isBright,
+    'a-btn--transparent': isTransparent,
+    'a-btn--just': isJust,
+    'a-btn--is-bg-transparent': isBgTransparent && !isButtonOrange && !isBright,
+    'a-btn--loading': loading,
+    'a-btn--spaced': isSpaced
+  }"
+  (click)="onClickButton($event)">
+  <ng-content></ng-content>
+</button>

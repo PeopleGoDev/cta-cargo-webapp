@@ -1,0 +1,202 @@
+<div class="main-content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card card-plain">
+                    <div class="header">
+                        <h4 class="title">Voos</h4>
+                        <p class="category">Lista dos últimos Voos </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <dx-data-grid id="dataGrid" #dataGrid [dataSource]="voosData" keyExpr="VooId"
+                    [hoverStateEnabled]="true" [showBorders]="true" [columnAutoWidth]="true" [height]="400"
+                    [masterDetail]="{ enabled: false, template: 'detail' }" (onRowUpdating)="onRowUpdating($event)"
+                    (onRowInserting)="onRowInserting($event)" (onToolbarPreparing)="onToolbarPreparing($event)"
+                    (onEditorPreparing)="onEditorPreparing($event)" (onRowPrepared)="onRowPrepared($event)">
+                    <dxo-header-filter [visible]="true"></dxo-header-filter>
+                    <dxo-selection mode="single"></dxo-selection>
+                    <dxo-load-panel [enabled]="false" [showPane]="false" [showIndicator]="false"></dxo-load-panel>
+                    <dxo-scrolling mode="virtual"></dxo-scrolling>
+                    <dxo-paging [pageSize]="10"></dxo-paging>
+                    <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[5, 10, 20]" [showInfo]="true">
+                    </dxo-pager>
+                    <dxo-column-chooser [enabled]="true" mode="dragAndDrop"></dxo-column-chooser>
+                    <dxo-export [enabled]="true"></dxo-export>
+                    <dxo-editing mode="popup" [allowUpdating]="true" [allowAdding]="true">
+                        <dxo-popup title="Editar/Incluir Voo" [showTitle]="false" [width]="850" [height]="475">
+                            <dxi-toolbar-item widget="dxButton" location="after" toolbar="bottom" [options]="{
+                                text: 'Salvar',
+                                onClick: onEditSave,
+                                visible: somenteLeitura == false
+                            }">
+                            </dxi-toolbar-item>
+                            <dxi-toolbar-item widget="dxButton" location="after" toolbar="bottom" [options]="{
+                                text: 'Cancelar',
+                                onClick: onEditCancel
+                            }">
+                            </dxi-toolbar-item>
+                            <dxi-toolbar-item *ngIf="somenteLeitura && curgridKey > 0" widget="dxButton"
+                                location="before" toolbar="bottom" [options]="{
+                                text: 'Reenviar Voo',
+                                type: 'default',
+                                onClick: onResendFlight
+                            }">
+                            </dxi-toolbar-item>
+                            <dxi-toolbar-item *ngIf="somenteLeitura == false && curgridKey > 0" widget="dxButton"
+                                location="before" toolbar="bottom" [options]="{
+                                text: 'Excluir',
+                                type: 'danger',
+                                onClick: onEditDelete
+                            }">
+                            </dxi-toolbar-item>
+                        </dxo-popup>
+                        <dxo-form>
+                            <dxi-item itemType="group" caption="Informações do Voo" [colCount]="2" [colSpan]="2">
+                                <dxi-item dataField="Numero"
+                                    [editorOptions]="{ maxLength: 6, inputAttr: {'style': 'text-transform: uppercase'} }">
+                                </dxi-item>
+                                <dxi-item dataField="DataVoo">
+                                </dxi-item>
+                                <dxi-item dataField="AeroportoOrigemCodigo" [editorOptions]="{ maxLength: 3 }">
+                                    <dxi-validation-rule type="required"></dxi-validation-rule>
+                                    <dxi-validation-rule type="stringLength" min="3"
+                                        message="Código porto requer 3 caracteres!"></dxi-validation-rule>
+                                </dxi-item>
+                                <dxi-item dataField="AeroportoDestinoCodigo" [editorOptions]="{ maxLength: 3 }">
+                                    <dxi-validation-rule type="required"></dxi-validation-rule>
+                                    <dxi-validation-rule type="stringLength" min="3"
+                                        message="Código porto requer 3 caracteres!"></dxi-validation-rule>
+                                </dxi-item>
+                            </dxi-item>
+                            <dxi-item itemType="group" caption="Datas" [colCount]="2" [colSpan]="2">
+                                <dxi-item dataField="DataHoraSaidaReal">
+                                    <dxi-validation-rule type="required" message="Saida Real requerida!"></dxi-validation-rule>
+                                </dxi-item>
+                                <dxi-item dataField="DataHoraChegadaEstimada">
+                                    <dxi-validation-rule type="required" message="Data de Chegada Estimada requerida!"></dxi-validation-rule>
+                                </dxi-item>
+                                <!-- <dxi-item dataField="DataHoraChegadaEstimada">
+                                    <dxi-validation-rule type="required" message="Chegada Estimada requerida!"></dxi-validation-rule>
+                                    <dxi-validation-rule type="compare" comparisonType=">"
+                                        [comparisonTarget]="onDataChegadaEstimadaValidation"
+                                        message="A data estimada de chegada dever maior que a data de saida estimada!">
+                                    </dxi-validation-rule>
+                                    <dxi-validation-rule type="compare" comparisonType=">"
+                                        [comparisonTarget]="onDataChegadaRealValidation"
+                                        message="A data estimada de chegada dever maior que a data de saida real!">
+                                    </dxi-validation-rule>
+                                </dxi-item> -->
+                                <dxi-item dataField="DataHoraChegadaReal"></dxi-item>
+                                <dxi-item dataField="DataHoraSaidaEstimada">
+                                    <dxi-validation-rule type="required" message="Saida Estimada requerida!"></dxi-validation-rule>
+                                </dxi-item>
+                            </dxi-item>
+                        </dxo-form>
+                    </dxo-editing>
+                    <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[10, 25, 50, 100]"></dxo-pager>
+                    <dxi-column type="buttons" width="50" caption="Editar">
+                        <dxi-button name="edit" hint="Editar" icon="edit" [visible]="isEditVisible"></dxi-button>
+                        <dxi-button name="edit" hint="Visualizar" icon="check" [visible]="isViewVisible"></dxi-button>
+                    </dxi-column>
+                    <dxi-column caption="Informações Voo">
+                        <dxi-column dataField="Numero" width="110"></dxi-column>
+                        <dxi-column dataField="DataVoo" width="110" dataType="date" format="shortDate"></dxi-column>
+                        <dxi-column dataField="DataHoraSaidaEstimada" width="150" caption="Saida Estimada"
+                            dataType="datetime" editCellTemplate="dataCellTemplate">
+                        </dxi-column>
+                        <dxi-column dataField="DataHoraSaidaReal" width="150" caption="Saida Atual" 
+                            dataType="datetime" editCellTemplate="dataCellTemplate">
+                        </dxi-column>
+                        <dxi-column dataField="DataHoraChegadaEstimada" width="150" caption="Chegada Estimada"
+                            dataType="datetime"></dxi-column>
+                        <dxi-column dataField="DataHoraChegadaReal" width="150" caption="Chegada Atual"
+                            dataType="datetime">
+                        </dxi-column>
+                        <dxi-column dataField="StatusId" width="160" caption="Status" [allowEditing]="false">
+                            <dxo-lookup [dataSource]="statusData" displayExpr="Descricao" valueExpr="Id">
+                            </dxo-lookup>
+                        </dxi-column>
+                        <dxi-column dataField="AeroportoOrigemCodigo" width="110" caption="Porto Origem">
+                        </dxi-column>
+                        <dxi-column dataField="AeroportoDestinoCodigo" width="110" caption="Porto Destino">
+                        </dxi-column>
+                    </dxi-column>
+                    <dxi-column caption="Informações Carga" [visible]="false">
+                        <dxi-column dataField="PesoBruto" [visible]="false"></dxi-column>
+                        <dxi-column dataField="PesoBrutoUnidade" [visible]="false"></dxi-column>
+                        <dxi-column dataField="Volume" [visible]="false"></dxi-column>
+                        <dxi-column dataField="VolumeUnidade" [visible]="false"></dxi-column>
+                        <dxi-column dataField="TotalPacotes" [visible]="false"></dxi-column>
+                        <dxi-column dataField="TotalPecas" [visible]="false"></dxi-column>
+                    </dxi-column>
+                    <dxi-column caption="Informações RFB">
+                        <dxi-column dataField="SituacaoRFBId" width="110" caption="Status" [allowEditing]="false">
+                            <dxo-lookup [dataSource]="statusRFB" displayExpr="Descricao" valueExpr="Id">
+                            </dxo-lookup>
+                        </dxi-column>
+                        <dxi-column dataField="ProtocoloRFB" width="160" caption="Número Protocolo"
+                            [allowEditing]="false">
+                        </dxi-column>
+                        <dxi-column dataField="DataProtocoloRFB" width="170" caption="Data Protocolado"
+                            [allowEditing]="false">
+                        </dxi-column>
+                        <dxi-column dataField="ErroCodigoRFB" width="130"></dxi-column>
+                        <dxi-column dataField="ErroDescricaoRFB" width="310"></dxi-column>
+                    </dxi-column>
+
+                    <dxi-column caption="Ações RFB" [visible]="false">
+                        <dxi-column type="buttons" caption="Confirmação de Saida" width="120" [visible]="false">
+                            <dxi-button name="upload" hint="Enviar Confirmação de Saida" icon="check"
+                                [onClick]="onClickCertificado"></dxi-button>
+                        </dxi-column>
+                        <dxi-column type="buttons" caption="Confirmação de Chegada" width="120" [visible]="false">
+                            <dxi-button name="upload" hint="Enviar Confirmação de Chegada" icon="check"
+                                [onClick]="onClickCertificado"></dxi-button>
+                        </dxi-column>
+                    </dxi-column>
+                    <dxi-column caption="Outras Informações">
+                        <dxi-column dataField="UsuarioCriacao" width="150" caption="Usuário Criação">
+                        </dxi-column>
+                        <dxi-column dataField="DataCriacao" width="150" caption="Data/Hora Criação" dataType="datetime">
+                        </dxi-column>
+                    </dxi-column>
+
+                    <div *dxTemplate="let data of 'dataInicalTemplate'">
+                        Data Inicial&nbsp;
+                    </div>
+                    <div *dxTemplate="let data of 'dataFinalTemplate'">
+                        Data Final&nbsp;
+                    </div>
+                    <div *dxTemplate="let cell of 'dataCellTemplate'">
+                        <dx-date-box [value]="cell.value" type="datetime" (onValueChanged)="onDataSaidaEstimadaChanged($event, cell)">
+                        </dx-date-box>
+                    </div>
+                    <div *dxTemplate="let voo of 'detail'">
+                        <div class="master-detail-caption">Lista de Masters Associado</div>
+                        <dx-data-grid [dataSource]="voo.data.Masters" [showBorders]="true" [columnAutoWidth]="true">
+                            <dxi-column dataField="Numero"></dxi-column>
+                            <dxi-column dataField="CodigoTipo"></dxi-column>
+                            <dxi-column dataField="Peso"></dxi-column>
+                            <dxi-column dataField="PesoUnidade"></dxi-column>
+                            <dxi-column dataField="Volume"></dxi-column>
+                            <dxi-column dataField="VolumeUnidade"></dxi-column>
+                            <dxi-column dataField="TotalPecas"></dxi-column>
+                            <dxi-column dataField="DescricaoSumaria"></dxi-column>
+                            <dxi-column dataField="PortoOrigemCodigo"></dxi-column>
+                            <dxi-column dataField="PortoOrigemDesc"></dxi-column>
+                            <dxi-column dataField="PortoDestinoCodigo"></dxi-column>
+                            <dxi-column dataField="PortoDestinoDesc"></dxi-column>
+                            <dxi-column dataField="CodigoDescricaoManuseio"></dxi-column>
+                            <dxi-column dataField="CodigoStatusMercadoriaAlfandega"></dxi-column>
+                            <dxi-column dataField="DescricaoTrasnporteDividido"></dxi-column>
+                        </dx-data-grid>
+                    </div>
+                </dx-data-grid>
+            </div>
+        </div>
+    </div>
+</div>

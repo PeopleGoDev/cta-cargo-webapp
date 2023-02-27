@@ -1,0 +1,18 @@
+@media print {
+    /* invert the display (show/hide) properties of the main */
+    /* aplication component and the printing component       */
+  
+    .printable {
+      display: block;
+    }
+  
+    .no-printable {
+      display: none;
+    }
+
+    @page {
+        size: landscape;
+        margin-left: 0;
+        margin-right: 0;
+    }
+  }

@@ -1,0 +1,65 @@
+<div class="sidebar-wrapper">
+    <div class="logo">
+        <a [routerLink]="" class="simple-text">
+            <div class="logo-img">
+                <img src="/assets/img/flying plane_1567082.png"/>
+            </div>
+            {{company}}
+        </a>
+    </div>
+    <ul class="nav responsive-nav">
+        <li *ngIf="isMobileMenu()">
+            <a class="dropdown-toggle" data-toggle="dropdown">
+                <i class="fa fa-dashboard"></i>
+				<p class="hidden-lg hidden-md">Painel</p>
+            </a>
+        </li>
+        <li class="dropdown" *ngIf="isMobileMenu()">
+              <a class="dropdown-toggle" data-toggle="dropdown">
+                    <i class="fa fa-globe"></i>
+                    <b class="caret hidden-sm hidden-xs"></b>
+                    <span class="notification hidden-sm hidden-xs">5</span>
+					<p class="hidden-lg hidden-md">
+						Manifestar Voos
+						<b class="caret"></b>
+					</p>
+              </a>
+              <ul class="dropdown-menu">
+                <li><a href="#">Another notification</a></li>
+              </ul>
+        </li>
+        <li *ngIf="isMobileMenu()">
+           <a>
+                <i class="fa fa-search"></i>
+				<p class="hidden-lg hidden-md">Search</p>
+            </a>
+        </li>
+        <li class="dropdown" *ngIf="isMobileMenu()">
+              <a class="dropdown-toggle" data-toggle="dropdown">
+                    <p>
+    					Cadastro
+    					<b class="caret"></b>
+    				</p>
+              </a>
+              <ul class="dropdown-menu">
+                <li><a href="#">Companhias Aéreas</a></li>
+                <li><a href="#">Clientes</a></li>
+                <li class="divider"></li>
+                <li><a href="#">Clientes</a></li>
+              </ul>
+        </li>
+        <li *ngIf="isMobileMenu()">
+            <a [routerLink]="" class="dropdown-toggle" data-toggle="dropdown" (click)="logout()">
+                <i class="fa fa-power-off"></i>
+				<p class="hidden-lg hidden-md">Sair</p>
+            </a>
+        </li>
+        <li class="separator hidden-lg hidden-md" *ngIf="isMobileMenu()"></li>
+        <li routerLinkActive="active" *ngFor="let menuItem of menuItems" class="{{menuItem.class}}">
+            <a [routerLink]="[menuItem.path]">
+                <i class="{{menuItem.icon}}"></i>
+                <p>{{menuItem.title}}</p>
+            </a>
+        </li>
+    </ul>
+</div>

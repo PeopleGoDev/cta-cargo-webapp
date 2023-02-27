@@ -1,0 +1,207 @@
+﻿@import "theme";
+
+// NAMED COLORS
+// $color-black: #000;
+// $color-white: #fff;
+// $blue: #007895;
+// $blue-2: #526FBE;
+// $blue-3: #4774A3;
+// $blue-4: #01A3B5;
+// $blue-5: #003581;
+// $blue-6: #c2dbea;
+// $cyan: #009A8B;
+// $cyan-2: #007F7C;
+// $cyan-3: #1bb7c7;
+// $gold: #A88333;
+// $graphite: #2b2b2b;
+// $graphite-2: #231F20;
+// $gray: #767676;
+// $gray-2: #DDDDDD;
+// $gray-3: #636466;
+// $gray-4: #BBBCBC;
+// $gray-5: #3B3B3B;
+// $gray-6: #4F4743;
+// $gray-7: #f5f4f2;
+// $gray-8: #444444;
+// $gray-9: #999;
+// $gray-10: #333;
+// $green: #70D44B;
+// $green-2: #5bb88e;
+// $green-3: #b3dbdb;
+// $off-white: #F9F9F9;
+// $off-white-2: #FDF9F7;
+// $off-white-3: #dcdcdc;
+// $orange: #ff5e00;
+// $orange-2: #FF5A00;
+// $orange-3: #ff7020;
+// $purple: #7A2E87;
+// $purple-2: #732846;
+// $purple-3: #ba505f;
+// $red: #9f2027;
+// $yellow: #ffe09f;
+// $yellow-2: #fcf6f0;
+// $invisible: transparent;
+// $rentCars: #020100;
+// $booking: #003680;
+// $estapar: #151517;
+// $localiza: #00974a;
+// $mytravel: #00324b;
+
+// $theme-main-color-1: $orange;
+// $theme-main-color-2: $graphite;
+// $theme-main-color-3: $gray;
+// $theme-main-color-4: $gray-2;
+// $theme-main-color-5: $off-white;
+// $theme-main-color-6: $blue;
+// $theme-main-color-7: $red;
+// $theme-main-color-8: $cyan;
+// $theme-main-color-9: $gray-5;
+// $theme-main-color-10: $color-white;
+// $theme-main-color-11: $color-black;
+// $theme-main-color-12: $off-white-3;
+// $theme-main-color-13: $gray-7;
+// $theme-main-color-14: $orange-3;
+// $theme-main-color-15: $cyan-3;
+// $theme-main-color-16: $green-2;
+// $theme-main-color-17: $purple-3;
+// $theme-main-color-18: $gray-8;
+// $theme-main-color-19: $mytravel;
+
+// $icons-alert-round: '\e909';
+// $icons-calendar-outline: '\e991';
+
+// $fontfamily-icon: 'Gol-pss';
+// $fontweight-medium: 500;
+// $media-xs: 767px;
+
+.upperCase{
+  text-transform: uppercase;
+}
+
+.a-input {
+  font-size: 1em;
+  padding: 1.5rem  1.7857rem;
+  background-color: $theme-main-color-10;
+  border: 0.071rem solid $theme-main-color-12;
+  position: relative;
+  transition: all .2s ease;
+
+  &--disable {
+    border-color: $theme-main-color-4;
+    pointer-events: none;
+    user-select: none;
+
+    .a-input__input,
+    .a-input__label {
+      color: $theme-main-color-3;
+      opacity: 0.4;
+    }
+  }
+
+  &--readonly {
+    background-color: $theme-main-color-5;
+    pointer-events: none;
+    user-select: none;
+
+    .a-input__input {
+      color: $theme-main-color-3;
+      font-weight: $fontweight-medium;
+    }
+  }
+
+  &--invalid,
+  &.--invalid {
+    border-color: $theme-main-color-7;
+    z-index: 2;
+  }
+
+  &--date {
+    padding-right: 4.2871rem;
+  }
+
+  &--date::after {
+    content: $icons-calendar-outline;
+    position: absolute;
+    font-size: 1.4285em;
+    color: $theme-main-color-3;
+    opacity: 0.4;
+    top: 50%;
+    transform: translateY(-50%);
+    right: 1.7142rem;
+  }
+}
+
+.a-input.focus, .a-input--active {
+  background-color: $theme-main-color-2;
+
+  & .a-input__label,
+  .a-input__input {
+    color: $theme-main-color-10;
+  }
+}
+
+.a-input__label {
+  color: $theme-main-color-3;
+  display: block;
+  text-transform: uppercase;
+  font-weight: $fontweight-medium;
+  font-size: 0.9285em;
+  margin-bottom: 0.5714rem;
+  cursor: pointer;
+
+  &--invalid-inner {
+    color: $theme-main-color-7;
+
+    &::before {
+        content: $icons-alert-round;
+        font-size: 1em;
+        margin-right: 0.5rem;
+        vertical-align: text-bottom;
+        color: $theme-main-color-7;
+        font-family: $fontfamily-icon;
+        font-style: normal;
+        font-weight: normal;
+        font-variant: normal;
+        line-height: 1;
+        display: inline-block;
+        text-transform: none;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+    }
+}
+
+.a-input__input {
+  display: block;
+  font-size: 1.0714em;
+  background-color: $invisible;
+  width: 100%;
+  border: none;
+  outline: none;
+
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  &[type=number] {
+    -moz-appearance: textfield;
+  }
+}
+
+.a-input__figure {
+  position: absolute;
+  right: 1.7857rem;
+  bottom: 1.3571rem;
+  }
+
+@media only screen and (max-width: $media-xs) {
+  .a-input {
+    padding: 1.4285rem 1.0714rem;
+  }
+}
+
+
+
+

@@ -1,0 +1,101 @@
+.a-btn {
+    border: 0.1rem solid #2b2b2b;
+    color: #FFF;
+    padding: 1.6rem 3.6rem;
+    text-transform: uppercase;
+    font-weight: 600;
+    line-height: 1;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    background-color: white;
+}
+
+.a-btn--orange {
+    border-color: #e77021;
+    background-color: #e77021;
+}
+
+.a-btn--bright {
+    color: white;
+    border-color: white;
+    background-color: lightgray;
+}
+
+.a-btn--transparent {
+    color: white;
+    border-color: white;
+    background-color: transparent;
+    font-weight: 500;
+}
+
+.a-btn--disabled,
+.a-btn--disabled[disabled] {
+    pointer-events: none;
+    user-select: none;
+    color: gray !important;
+    background-color: #DDDDDD !important;
+    border-color: #DDDDDD !important;
+}
+
+.a-btn:hover,
+    .a-btn:focus {
+    color: white !important;
+    background-color: #2b2b2b !important;
+    border-color: #2b2b2b !important;
+}
+
+.a-btn--disabled-opacity,
+.a-btn--disabled-opacity[disabled] {
+    border-color: gray !important;
+    pointer-events: none;
+    user-select: none;
+    opacity: 0.6;
+}
+
+.a-btn--lower {
+    text-transform: none;
+}
+
+.a-btn--block {
+    display: block;
+    width: 100%;
+}
+
+.a-btn--is-bg-transparent {
+    background-color: transparent;
+}
+
+.a-btn--loading {
+    position: relative;
+    padding-left: 5.0rem;
+    padding-right: 2.2rem;   
+}
+
+.a-btn--loading::before {
+    content: '';
+    display: block;
+    width: 1.8rem;
+    height: 1.8rem;
+    background-image: url('/assets/img/loading.svg');
+    background-repeat: no-repeat;
+    background-size: contain;
+    position: absolute;
+    left: 2.2rem;
+    top: 1.3rem;
+    animation: loading 2s infinite linear;
+}
+
+.a-btn--link {
+    text-decoration: none;
+}
+
+.a-btn--spaced {
+    padding-top: 2.3rem;
+    padding-bottom: 2.3rem;
+}
+
+.a-btn__loading {
+    height: 1.8rem;
+    margin-right: 2.0rem;
+}

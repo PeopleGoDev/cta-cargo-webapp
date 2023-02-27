@@ -1,0 +1,72 @@
+﻿<div class="m-select">
+  <div [ngClass]="{ 'm-select__accordion--active': isActive }" class="m-select__accordion">
+    <div class="m-select__focus">
+      <fieldset
+        (click)="input.focus()"
+        (keydown.enter)="activeAcordion($event, input)"
+        [attr.aria-controls]="'select-' + inputId"
+        [attr.aria-disabled]="isDisabled"
+        [attr.aria-expanded]="isActive ? 'true' : null"
+        [disabled]="isDisabled"
+        [ngClass]="{
+          'a-input--active': isActive,
+          'a-input--invalid': messageError
+        }"
+        class="a-icon a-input m-select__fieldset"
+        role="button">
+        <legend hidden>{{ label }}</legend>
+        <label (click)="labelPrevent($event)" [attr.for]="inputId" [id]="'label-' + inputId" class="a-input__label m-select__label">
+          {{ label }}
+        </label>
+        <input
+          (blur)="onBlur($event)"
+          (focus)="activeAcordion($event, input)"
+          (keydown.arrowdown)="selectByOption($event, 'down')"
+          (keydown.arrowup)="selectByOption($event, 'up')"
+          (keydown.shift.tab)="activeAcordion($event, input)"
+          (keydown.tab)="activeAcordion($event, input)"
+          [attr.aria-labelledby]="'label-' + inputId"
+          [attr.aria-required]="isRequired"
+          [id]="inputId"
+          [placeholder]="placeholder"
+          [required]="isRequired"
+          [value]="inputLabelValue(value)"
+          [(ngModel)]="inputLabel"
+          #input
+          class="a-input__input m-select__fieldset-input"
+          readonly />
+      </fieldset>
+    </div>
+    <div
+      [attr.aria-hidden]="!isActive"
+      [id]="'select-' + inputId"
+      [ngStyle]="{ 'max-height': isActive ? heightContent : '' }"
+      class="m-select__content">
+      <div data-child>
+        <ul
+          [ngClass]="{
+            'm-select__list--scroll': list?.length > maxItens
+          }"
+          class="m-select__list"
+          role="listbox">
+          <li *ngFor="let item of list" class="m-select__list-item">
+            <button
+              (click)="selecValue($event, item?.value)"
+              [attr.aria-selected]="value === item?.label ? 'true' : null"
+              [ngClass]="{ 'm-select__list-anchor--selected': value === item?.label }"
+              class="m-select__list-anchor"
+              role="option"
+              tabindex="-1"
+              type="button">
+              {{ item?.label }}
+            </button>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- <gol-notification [hasError]="true" *ngIf="messageError">
+  <span [innerHTML]="messageError"></span>
+</gol-notification> -->

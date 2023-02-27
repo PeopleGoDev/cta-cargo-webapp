@@ -1,0 +1,56 @@
+<div class="content-wrapper backgroud-page-pine-online">
+  <div class="container">
+    <section class="content">
+      <!-- Main content -->
+      <div class="login-box">
+        <div class="login-logo">
+          <a href="#/">
+            <img class="login-logo-img" src="assets/img/cta-logo-fb.png" alt="logo" />
+            <strong>CCT Importação</strong>
+          </a>
+        </div>
+        <!-- /.login-logo -->
+        <div class="login-box-body">
+          <p class="login-box-msg">Informe seus dados para realizar login</p>
+          <form novalidate angular-validator name="userLoginForm" (submit)="onSubmit()">
+            <div class="form-group has-feedback">
+              <input type="text" class="form-control" name="Login" id="Login" placeholder="E-mail" [(ngModel)]="usuario"
+                required required-message="'Informe o E-mail de acesso!'" />
+              <span class="glyphicon glyphicon-envelope form-control-feedback"></span>
+            </div>
+            <div class="form-group has-feedback">
+              <input type="password" [(ngModel)]="senha" class="form-control" name="Password" id="Password"
+                placeholder="Senha" validate-on="blur" autocomplete="current-password" required
+                required-message="'Informe a sua senha'" maxlength="20">
+              <span class="glyphicon glyphicon-lock form-control-feedback"></span>
+            </div>
+            <div *ngIf="alterarSenha" class="form-group has-feedback">
+              <input type="password" [(ngModel)]="novasenha" class="form-control" name="NewPassword" id="NewPassword"
+                placeholder="Nova Senha" validate-on="blur" autocomplete="new-password" required
+                required-message="'Informe uma nova senha'" maxlength="20">
+              <span class="glyphicon glyphicon-lock form-control-feedback"></span>
+            </div>
+            <div *ngIf="alterarSenha"class="form-group has-feedback">
+              <input type="password" [(ngModel)]="novasenhaconfirmacao" class="form-control" name="NewPasswordConfirmation" id="NewPassword"
+                placeholder="Confirmação Nova Senha" validate-on="blur" required
+                required-message="'Confirmar Nova Senha'" maxlength="20">
+              <span class="glyphicon glyphicon-lock form-control-feedback"></span>
+            </div>
+            <div class="row">
+              <div class="col-xs-6">
+                <dx-button id="button" [height]="40" [width]="180" [useSubmitBehavior]="true">
+                  <div *dxTemplate="let data of 'content'">
+                    <dx-load-indicator class='button-indicator' [visible]="loadingVisible" id="image-indicator"
+                      indicatorSrc='assets/img/loading-bubbles.svg'>
+                    </dx-load-indicator>
+                    <span *ngIf="!loadingVisible" class='dx-button-text'>{{buttonText}}</span>
+                  </div>
+                </dx-button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>

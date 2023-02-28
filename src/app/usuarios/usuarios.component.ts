@@ -96,7 +96,7 @@ export class UsuariosComponent implements OnInit {
       newData.AcessoClientes,
       newData.AcessoCompanhias,
       newData.Bloqueado,
-      this.usuarioId
+      this.usuarioInfo.UsuarioId
     );
 
     updateRequest.CertificadoDigitalId = newData.CertificadoDigitalId == null ? null: newData.CertificadoDigitalId;
@@ -133,7 +133,7 @@ export class UsuariosComponent implements OnInit {
       newData.AcessoUsuarios,
       newData.AcessoClientes,
       newData.AcessoCompanhias,
-      this.usuarioId
+      this.usuarioInfo.UsuarioId
     );
     insertRequest.CertificadoDigitalId = newData.CertificadoDigitalId == null ? null: newData.CertificadoDigitalId;
 
@@ -187,7 +187,7 @@ export class UsuariosComponent implements OnInit {
   RefreshLista() {
     this.loadingVisible = true;
 
-    let res = this.usuariosService.Listar(this.empresaId)
+    let res = this.usuariosService.Listar(this.usuarioInfo.EmpresaId)
       .subscribe(
         data => {
           if (data.Sucesso) {

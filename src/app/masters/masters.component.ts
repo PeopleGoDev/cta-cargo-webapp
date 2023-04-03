@@ -82,7 +82,7 @@ export class MastersComponent implements OnInit {
 
     this.curListaOpcoes = 0;
     this.selectFiltro = {
-      width: 220,
+      width: 140,
       value: this.curListaOpcoes,
       dataSource: this.listaOpcoes,
       displayExpr: 'Descricao',

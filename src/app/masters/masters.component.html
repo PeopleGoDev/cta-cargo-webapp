@@ -80,24 +80,6 @@
                         </div>
                     </dxi-item>
                     <dxi-item location="after">
-                        <div *dxTemplate>
-                            <dx-button stylingMode="contained" icon="trash" text="Excluir" type="normal"
-                                hint="Excluir Master Selecionado"
-                                [disabled]="rfbNonProcessedRows.length == 0 || rfbNonProcessedRows.length != selectedRows.length"
-                                (click)="deleteMasterEdition($event)">
-                            </dx-button>
-                        </div>
-                    </dxi-item>
-                    <dxi-item location="after">
-                        <div *dxTemplate>
-                            <dx-button stylingMode="contained" icon="edit" text="Liberar Edição" type="normal"
-                                hint="Liberar Master para Edição"
-                                [disabled]="rfbProcessedRows.length == 0 || rfbProcessedRows.length != selectedRows.length"
-                                (click)="releaseMasterEdition($event)">
-                            </dx-button>
-                        </div>
-                    </dxi-item>
-                    <dxi-item location="after">
                         <dx-button stylingMode="contained" icon="refresh" text="Refresh" type="normal"
                             hint="Refresh" (click)="refreshGrid()">
                         </dx-button>
@@ -232,7 +214,6 @@
                                     </dxi-validation-rule>
                                 </dxi-item>
                                 <dxi-item dataField="NCMLista">
-                                    <dxi-validation-rule type="required"></dxi-validation-rule>
                                 </dxi-item>
                             </dxi-item>
 
@@ -410,6 +391,30 @@
                         </dx-data-grid>
                     </div>
                 </dx-data-grid>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12" style="margin-bottom: 10px;">
+                <dx-toolbar>
+                    <dxi-item location="before">
+                        <div *dxTemplate>
+                            <dx-button stylingMode="contained" icon="trash" text="Excluir" type="normal"
+                                hint="Excluir Master Selecionado"
+                                [disabled]="rfbNonProcessedRows.length == 0 || rfbNonProcessedRows.length != selectedRows.length"
+                                (click)="deleteMasterEdition($event)">
+                            </dx-button>
+                        </div>
+                    </dxi-item>
+                    <dxi-item location="before">
+                        <div *dxTemplate>
+                            <dx-button stylingMode="contained" icon="edit" text="Liberar Edição" type="normal"
+                                hint="Liberar Master para Edição"
+                                [disabled]="rfbProcessedRows.length == 0 || rfbProcessedRows.length != selectedRows.length"
+                                (click)="releaseMasterEdition($event)">
+                            </dx-button>
+                        </div>
+                    </dxi-item>
+                </dx-toolbar>
             </div>
         </div>
     </div>

@@ -282,7 +282,7 @@ export class HousesComponent implements OnInit, AfterViewInit {
       Numero: newData.Numero.toUpperCase(),
       PesoTotalBruto: newData.PesoTotalBruto,
       PesoTotalBrutoUN: newData.PesoTotalBrutoUN.toUpperCase(),
-      TotalVolumes: newData.TotalVolumes,
+      TotalVolumes: +newData.TotalVolumes,
       ValorFretePP: newData.ValorFretePP,
       ValorFretePPUN: newData.ValorFretePPUN.toUpperCase(),
       ValorFreteFC: newData.ValorFreteFC,

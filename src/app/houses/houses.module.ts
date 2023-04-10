@@ -1,8 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HousesComponent } from './houses.component';
-import { DxLoadPanelModule, 
-  DxDataGridModule , 
+import { DxDataGridModule , 
   DxSelectBoxModule, 
   DxDateBoxModule, 
   DxButtonGroupModule, 
@@ -12,8 +11,10 @@ import { DxLoadPanelModule,
   DxButtonModule,
   DxValidatorModule,
   DxValidationGroupModule,
-  DxTagBoxModule } from 'devextreme-angular';
+  DxTagBoxModule, 
+  DxAutocompleteModule} from 'devextreme-angular';
 import { PipesModule } from 'app/shared/util/pipes.module';
+import { PortoIATAClient } from 'app/shared/proxy/ctaapi';
 
 @NgModule({
   declarations: [HousesComponent],
@@ -30,8 +31,10 @@ import { PipesModule } from 'app/shared/util/pipes.module';
     DxValidatorModule,
     DxValidationGroupModule,
     DxTagBoxModule,
+    DxAutocompleteModule,
     PipesModule
   ],
-  exports: [HousesComponent]
+  exports: [HousesComponent],
+  providers: [PortoIATAClient]
 })
 export class HousesModule { }

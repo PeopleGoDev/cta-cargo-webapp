@@ -117,7 +117,7 @@
                                         [validationCallback]="ValidaMasterNumero">
                                     </dxi-validation-rule>
                                 </dxi-item>
-                                <dxi-item dataField="AgenteDeCargaNumero" [editorOptions]="{ maxLength: 15 }">
+                                <dxi-item dataField="AgenteDeCargaNumero" [editorOptions]="{ maxLength: 10 }">
                                     <dxi-validation-rule type="required"></dxi-validation-rule>
                                 </dxi-item>
                             </dxi-item>
@@ -170,11 +170,9 @@
                                 </dxi-item>
                                 <dxi-item dataField="AeroportoOrigem" [editorOptions]="{ maxLength: 3 }">
                                     <dxi-validation-rule type="required"></dxi-validation-rule>
-                                    <dxi-validation-rule type="stringLength" min="3" message="Código Porto requer 3 caracteres!"></dxi-validation-rule>
                                 </dxi-item>
                                 <dxi-item dataField="AeroportoDestino" [editorOptions]="{ maxLength: 3 }">
                                     <dxi-validation-rule type="required"></dxi-validation-rule>
-                                    <dxi-validation-rule type="stringLength" min="3" message="Código Porto requer 3 caracteres!"></dxi-validation-rule>
                                 </dxi-item>
                                 <dxi-item dataField="NCMLista">
                                     <dxi-validation-rule type="required"></dxi-validation-rule>
@@ -203,6 +201,8 @@
                             <dxi-item itemType="group" caption="Outras Informações" [colCount]="1" [colSpan]="1">
                                 <dxi-item dataField="DataEmissaoXML">
                                     <dxi-validation-rule type="required"></dxi-validation-rule>
+                                </dxi-item>
+                                <dxi-item dataField="CodigoRecintoAduaneiro">
                                 </dxi-item>
                             </dxi-item>
 

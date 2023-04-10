@@ -15,7 +15,6 @@ import { DxLoadPanelModule,
   DxTagBoxModule } from 'devextreme-angular';
 import { PipesModule } from 'app/shared/util/pipes.module';
 import { MasterClient, VooClient } from 'app/shared/proxy/ctaapi';
-import { MasterDetailComponent } from './components/master-detail/master-detail.component';
 import { SharedModule } from 'app/shared/shared.module';
 
 @NgModule({

@@ -4030,6 +4030,7 @@ export interface AgenteDeCargaUpdateRequest {
 export interface AgenteDeCargaListaSimplesResponse {
     AgenteDeCargaId?: number;
     Nome?: string | undefined;
+    Numero?: string | undefined;
 }
 
 export interface AgenteDeCargaListaSimplesResponseIEnumerableApiResponse {

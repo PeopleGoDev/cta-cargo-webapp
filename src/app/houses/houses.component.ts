@@ -34,6 +34,7 @@ export class HousesComponent implements OnInit, AfterViewInit {
   @ViewChild("panel2") panel2Element: ElementRef;
 
   curAgenteDeCarga: number = -1;
+  agenteDeCarga: AgenteDeCargaListaSimplesResponse = null;
   filtroData: Date;
   filtroDataFinal: Date;
   filtroDataProcessamento: Date;
@@ -119,13 +120,16 @@ export class HousesComponent implements OnInit, AfterViewInit {
       },
     ];
 
-    this.pesoUnidade = [{
-      "Code": "KGM",
-      "Description": "Kilogramas"
-    }, {
-      "Codigo": "LBS",
-      "Description": "Libras"
-    }];
+    this.pesoUnidade = [
+      {
+        Code: "KGM",
+        Description: "Kilogramas",
+      },
+      {
+        Codigo: "LBS",
+        Description: "Libras",
+      },
+    ];
 
     this.onToolbarPreparing = this.onToolbarPreparing.bind(this);
     this.OnEditSave = this.OnEditSave.bind(this);
@@ -159,6 +163,11 @@ export class HousesComponent implements OnInit, AfterViewInit {
   onItemClick(e) {
     if (e.itemData.agenteid == this.curAgenteDeCarga) return;
     this.curAgenteDeCarga = e.itemData.agenteid;
+    this.agenteDeCarga = {
+      Nome: e.itemData.text,
+      Numero: e.itemData.agentenumero,
+      AgenteDeCargaId: e.itemData.agenteid,
+    };
     this.refreshGrid(e.itemData.agenteid);
   }
 
@@ -205,6 +214,7 @@ export class HousesComponent implements OnInit, AfterViewInit {
             this.botoesGBItems = this.mapearButtonGroup(res.result.Dados);
             if (res.result.Dados && res.result.Dados.length > 0) {
               this.curAgenteDeCarga = res.result.Dados[0].AgenteDeCargaId;
+              this.agenteDeCarga = res.result.Dados[0];
               this.refreshGrid(res.result.Dados[0].AgenteDeCargaId);
             }
             return;
@@ -462,7 +472,10 @@ export class HousesComponent implements OnInit, AfterViewInit {
   onEditorPreparing(e: any): void {
     if (e.parentType !== "dataRow") return;
 
-    if (e.dataField === "AeroportoOrigem" || e.dataField === "AeroportoDestino") {
+    if (
+      e.dataField === "AeroportoOrigem" ||
+      e.dataField === "AeroportoDestino"
+    ) {
       e.editorType = "dxAutocomplete";
       e.editorOptions = {
         items: this.portosData.map((x) => `${x.Codigo} - ${x.Nome}`),
@@ -471,11 +484,11 @@ export class HousesComponent implements OnInit, AfterViewInit {
         value: e.value,
         onValueChanged: (ev) => {
           e.setValue(ev.value.substring(0, 3));
-        }
+        },
       };
     }
 
-    if(e.dataField === "PesoTotalBrutoUN") {
+    if (e.dataField === "PesoTotalBrutoUN") {
       e.editorType = "dxAutocomplete";
       e.editorOptions = {
         items: this.pesoUnidade.map((x) => `${x.Code} - ${x.Description}`),
@@ -484,20 +497,29 @@ export class HousesComponent implements OnInit, AfterViewInit {
         value: e.value,
         onValueChanged: (ev) => {
           e.setValue(ev.value.substring(0, 3));
-        }
+        },
       };
     }
 
     if (e.row?.isNewRow) {
-      if (e.dataField == "Numero") {
-        e.editorOptions.readOnly = false;
-      }
-      if (e.dataField == "IndicadorMadeiraMacica") {
-        e.editorOptions.value = false;
+      switch (e.dataField) {
+        case "Numero":
+          e.editorOptions.readOnly = false;
+          break;
+        case "IndicadorMadeiraMacica":
+          e.editorOptions.value = false;
+          break;
+        case "AgenteDeCargaNumero":
+          e.editorOptions.value = this.agenteDeCarga.Numero;
+          e.editorOptions.readOnly = true;
+          break;
       }
     } else {
-      if (e.dataField == "Numero") {
-        e.editorOptions.readOnly = true;
+      switch (e.dataField) {
+        case "Numero":
+        case "AgenteDeCargaNumero":
+          e.editorOptions.readOnly = true;
+          break;
       }
     }
   }
@@ -571,6 +593,7 @@ export class HousesComponent implements OnInit, AfterViewInit {
         alignment: "left",
         text: dados[i].Nome,
         agenteid: dados[i].AgenteDeCargaId,
+        agentenumero: dados[i].Numero,
       };
       arrayBG.push(item);
     }

@@ -220,20 +220,17 @@ export class MastersComponent implements OnInit {
     switch (this.curListaOpcoes) {
       case 0:
         input = {
-          EmpresaId: +this.usuarioInfo.EmpresaId,
           VooId: this.curVoo,
         }
         break;
       case 1:
         input = {
-          EmpresaId: +this.usuarioInfo.EmpresaId,
           DataCriacaoInicialUnica: this.filtroData,
           DataCriacaoFinal: this.filtroDataFinal
         }
         break;
       case 2:
         input = {
-          EmpresaId: +this.usuarioInfo.EmpresaId,
           Numero: this.textoMaster
         }
         break;
@@ -378,7 +375,6 @@ export class MastersComponent implements OnInit {
     let newData: MasterResponseDto = e.data;
 
     let insertRequest: MasterInsertRequestDto = {
-      EmpresaId: +this.usuarioInfo.EmpresaId,
       VooId: this.curVoo,
       UsuarioInsercaoId: +this.usuarioInfo.UsuarioId,
       Numero: newData.Numero.toUpperCase(),

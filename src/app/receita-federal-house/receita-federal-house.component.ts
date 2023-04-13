@@ -110,7 +110,7 @@ export class ReceitaFederalHouseComponent implements OnInit {
     this.refreshGrid(this.curAgenteDeCarga);
   }
 
-  OnClickUpload(e: any) {
+  onClickUpload(e: any) {
     let result = confirm("<i>Você tem certeza?</i>", "Você está prestes a enviar os dados para a Receita Federal. Confirma ?");
     result.then((dialogResult) => {
       if (dialogResult) {

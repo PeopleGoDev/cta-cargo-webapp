@@ -7,6 +7,7 @@ import { TextMaskModule } from 'angular2-text-mask';
 import { MasterDetailComponent } from 'app/masters/components/master-detail/master-detail.component';
 import { SelectComponent } from '@shared/atoms/select/select.component';
 import { TitleComponent } from './components/title/title.component';
+import { AngularToastifyModule, ToastifyToastContainerComponent } from 'angular-toastify';
 
 @NgModule({
   declarations: [InputComponent, SelectComponent, MasterDetailComponent, TitleComponent],
@@ -14,7 +15,8 @@ import { TitleComponent } from './components/title/title.component';
     CommonModule,
     ButtonModule,
     FormsModule,
-    TextMaskModule
+    TextMaskModule,
+    AngularToastifyModule
   ], 
   exports: [InputComponent, SelectComponent, MasterDetailComponent, TitleComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]

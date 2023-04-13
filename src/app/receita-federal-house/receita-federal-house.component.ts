@@ -1,9 +1,11 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
+import { ToastService } from 'angular-toastify';
 import { StatusVoo } from 'app/shared/model/statusvoo';
 import { AgenteDeCargaClient, AgenteDeCargaListaSimplesResponse, HouseClient, HouseListarRequest, HouseResponseDto, UsuarioInfoResponse } from 'app/shared/proxy/ctaapi';
 import { LocalStorageService } from 'app/shared/services/localstorage.service';
 import { StatusService } from 'app/shared/services/status.service';
 import { DxPopupComponent } from 'devextreme-angular';
+import { confirm } from 'devextreme/ui/dialog';
 import notify from 'devextreme/ui/notify';
 import { environment } from 'environments/environment';
 
@@ -33,7 +35,8 @@ export class ReceitaFederalHouseComponent implements OnInit {
   constructor(private houseClient: HouseClient,
     private agenteDeCargaClient: AgenteDeCargaClient,
     private localStorageService: LocalStorageService,
-    private statusService: StatusService) {
+    private statusService: StatusService,
+    private toastService: ToastService) {
     this.statusRFB = this.statusService.getStatusRFB();
   }
 
@@ -66,6 +69,7 @@ export class ReceitaFederalHouseComponent implements OnInit {
           if (res.result.Dados && res.result.Dados.length > 0) {
             this.curAgenteDeCarga = res.result.Dados[0].AgenteDeCargaId;
             this.refreshGrid(res.result.Dados[0].AgenteDeCargaId);
+            this.toastService.info('Atualizado');
           }
           return;
         }
@@ -106,8 +110,13 @@ export class ReceitaFederalHouseComponent implements OnInit {
     this.refreshGrid(this.curAgenteDeCarga);
   }
 
-  onClickUpload(e: any) { 
-    this.popUpConfirm.visible = true;
+  OnClickUpload(e: any) {
+    let result = confirm("<i>Você tem certeza?</i>", "Você está prestes a enviar os dados para a Receita Federal. Confirma ?");
+    result.then((dialogResult) => {
+      if (dialogResult) {
+        // this.UploadCompleto();
+      }
+    });
   }
 
   onGridRowPrepared(e: any) {

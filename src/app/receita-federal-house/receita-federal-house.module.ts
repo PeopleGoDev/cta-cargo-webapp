@@ -4,7 +4,6 @@ import { ReceitaFederalHouseComponent } from './receita-federal-house.component'
 import { DxButtonGroupModule, DxButtonModule, DxDataGridModule, DxDateBoxModule, DxLoadPanelModule, DxPopupModule, DxToolbarModule } from 'devextreme-angular';
 import { HouseClient } from 'app/shared/proxy/ctaapi';
 
-
 @NgModule({
   declarations: [ReceitaFederalHouseComponent],
   imports: [

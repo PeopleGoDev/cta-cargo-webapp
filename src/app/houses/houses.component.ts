@@ -146,8 +146,8 @@ export class HousesComponent implements OnInit, AfterViewInit {
       0
     );
     this.usuarioInfo = this.localstorageService.getLocalStore().UsuarioInfo;
-    this.refreshAgentesDeCarga();
     this.refreshIataPorts();
+    this.refreshGrid();
   }
 
   ngOnInit(): void {
@@ -168,7 +168,7 @@ export class HousesComponent implements OnInit, AfterViewInit {
       Numero: e.itemData.agentenumero,
       AgenteDeCargaId: e.itemData.agenteid,
     };
-    this.refreshGrid(e.itemData.agenteid);
+    this.refreshGrid();
   }
 
   handleSelectBoxChanged(e) {
@@ -198,7 +198,7 @@ export class HousesComponent implements OnInit, AfterViewInit {
       0,
       0
     );
-    this.refreshGrid(this.curAgenteDeCarga);
+    this.refreshGrid();
   }
 
   refreshAgentesDeCarga() {
@@ -215,7 +215,7 @@ export class HousesComponent implements OnInit, AfterViewInit {
             if (res.result.Dados && res.result.Dados.length > 0) {
               this.curAgenteDeCarga = res.result.Dados[0].AgenteDeCargaId;
               this.agenteDeCarga = res.result.Dados[0];
-              this.refreshGrid(res.result.Dados[0].AgenteDeCargaId);
+              //this.refreshGrid(res.result.Dados[0].AgenteDeCargaId);
             }
             return;
           }
@@ -229,14 +229,13 @@ export class HousesComponent implements OnInit, AfterViewInit {
       );
   }
 
-  async refreshGrid(agenteDeCargaId: number) {
+  async refreshGrid() {
     this.loadingVisible = true;
 
     let input: HouseListarRequest = {};
     switch (this.curListaOpcoes) {
       case 0:
         input.DataProcessamento = this.filtroDataProcessamento;
-        input.AgenteDeCargaId = agenteDeCargaId;
         break;
       case 1:
         input.Numero = this.textoHouse;
@@ -286,7 +285,7 @@ export class HousesComponent implements OnInit, AfterViewInit {
   }
 
   refreshGridIcon() {
-    this.refreshGrid(this.curAgenteDeCarga);
+    this.refreshGrid();
   }
 
   AddRow(e) {
@@ -354,8 +353,7 @@ export class HousesComponent implements OnInit, AfterViewInit {
       AgenteDeCargaNumero: newData.AgenteDeCargaNumero.toUpperCase(),
       NCMLista: newData.NCMLista,
       MasterNumeroXML: newData.MasterNumeroXML,
-      DataEmissaoXML: newData.DataEmissaoXML,
-      UsuarioAlteradorId: this.usuarioInfo.UsuarioId,
+      DataEmissaoXML: newData.DataEmissaoXML
     };
 
     await this.houseClient
@@ -402,7 +400,7 @@ export class HousesComponent implements OnInit, AfterViewInit {
       ValorFreteFCUN: newData.ValorFreteFCUN.toUpperCase(),
       IndicadorMadeiraMacica: newData.IndicadorMadeiraMacica,
       DescricaoMercadoria: newData.DescricaoMercadoria.toUpperCase(),
-      CodigoRecintoAduaneiro: +newData.CodigoRecintoAduaneiro, // Recinto Aduaneiro
+      CodigoRecintoAduaneiro: newData.CodigoRecintoAduaneiro ? +newData.CodigoRecintoAduaneiro: 0, // Recinto Aduaneiro
       AgenteDeCargaNumero: newData.AgenteDeCargaNumero.toUpperCase(), // Código Agente de Carga
       RUC: newData.RUC ? newData.RUC.toUpperCase() : null,
       RemetenteNome: newData.RemetenteNome.toUpperCase(),
@@ -439,8 +437,6 @@ export class HousesComponent implements OnInit, AfterViewInit {
       AeroportoDestino: newData.AeroportoDestino
         ? newData.AeroportoDestino.toUpperCase()
         : null,
-      EmpresaId: this.usuarioInfo.EmpresaId,
-      UsuarioInsercaoId: this.usuarioInfo.UsuarioId,
       DataProcessamento: this.filtroDataProcessamento,
       NCMLista: newData.NCMLista,
       MasterNumeroXML: newData.MasterNumeroXML,
@@ -509,15 +505,10 @@ export class HousesComponent implements OnInit, AfterViewInit {
         case "IndicadorMadeiraMacica":
           e.editorOptions.value = false;
           break;
-        case "AgenteDeCargaNumero":
-          e.editorOptions.value = this.agenteDeCarga.Numero;
-          e.editorOptions.readOnly = true;
-          break;
       }
     } else {
       switch (e.dataField) {
         case "Numero":
-        case "AgenteDeCargaNumero":
           e.editorOptions.readOnly = true;
           break;
       }
@@ -557,7 +548,7 @@ export class HousesComponent implements OnInit, AfterViewInit {
     const res = e.validationGroup.validate();
     if (res.status === "invalid") return;
 
-    this.refreshGrid(this.curAgenteDeCarga);
+    this.refreshGrid();
   }
 
   OnEditSave(e: any) {

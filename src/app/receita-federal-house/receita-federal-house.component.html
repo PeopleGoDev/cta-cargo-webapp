@@ -1,3 +1,7 @@
+<lib-toastify-toast-container [position]="position" [transition]="transition" [autoClose]="disableAutoClose? 0 : autoClose"
+                              [hideProgressBar]="hideProgress" [newestOnTop]="newestOnTop" [closeOnClick]="closeOnClick" [pauseOnHover]="pauseDelayHover"
+                              [pauseOnVisibilityChange]="pauseVisibilityChange" [iconLibrary]="iconLibrary">
+</lib-toastify-toast-container>
 <div class="main-content">
     <div class="container-fluid">
         <div class="row">
@@ -61,7 +65,7 @@
                         </div>
                     </dxi-column>
                     <dxi-column caption="Peso/Volume">
-                        <dxi-column dataField="TotalPecas" caption="Volumes" dataType="number" [width]="70">
+                        <dxi-column dataField="TotalVolumes" caption="Volumes" dataType="number" [width]="70">
                         </dxi-column>
                         <dxi-column dataField="PesoTotalBruto" caption="Peso Total" dataType="number" format="decimal"
                             [editorOptions]="{

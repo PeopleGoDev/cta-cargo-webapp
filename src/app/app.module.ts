@@ -36,7 +36,6 @@ import { ReceitaFederalHouseModule } from './receita-federal-house/receita-feder
 import { NgxSpinnerModule } from "ngx-spinner";
 import { SharedModule } from './shared/shared.module';
 import { ConsultaModule } from './consulta/consulta.module';
-import { ToastService } from 'angular-toastify';
 
 let messagesptBR = require('devextreme/localization/messages/pt.json');
 loadMessages(messagesptBR);
@@ -83,7 +82,7 @@ config({
     NotfoundComponent,
   ],
   exports: [],
-  providers: [ToastService,
+  providers: [
     { provide: LOCALE_ID, useValue: 'pt-BR' },
     {
       provide: URL_BASE_URL_API,

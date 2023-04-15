@@ -1,5 +1,4 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { ToastService } from 'angular-toastify';
 import { StatusVoo } from 'app/shared/model/statusvoo';
 import { AgenteDeCargaClient, AgenteDeCargaListaSimplesResponse, HouseClient, HouseListarRequest, HouseResponseDto, UsuarioInfoResponse } from 'app/shared/proxy/ctaapi';
 import { LocalStorageService } from 'app/shared/services/localstorage.service';
@@ -35,8 +34,7 @@ export class ReceitaFederalHouseComponent implements OnInit {
   constructor(private houseClient: HouseClient,
     private agenteDeCargaClient: AgenteDeCargaClient,
     private localStorageService: LocalStorageService,
-    private statusService: StatusService,
-    private toastService: ToastService) {
+    private statusService: StatusService) {
     this.statusRFB = this.statusService.getStatusRFB();
   }
 
@@ -69,7 +67,6 @@ export class ReceitaFederalHouseComponent implements OnInit {
           if (res.result.Dados && res.result.Dados.length > 0) {
             this.curAgenteDeCarga = res.result.Dados[0].AgenteDeCargaId;
             this.refreshGrid(res.result.Dados[0].AgenteDeCargaId);
-            this.toastService.info('Atualizado');
           }
           return;
         }

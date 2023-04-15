@@ -33,7 +33,6 @@
     "@ngui/map": "^0.30.3",
     "@types/chartist": "^0.11.0",
     "@types/googlemaps": "^3.39.3",
-    "angular-toastify": "^1.0.4",
     "angular2-text-mask": "^9.0.0",
     "animate.css": "^3.7.0",
     "arrive": "^2.4.1",

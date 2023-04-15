@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { StatusVoo } from 'app/shared/model/statusvoo';
-import { AgenteDeCargaClient, AgenteDeCargaListaSimplesResponse, HouseClient, HouseListarRequest, HouseResponseDto, UsuarioInfoResponse } from 'app/shared/proxy/ctaapi';
+import { AgenteDeCargaClient, AgenteDeCargaListaSimplesResponse, HouseClient, HouseListarRequest, HouseResponseDto, ReceitaFederalClient, SubmeterRFBHouseRequest, UsuarioInfoResponse } from 'app/shared/proxy/ctaapi';
 import { LocalStorageService } from 'app/shared/services/localstorage.service';
 import { StatusService } from 'app/shared/services/status.service';
 import { DxPopupComponent } from 'devextreme-angular';
@@ -15,7 +15,7 @@ import { environment } from 'environments/environment';
 })
 export class ReceitaFederalHouseComponent implements OnInit {
   @ViewChild("popconfirm") popUpConfirm: DxPopupComponent;
-  
+
   curAgenteDeCarga: number = -1;
   botaoUploadEnabled: boolean = false;
   dataHouse: HouseResponseDto[] = [];
@@ -33,6 +33,7 @@ export class ReceitaFederalHouseComponent implements OnInit {
 
   constructor(private houseClient: HouseClient,
     private agenteDeCargaClient: AgenteDeCargaClient,
+    private receitaFederalClient: ReceitaFederalClient,
     private localStorageService: LocalStorageService,
     private statusService: StatusService) {
     this.statusRFB = this.statusService.getStatusRFB();
@@ -111,17 +112,15 @@ export class ReceitaFederalHouseComponent implements OnInit {
     let result = confirm("<i>Você tem certeza?</i>", "Você está prestes a enviar os dados para a Receita Federal. Confirma ?");
     result.then((dialogResult) => {
       if (dialogResult) {
-        // this.UploadCompleto();
+        this.uploadRFB(this.curAgenteDeCarga);
       }
     });
   }
 
   onGridRowPrepared(e: any) {
-
     // if (e.rowType != 'data' || e.data.SituacaoRFB != 3) return;
     // e.rowElement.style.color = 'red';
     return;
-
   }
 
   onItemClick(e) {
@@ -131,7 +130,6 @@ export class ReceitaFederalHouseComponent implements OnInit {
   }
 
   private mapearButtonGroup(dados: AgenteDeCargaListaSimplesResponse[]) {
-
     let arrayBG: any = [];
     if (dados == null) return arrayBG;
 
@@ -144,18 +142,40 @@ export class ReceitaFederalHouseComponent implements OnInit {
       };
       arrayBG.push(item);
     }
-
     return arrayBG;
-
   }
 
   private activateUpload() {
-    var validList = this.dataHouse.filter( item => {
-      return  item.StatusId == 1;
+    var validList = this.dataHouse.filter(item => {
+      return item.StatusId == 1;
     })
-    if(validList.length > 0) {
+    if (validList.length > 0) {
       this.botaoUploadEnabled = true;
     }
   }
 
+  async uploadRFB(agenteDeCargaId: number) {
+    let input: SubmeterRFBHouseRequest = {
+      DataProcessamento: this.filtroDataProcessamento,
+      AgenteDeCargaId: agenteDeCargaId
+    }
+
+    await this.receitaFederalClient.submeterHouseAgenteDeCarga(input)
+      .subscribe(res => {
+        if (res.result.Sucesso) {
+          notify("Arquivo Submetido com Sucesso!", 'success', environment.ErrorTimeout);
+        }
+        else {
+          if (res.result.Notificacoes == undefined) {
+            notify("Erro desconhecido!", 'error', environment.ErrorTimeout)
+          }
+          else {
+            notify(res.result.Notificacoes[0].Mensagem, 'error', environment.ErrorTimeout);
+          }
+        }
+        this.refreshGrid(agenteDeCargaId);
+      }, err => {
+        notify(err, 'error', environment.ErrorTimeout)
+      });
+  }
 }

@@ -38,7 +38,7 @@ export class CiaaereasComponent implements OnInit {
     text: "Excluir",
     type: "danger",
     onClick: async function () {
-      let result = confirm("<i>Você tem certeza?</i>", "Confima a Excluisão da Companhia Aérea ?");
+      let result = confirm("<i>Você tem certeza?</i>", "Confima a Exclusão da Companhia Aérea?");
       result.then((dialogResult) => {
         if (dialogResult) {
           this.onRowDelete();

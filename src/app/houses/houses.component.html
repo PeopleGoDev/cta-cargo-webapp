@@ -53,30 +53,12 @@
                 </dx-toolbar>
             </div>
         </div>
-        <!-- <div class="row">
-            <div class="col-md-12" style="margin-bottom: 10px;">
-                <dx-toolbar>
-                    <dxi-item location="before">
-                        <div *dxTemplate>
-                            <div id="panel1" #panel1 style="display: table; vertical-align: middle;">
-                                <div style="display: table-cell">
-                                    <dx-button-group [items]="botoesGBItems" accessKey="agenteid" keyExpr="agenteid"
-                                        stylingMode="text"
-                                        [selectedItemKeys]="[curAgenteDeCarga]"
-                                        (onItemClick)="onItemClick($event)">
-                                    </dx-button-group>
-                                </div>
-                            </div>
-                        </div>
-                    </dxi-item>
-                </dx-toolbar>
-            </div>
-        </div> -->
         <div class="row">
             <div class="col-md-12">
                 <dx-data-grid id="gridHouses" #dataGrid [dataSource]="housesData" keyExpr="HouseId"
                     [hoverStateEnabled]="true" [showBorders]="true" [columnAutoWidth]="true" [height]="500"
                     (onToolbarPreparing)="onToolbarPreparing($event)" (onRowUpdating)="onRowUpdating($event)"
+                    [(selectedRowKeys)]="selectedRows" (onSelectionChanged)="selectionChangedHandler()"
                     (onRowInserting)="onRowInserting($event)" (onEditorPreparing)="onEditorPreparing($event)">
                     <dxo-filter-row [visible]="true"></dxo-filter-row>
                     <dxo-header-filter [visible]="true"></dxo-header-filter>
@@ -89,19 +71,19 @@
                         <dxo-popup title="Editar/Incluir House" [showTitle]="false" [fullScreen]="true">
                             <dxi-toolbar-item widget="dxButton" location="after" toolbar="bottom" [options]="{
                                 text: 'Salvar',
-                                onClick: OnEditSave
+                                onClick: onEditSave
                             }">
                             </dxi-toolbar-item>
                             <dxi-toolbar-item widget="dxButton" location="after" toolbar="bottom" [options]="{
                                 text: 'Cancelar',
-                                onClick: OnEditCancel 
+                                onClick: onEditCancel 
                             }">
                             </dxi-toolbar-item>
                             <dxi-toolbar-item *ngIf="curgridKey > 0" widget="dxButton" location="before"
                                 toolbar="bottom" [options]="{
                                 text: 'Excluir',
                                 type: 'danger',
-                                onClick: OnEditDelete
+                                onClick: onEditDelete
                             }">
                             </dxi-toolbar-item>
                         </dxo-popup>
@@ -296,10 +278,34 @@
                     <div *dxTemplate="let cell of 'dataCellTemplate'">
                         <dx-tag-box [value]="cell.value" [searchEnabled]="false" [acceptCustomValue]="true"
                             [showMultiTagOnly]="false" [openOnFieldClick]="false" [items]="cell.value"
-                            [items]="cell.value" (onValueChanged)="OnNCMValueChanged($event, cell)">
+                            [items]="cell.value" (onValueChanged)="onNCMValueChanged($event, cell)">
                         </dx-tag-box>
                     </div>
                 </dx-data-grid>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12" style="margin-bottom: 10px;">
+                <dx-toolbar>
+                    <dxi-item location="before">
+                        <div *dxTemplate>
+                            <dx-button stylingMode="contained" icon="trash" text="Excluir" type="normal"
+                                hint="Excluir House Selecionado"
+                                [disabled]="rfbNonProcessedRows.length == 0 || rfbNonProcessedRows.length != selectedRows.length"
+                                (click)="deleteHouseEdition($event)">
+                            </dx-button>
+                        </div>
+                    </dxi-item>
+                    <dxi-item location="before">
+                        <div *dxTemplate>
+                            <dx-button stylingMode="contained" icon="edit" text="Liberar Edição" type="normal"
+                                hint="Liberar House para Edição"
+                                [disabled]="rfbProcessedRows.length == 0 || rfbProcessedRows.length != selectedRows.length"
+                                (click)="releaseMasterEdition($event)">
+                            </dx-button>
+                        </div>
+                    </dxi-item>
+                </dx-toolbar>
             </div>
         </div>
     </div>

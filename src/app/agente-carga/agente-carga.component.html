@@ -24,7 +24,7 @@
                             [height]="535">
                         </dxo-popup>
                         <dxo-form>
-                            <dxi-item itemType="group" caption="Informações da Companhia Aérea" [colCount]="2"
+                            <dxi-item itemType="group" caption="Informações do Agente de Carga" [colCount]="2"
                                 [colSpan]="2">
                                 <dxi-item dataField="Nome" [editorOptions]="{ maxLength: 50 }">
                                     <dxi-validation-rule type="required"></dxi-validation-rule>
@@ -49,7 +49,7 @@
                                 <dxi-item dataField="Pais" [editorOptions]="{ maxLength: 2 }">
                                     <dxi-validation-rule type="required"></dxi-validation-rule>
                                 </dxi-item>
-                                <dxi-item dataField="Numero" [editorOptions]="{ maxLength: 15 }">
+                                <dxi-item dataField="Numero IATA" [editorOptions]="{ maxLength: 15 }">
                                     <dxi-validation-rule type="required"></dxi-validation-rule>
                                 </dxi-item>
                                 <dxi-item itemType="EmptyItem" [colCount]="2" [colSpan]="2">

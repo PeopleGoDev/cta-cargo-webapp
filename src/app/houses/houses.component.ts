@@ -5,6 +5,7 @@ import {
   OnInit,
   ViewChild,
 } from "@angular/core";
+import { LocalSituacaoRfb } from "app/shared/enum/api.enum";
 import { PortoIATAResponseDto } from "app/shared/proxy/ctaapi";
 import { PortoIATAClient } from "app/shared/proxy/ctaapi";
 import {
@@ -20,6 +21,7 @@ import {
 import { LocalStorageService } from "app/shared/services/localstorage.service";
 import { PortoIATAService } from "app/shared/services/portoiata.service";
 import { cnpj, cpf } from "cpf-cnpj-validator";
+import { confirm } from "devextreme/ui/dialog";
 import notify from "devextreme/ui/notify";
 import { environment } from "environments/environment";
 
@@ -58,6 +60,9 @@ export class HousesComponent implements OnInit, AfterViewInit {
   plusIcon: any;
   excelIcon: any;
   NCMData: string[];
+  selectedRows: number[] = [];
+  rfbProcessedRows: number[] = [];
+  rfbNonProcessedRows: number[] = [];
 
   constructor(
     private houseClient: HouseClient,
@@ -96,7 +101,7 @@ export class HousesComponent implements OnInit, AfterViewInit {
     this.plusIcon = {
       icon: "plus",
       hint: "Adicionar House",
-      onClick: this.AddRow.bind(this),
+      onClick: this.addRow.bind(this),
     };
 
     this.excelIcon = {
@@ -132,9 +137,9 @@ export class HousesComponent implements OnInit, AfterViewInit {
     ];
 
     this.onToolbarPreparing = this.onToolbarPreparing.bind(this);
-    this.OnEditSave = this.OnEditSave.bind(this);
-    this.OnEditCancel = this.OnEditCancel.bind(this);
-    this.OnEditDelete = this.OnEditDelete.bind(this);
+    this.onEditSave = this.onEditSave.bind(this);
+    this.onEditCancel = this.onEditCancel.bind(this);
+    this.onEditDelete = this.onEditDelete.bind(this);
     const now = new Date();
     this.filtroDataProcessamento = new Date(
       now.getFullYear(),
@@ -288,7 +293,7 @@ export class HousesComponent implements OnInit, AfterViewInit {
     this.refreshGrid();
   }
 
-  AddRow(e) {
+  addRow(e) {
     this.dataGrid.instance.addRow();
   }
 
@@ -465,6 +470,27 @@ export class HousesComponent implements OnInit, AfterViewInit {
     this.loadingVisible = false;
   }
 
+  async onRowDelete(itens: number[]) {
+
+    await this.houseClient.excluirHouse(this.selectedRows[0])
+      .subscribe(res => {
+        if (res.result.Sucesso) {
+          itens.forEach(x => {
+            let item = this.housesData.find(x => x.HouseId == x);
+            var index = this.housesData.indexOf(item);
+            this.housesData.splice(index, 1);
+          });
+          notify('House apagado!', 'success', environment.ErrorTimeout);
+        }
+        else {
+          notify(res.result.Notificacoes[0].Mensagem, 'error', environment.ErrorTimeout);
+        }
+      }, err => {
+        notify(err, 'error', environment.ErrorTimeout);
+      })
+
+  }
+
   onEditorPreparing(e: any): void {
     if (e.parentType !== "dataRow") return;
 
@@ -551,7 +577,7 @@ export class HousesComponent implements OnInit, AfterViewInit {
     this.refreshGrid();
   }
 
-  OnEditSave(e: any) {
+  onEditSave(e: any) {
     this.dataGrid.instance.saveEditData().then(() => {
       if (!this.dataGrid.instance.hasEditData()) {
         // Saved successfully
@@ -561,17 +587,58 @@ export class HousesComponent implements OnInit, AfterViewInit {
     });
   }
 
-  OnEditCancel(e: any) {
+  onEditCancel(e: any) {
     this.dataGrid.instance.cancelEditData();
   }
 
-  OnEditDelete(e: any) {
+  onEditDelete(e: any) {
     this.dataGrid.instance.cancelEditData();
   }
 
-  OnNCMValueChanged(e: any, cell) {
+  onNCMValueChanged(e: any, cell) {
     console.log(e);
     cell.setValue(e.value);
+  }
+
+  selectionChangedHandler() {
+    this.rfbProcessedRows = [];
+    this.rfbNonProcessedRows = [];
+    if (this.selectedRows.length) {
+      this.selectedRows.forEach(x => {
+        const item = this.housesData.find(y => y.HouseId == x);
+        switch (item.SituacaoRFB) {
+          case LocalSituacaoRfb.Processed:
+            this.rfbProcessedRows.push(x);
+            break;
+          case LocalSituacaoRfb.NoSubmitted:
+          case LocalSituacaoRfb.ProcessedDeletion:
+            this.rfbNonProcessedRows.push(x);
+            break;
+          case LocalSituacaoRfb.Rejected:
+            if (!item.ProtocoloRFB || item.ProtocoloRFB == '')
+              this.rfbNonProcessedRows.push(x);
+            break;
+        }
+      });
+    }
+  }
+
+  deleteHouseEdition(e): void {
+    let result = confirm("<i>Confirma a exclusão do(s) House(s) selecionado(s) ?</i>", "Confirma?");
+    result.then((dialogResult) => {
+      if (dialogResult) {
+        this.onRowDelete(this.selectedRows);
+      }
+    });
+  }
+
+  releaseHouseEdition(e): void {
+    let result = confirm("<i>Confirma a liberação para edição dos Master(s) selecionado(s) ?</i>", "Confirma?");
+    result.then((dialogResult) => {
+      if (dialogResult) {
+        //this.releaseMasterEditionConfirm(e);
+      }
+    });
   }
 
   private mapearButtonGroup(dados: AgenteDeCargaListaSimplesResponse[]) {

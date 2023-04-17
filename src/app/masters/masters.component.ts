@@ -501,7 +501,6 @@ export class MastersComponent implements OnInit {
           }
           break;
         default:
-          console.log(e.parentType);
           break;
       }
     }

@@ -4157,6 +4157,7 @@ export interface HouseResponseDto {
     HouseId?: number;
     StatusId?: number;
     SituacaoRFB?: number;
+    ProtocoloRFB?: string | undefined;
     DataProcessamento?: Date;
     Reenviar?: boolean;
 }

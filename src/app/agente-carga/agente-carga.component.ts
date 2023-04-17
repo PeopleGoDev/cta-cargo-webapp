@@ -3,6 +3,7 @@ import { LocalFileDestinationMap } from 'app/shared/enum/api.enum';
 import { AgenteDeCargaClient, AgenteDeCargaInsertRequest, AgenteDeCargaResponseDto, AgenteDeCargaUpdateRequest, FileDestinationMap, FileParameter, UploadClient, UsuarioInfoResponse } from 'app/shared/proxy/ctaapi';
 import { LocalStorageService } from 'app/shared/services/localstorage.service';
 import { CommonUtil } from 'app/shared/util/common';
+import { confirm } from 'devextreme/ui/dialog';
 import notify from 'devextreme/ui/notify';
 import { environment } from 'environments/environment';
 
@@ -27,6 +28,19 @@ export class AgenteCargaComponent implements OnInit {
   passwordMode: string;
   textBoxValue: string;
   currentKey: number;
+
+  buttonOptions = {
+    text: "Excluir",
+    type: "danger",
+    onClick: async function () {
+      let result = confirm("<i>Você tem certeza?</i>", "Confima a Exclusão do Agente de Carga?");
+      result.then((dialogResult) => {
+        if (dialogResult) {
+          this.onRowDelete();
+        }
+      });
+    }
+  };
 
   constructor(private localStorageService: LocalStorageService,
     private agenteCargaService: AgenteDeCargaClient,
@@ -137,10 +151,30 @@ export class AgenteCargaComponent implements OnInit {
         });
   }
 
+  async onRowDelete() {
+
+    await this.agenteCargaService.excluirAgenteDeCarga(this.currentKey)
+      .toPromise()
+      .then(res => {
+        if (res.result.Sucesso) {
+          let item = this.dataSource.find(x => x.AgenteDeCargaId == this.currentKey);
+          var index = this.dataSource.indexOf(item);
+          this.dataSource.splice(index, 1);
+          this.dataGrid.instance.cancelEditData();
+        }
+        else {
+          notify(res.result.Notificacoes[0].Mensagem, 'error', 3000);
+        }
+      })
+      .catch( err => {
+        notify(err, 'error', 3000);
+      });
+  }
+
   onEditorPreparing(e: any): void {
     if (e.dataField == "Nome" && e.parentType == "dataRow") {
       this.newrowBotao = !e.row?.isNewRow;
-      // this.curgridKey = e.row.key;
+      this.currentKey = e.row.key;
     }
   }
 

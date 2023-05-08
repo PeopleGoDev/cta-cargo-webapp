@@ -2436,6 +2436,61 @@ export class ReceitaFederalClient {
      * @param body (optional) 
      * @return Success
      */
+    submeterMasterVooCompleto(body: VooUploadInput | undefined): Observable<SwaggerResponse<StringApiResponse>> {
+        let url_ = this.baseUrl + "/api/v1/ReceitaFederal/SubmeterMasterVooCompleto";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processSubmeterMasterVooCompleto(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processSubmeterMasterVooCompleto(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<StringApiResponse>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<StringApiResponse>>;
+        }));
+    }
+
+    protected processSubmeterMasterVooCompleto(response: HttpResponseBase): Observable<SwaggerResponse<StringApiResponse>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as StringApiResponse;
+            return _observableOf(new SwaggerResponse(status, _headers, result200));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<StringApiResponse>>(new SwaggerResponse(status, _headers, null as any));
+    }
+
+    /**
+     * @param body (optional) 
+     * @return Success
+     */
     verificarProtocoloVoo(body: VooUploadInput | undefined): Observable<SwaggerResponse<StringApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/ReceitaFederal/VerificarProtocoloVoo";
         url_ = url_.replace(/[?&]$/, "");
@@ -3605,6 +3660,61 @@ export class VooClient {
     }
 
     /**
+     * @param vooId (optional) 
+     * @return Success
+     */
+    obterVooUploadPorId(vooId: number | undefined): Observable<SwaggerResponse<VooUploadResponseApiResponse>> {
+        let url_ = this.baseUrl + "/api/v1/Voo/ObterVooUploadPorId?";
+        if (vooId === null)
+            throw new Error("The parameter 'vooId' cannot be null.");
+        else if (vooId !== undefined)
+            url_ += "vooId=" + encodeURIComponent("" + vooId) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processObterVooUploadPorId(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processObterVooUploadPorId(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<VooUploadResponseApiResponse>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<VooUploadResponseApiResponse>>;
+        }));
+    }
+
+    protected processObterVooUploadPorId(response: HttpResponseBase): Observable<SwaggerResponse<VooUploadResponseApiResponse>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as VooUploadResponseApiResponse;
+            return _observableOf(new SwaggerResponse(status, _headers, result200));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<VooUploadResponseApiResponse>>(new SwaggerResponse(status, _headers, null as any));
+    }
+
+    /**
      * @param body (optional) 
      * @return Success
      */
@@ -4548,7 +4658,6 @@ export interface PortoIATAUpdateRequestDto {
 }
 
 export interface VooUploadInput {
-    UsuarioId?: number;
     VooId?: number;
 }
 
@@ -4599,6 +4708,7 @@ export interface UldMasterNumeroQueryChildren {
     Id?: number;
     UsuarioCriacao?: string | undefined;
     DataCricao?: Date;
+    TotalParcial?: string | undefined;
 }
 
 export interface UldMasterNumeroQuery {
@@ -4790,6 +4900,40 @@ export interface VooResponseDto {
 export interface VooResponseDtoApiResponse {
     Sucesso?: boolean;
     Dados?: VooResponseDto;
+    Notificacoes?: Notificacao[] | undefined;
+}
+
+export interface VooUploadResponse {
+    VooId?: number;
+    Numero?: string | undefined;
+    DataVoo?: Date;
+    DataHoraSaidaEstimada?: Date | undefined;
+    DataHoraSaidaReal?: Date | undefined;
+    DataHoraChegadaEstimada?: Date | undefined;
+    DataHoraChegadaReal?: Date | undefined;
+    PesoBruto?: number | undefined;
+    PesoBrutoUnidade?: string | undefined;
+    Volume?: number | undefined;
+    VolumeUnidade?: string | undefined;
+    TotalPacotes?: number | undefined;
+    TotalPecas?: number | undefined;
+    StatusId?: number;
+    SituacaoRFBId?: number;
+    ProtocoloRFB?: string | undefined;
+    ErroCodigoRFB?: string | undefined;
+    ErroDescricaoRFB?: string | undefined;
+    DataProtocoloRFB?: Date | undefined;
+    UsuarioCriacao?: string | undefined;
+    DataCriacao?: Date;
+    AeroportoOrigemCodigo?: string | undefined;
+    AeroportoDestinoCodigo?: string | undefined;
+    Reenviar?: boolean;
+    ULDs?: UldMasterNumeroQuery[] | undefined;
+}
+
+export interface VooUploadResponseApiResponse {
+    Sucesso?: boolean;
+    Dados?: VooUploadResponse;
     Notificacoes?: Notificacao[] | undefined;
 }
 

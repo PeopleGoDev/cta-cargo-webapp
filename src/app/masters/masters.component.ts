@@ -1,6 +1,5 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { LocalStorageService } from 'app/shared/services/localstorage.service';
-import { VoosService } from 'app/shared/services/voos.service';
 import notify from 'devextreme/ui/notify';
 import { cpf, cnpj } from 'cpf-cnpj-validator';
 import { PortoIATAResponseDto } from 'app/shared/model/dto/portoiatadto';
@@ -12,7 +11,6 @@ import { StatusVoo } from 'app/shared/model/statusvoo';
 import { AtualizarMasterReenviarRequest, ExcluirMastersByIdRequest, MasterClient, MasterInsertRequestDto, MasterListarRequest, MasterResponseDto, MasterUpdateRequestDto, MasterUpdateTotalParcialRequestDto, UsuarioInfoResponse, VooClient, VooListaResponseDto, VooListarInputDto } from 'app/shared/proxy/ctaapi';
 import { LocalRecordStatus, LocalSituacaoRfb } from 'app/shared/enum/api.enum';
 import { DxDataGridComponent } from 'devextreme-angular';
-import { DxiBreakComponent } from 'devextreme-angular/ui/nested';
 
 @Component({
   selector: 'app-masters',

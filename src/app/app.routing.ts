@@ -6,17 +6,18 @@ import { AuthGuard } from './shared/auth.guard';
 import { NotfoundComponent } from './notfound/notfound.component';
 import { VoosComponent } from './voos/voos.component';
 import { MastersComponent } from './masters/masters.component';
-import { HousesComponent } from './houses/houses.component';
+import { HousesComponent } from './pages/houses/houses.component';
 import { HomeComponent } from './home/home.component';
 import { UsuariosComponent } from './usuarios/usuarios.component';
 import { CiaaereasComponent } from './ciaaereas/ciaaereas.component';
-import { ReceitaFederalComponent } from './receita-federal/receita-federal.component';
-import { UldmasterComponent } from './uldmaster/uldmaster.component';
+import { ReceitaFederalComponent } from './pages/receita-federal/receita-federal.component';
+import { UldmasterComponent } from './pages/uldmaster/uldmaster.component';
 import { PortoIataComponent } from './porto-iata/porto-iata.component';
 import { NaturezaCargaComponent } from './natureza-carga/natureza-carga.component';
 import { AgenteCargaComponent } from './agente-carga/agente-carga.component';
-import { ReceitaFederalHouseComponent } from './receita-federal-house/receita-federal-house.component';
+import { ReceitaFederalHouseComponent } from './pages/receita-federal-house/receita-federal-house.component';
 import { ConsultaComponent } from './consulta/consulta.component';
+import { ReceitaFederalMasterComponent } from './pages/receita-federal-master/receita-federal-master.component';
 
 const routes: Routes = [
   {
@@ -38,6 +39,7 @@ const routes: Routes = [
       { path: "uldtag", component: UldmasterComponent },
       { path: "receita-federal", component: ReceitaFederalComponent },
       { path: "receita-federal-house", component: ReceitaFederalHouseComponent },
+      { path: "receita-federal-master", component: ReceitaFederalMasterComponent },
       { path: "porto-iata", component: PortoIataComponent },
       { path: "natureza-carga", component: NaturezaCargaComponent },
       { path: "consulta", component: ConsultaComponent },

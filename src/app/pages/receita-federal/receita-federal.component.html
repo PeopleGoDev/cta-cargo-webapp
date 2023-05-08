@@ -1,0 +1,109 @@
+<div class="main-content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card card-plain">
+                    <div class="header">
+                        <h4 class="title">Receita Federal</h4>
+                        <p class="category">Submeter Arquivos</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12" style="margin-bottom: 10px;">
+                <dx-toolbar>
+                    <dxi-item location="before">
+                        <div *dxTemplate>
+                            <div id="panel1" #panel1 style="display: table; vertical-align: middle;">
+                                <div style="display: table-cell">Data do Voo&nbsp;</div>
+                                <div style="display: table-cell">
+                                    <dx-date-box [value]="filtroDataVoo" type="date" width="115"
+                                        (onValueChanged)="handleValueDataChangeDataVoo($event)"></dx-date-box>
+                                </div>
+                                <div style="display: table-cell">&nbsp;</div>
+                                <div style="display: table-cell">
+                                    <dx-button-group [items]="botoesGBItems" accessKey="vooid" keyExpr="vooid"
+                                        [selectedItemKeys]="[curVoo]" (onItemClick)="onItemClick($event)">
+                                    </dx-button-group>
+                                </div>
+                            </div>
+                        </div>
+                    </dxi-item>
+                    <dxi-item location="after" widget="dxButton" [options]="refreshIcon">
+                    </dxi-item>
+                </dx-toolbar>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <dx-data-grid id="tasks" [dataSource]="vooDetalheLista" keyExpr="VooId" [columnAutoWidth]="true"
+                    [wordWrapEnabled]="true" [showBorders]="true" (onRowPrepared)="onRowPrepared($event)"
+                    [height]="120">
+                    <dxo-load-panel [enabled]="false"></dxo-load-panel>
+                    <dxi-column dataField="Numero" caption="Voo #" [width]="150" cellTemplate="numeroTemplate">
+                        <div *dxTemplate="let data of 'numeroTemplate'">
+                            <i *ngIf="data.data.StatusId == 1 && data.data.SituacaoRFBId == 0" class="dx-icon-check"
+                                style="color: green"></i>
+                            <i *ngIf="data.data.StatusId == 2 && data.data.SituacaoRFBId == 3" class="dx-icon-check"
+                                style="color: green"></i>
+                            <i *ngIf="data.data.StatusId == 2 && data.data.SituacaoRFBId == 1" class="dx-icon-info"
+                                style="color: blue"></i>
+                            {{ data.value }}<br />
+                            {{ statusData[data.data.StatusId].Descricao}}
+                        </div>
+                    </dxi-column>
+                    <dxi-column dataField="DataHoraSaidaEstimada" [width]="150" caption="Hora Saida Estimada" dataType="datetime">
+                    </dxi-column>
+                    <dxi-column dataField="DataHoraSaidaReal" [width]="150" caption="Hora Saida Atual" dataType="datetime">
+                    </dxi-column>
+                    <dxi-column dataField="DataHoraChegadaEstimada" [width]="150" caption="Hora Chegada Estimada" dataType="datetime">
+                    </dxi-column>
+                    <dxi-column dataField="DataHoraChegadaReal" [width]="150" caption="Hora Chegada Atual" dataType="datetime">
+                    </dxi-column>
+                    <dxi-column dataField="AeroportoOrigemCodigo" [width]="150" caption="Porto Origem">
+                    </dxi-column>
+                    <dxi-column dataField="AeroportoDestinoCodigo" [width]="150" caption="Porto Destino">
+                    </dxi-column>
+                    <dxi-column dataField="SituacaoRFBId" caption="Situação RFB">
+                        <dxo-lookup [dataSource]="statusRFB" displayExpr="Descricao" valueExpr="Id">
+                        </dxo-lookup>
+                    </dxi-column>
+                    <dxi-column dataField="Reenviar" [width]="70" caption="Reenviar">
+                    </dxi-column>
+                </dx-data-grid>
+            </div>
+        </div>
+        <div>&nbsp;</div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="table-header">
+                    <div class="table-header-item">ULD</div>
+                    <div class="table-header-item">MAWB</div>
+                    <div class="table-header-item right">Quantidade</div>
+                    <div class="table-header-item right">Peso</div>
+                    <div class="table-header-item right">Peso Unidade</div>
+                    <div class="table-header-item right">Total / Parcial</div>
+                </div>
+                <div>
+                    <div *ngFor="let item of mastersDetail" class="table-item">
+                        <div class="table-item-row">{{ item.ULD }}</div>
+                        <div class="table-item-row">{{ item.Master | master }}</div>
+                        <div class="table-item-row right">{{ item.Quantidade }}</div>
+                        <div class="table-item-row right">{{ item.Peso | number:'1.4-4' }}</div>
+                        <div class="table-item-row right">{{ item.PesoUnidade }}</div>
+                        <div class="table-item-row right">{{ item.TotalParcial }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12" style="margin-top: 20px;">
+                <app-button (buttonClicked)="onClickUpload($event)" [isButtonOrange]="true"
+                    [isDisabled]="!botaoUploadEnabled" [mobileFull]="true" id="modal-create-master-group-link">
+                    {{botaoUploadLabel}}
+                </app-button>
+            </div>
+        </div>
+    </div>
+</div>

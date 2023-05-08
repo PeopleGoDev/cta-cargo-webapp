@@ -9,6 +9,15 @@ import { VoosService } from 'app/shared/services/voos.service';
 import notify from 'devextreme/ui/notify';
 import { environment } from 'environments/environment';
 import { MasteruldsumarioComponent } from './components/masteruldsumario/masteruldsumario.component';
+import * as pdfMake from "pdfmake/build/pdfmake";
+import * as pdfFonts from "pdfmake/build/vfs_fonts";
+const htmlToPdfmake = require("html-to-pdfmake");
+(pdfMake as any).vfs = pdfFonts.pdfMake.vfs;
+
+import jsPDF from 'jspdf';
+// import html2canvas from 'html2canvas';
+import * as _html2canvas from "html2canvas";
+const html2canvas: any = _html2canvas;
 
 @Component({
   selector: 'app-uldmaster',
@@ -19,7 +28,7 @@ import { MasteruldsumarioComponent } from './components/masteruldsumario/masteru
 export class UldmasterComponent implements OnInit {
   @ViewChild("gridContainer") dataGrid;
   @ViewChild("sumario") sumarioComponent: MasteruldsumarioComponent;
-  @ViewChild("mainContent") private mainContentDiv!: ElementRef<HTMLElement>;
+  @ViewChild("mainContent", { static: true }) mainContent!: ElementRef<HTMLImageElement>;
 
   curVoo: VooListaResponseDto;
   filtroDataVoo: Date;
@@ -40,7 +49,7 @@ export class UldmasterComponent implements OnInit {
   // Privados
   private usuarioInfo: UsuarioInfoResponse;
   private awbref: AWBReference = new AWBReference();
-  
+
 
   constructor(private vooService: VoosService,
     private uldMasterService: UldmasterService,
@@ -48,6 +57,8 @@ export class UldmasterComponent implements OnInit {
     private vooClient: VooClient,
     private uldClient: UldClient,
     private parentComponent: AdminLayoutComponent) {
+
+    pdfMake.vfs = pdfFonts.pdfMake.vfs;
     this.uldLista = [];
     this.ValidarMasterNumero = this.ValidarMasterNumero.bind(this);
     this.ValidarUldCampo = this.ValidarUldCampo.bind(this);
@@ -390,8 +401,23 @@ export class UldmasterComponent implements OnInit {
     return this.curVoo && this.curVoo.SituacaoVoo != 2
   }
 
-  print() {
-    window.print();
+  public print(): void {
+
+    var pdfw = this.mainContent.nativeElement.scrollWidth - 80;
+    var pdfh = 3428 * (pdfw/2400);
+
+    const doc = new jsPDF({
+      unit: 'px',
+      format: [pdfw, pdfh] // -> A4 : [842, 1191] -> Letter
+    });
+
+    const pdf = new jsPDF('p', 'pt', 'a4');
+
+    doc.html(this.mainContent.nativeElement, { margin: [40, 40, 40, 40],
+      callback: (pdf: jsPDF) => {
+        doc.save('pdf-export');
+      }
+    });
   }
 
 }

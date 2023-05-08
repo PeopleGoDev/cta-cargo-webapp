@@ -1,4 +1,4 @@
-<div class="main-content">
+<div #mainContent class="main-content">
     <div class="container-fluid no-printable" *ngIf="activeSection === 'entry'">
         <app-title title="Uld tag" subTitle="Selecione o Voo para cadastrar ULD"></app-title>
         <!-- toolbar -->
@@ -128,13 +128,13 @@
         </div>
         <!-- grid -->
     </div>
-    <div class="container-fluid printable" *ngIf="activeSection === 'summary'">
+    <div id="mainContent" class="container-fluid printable" *ngIf="activeSection === 'summary'">
         <div class="row">
             <div class="col-md-12">
                 <div class="card card-plain">
                     <div class="header">
                         <h4 class="title">Uld sumário</h4>
-                        <p class="category">Resumo quantidade e peso vs alocação aeronave</p>
+                        <p class="category">Resumo quantidade e peso Vs. alocação aeronave</p>
                     </div>
                 </div>
             </div>

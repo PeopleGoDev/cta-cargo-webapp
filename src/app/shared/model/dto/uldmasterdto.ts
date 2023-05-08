@@ -11,7 +11,6 @@ export class UldMasterBaseDto {
 }
 
 export class UldMasterResponseDto extends UldMasterBaseDto {
-
     public Id: number;
     public MasterId: number;
     public PesoUnidade: string;
@@ -69,4 +68,13 @@ export class UldMasterDeleteByTagInput {
 export class UldMasterDeleteByIdInput {
     public VooId: number
     public ListaIds: Array<number>
+}
+
+export class MasterUldUploadByFlightDto {
+    public ULD: string
+    public Master?: string
+    public Quantidade?: number
+    public Peso?: number
+    public PesoUnidade?: string
+    public TotalParcial?: string
 }

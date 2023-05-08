@@ -32,6 +32,9 @@ export class VoosComponent implements OnInit {
   private usuarioInfo: UsuarioInfoResponse;
   currentRow: number;
 
+  private editDataHoraSaidaReal: Date;
+  private editDataChegadaReal: Date;
+
   buttonOptionsExcluir = {
     text: "Excluir",
     type: "danger",
@@ -56,8 +59,10 @@ export class VoosComponent implements OnInit {
     this.onEditDelete = this.onEditDelete.bind(this);
     this.onRowDelete = this.onRowDelete.bind(this);
     this.onResendFlight = this.onResendFlight.bind(this);
-    this.onDataChegadaEstimadaValidation = this.onDataChegadaEstimadaValidation.bind(this);
-    this.onDataChegadaRealValidation = this.onDataChegadaRealValidation.bind(this);
+    this.validateActualArrivalDate = this.validateActualArrivalDate.bind(this);
+    this.validateActualDepartureDate = this.validateActualDepartureDate.bind(this);
+    this.setActualDepartureDateCellValue = this.setActualDepartureDateCellValue.bind(this);
+    this.validateActualArrivalDateField = this.validateActualArrivalDateField.bind(this);
   }
 
   ngOnInit(): void {
@@ -243,11 +248,17 @@ export class VoosComponent implements OnInit {
   }
 
   onEditorPreparing(e: any): void {
-
     this.somenteLeitura = false;
+
+    if (e.parentType == 'dataRow' && e.dataField == 'DataHoraChegadaReal') {  
+      e.editorOptions.onValueChanged = function(e) {
+        this.editDataChegadaReal = e.value;  
+      }.bind(this);
+  }  
+
     if (e.parentType == "dataRow") {
-      this.currentRow = e.row.rowIndex;  
-   }
+      this.currentRow = e.row.rowIndex;
+    }
 
     if (e.row?.isNewRow) {
       if (e.dataField == "Numero" && e.parentType == "dataRow") {
@@ -330,12 +341,23 @@ export class VoosComponent implements OnInit {
 
   }
 
-  onDataChegadaEstimadaValidation() {
-    return this.dataGrid.instance.cellValue(this.currentRow, 3);
+  validateActualArrivalDate() {
+    return this.editDataChegadaReal;
   }
 
-  onDataChegadaRealValidation() {
-    return this.dataGrid.instance.cellValue(this.currentRow, 4);
+  validateActualDepartureDate() {
+    return this.editDataHoraSaidaReal;
+  }
+
+  validateActualArrivalDateField(e) {
+    if(!(e.value)) return true;
+
+    return e.value > this.editDataHoraSaidaReal;
+  }
+
+  setActualDepartureDateCellValue(newData, value, currentRowData) {
+    newData.DataHoraSaidaReal = value;
+    this.editDataHoraSaidaReal = value;
   }
 
   onDataSaidaEstimadaChanged(e, cell) {

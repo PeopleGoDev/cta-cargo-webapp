@@ -8,6 +8,7 @@ import { DxButtonModule,
   DxDataGridModule } from 'devextreme-angular';
 import { ReceitaFederalClient } from 'app/shared/proxy/ctaapi';
 import { ButtonModule } from 'app/@shared/atoms/button/button.module';
+import { PipesModule } from 'app/shared/util/pipes.module';
 
 @NgModule({
   declarations: [ReceitaFederalComponent],
@@ -18,6 +19,7 @@ import { ButtonModule } from 'app/@shared/atoms/button/button.module';
     DxButtonGroupModule,
     DxToolbarModule,
     DxDataGridModule,
+    PipesModule,
     ButtonModule
   ],
   exports: [ ReceitaFederalComponent ],

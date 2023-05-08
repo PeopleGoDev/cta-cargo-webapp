@@ -5,7 +5,7 @@
                 <div class="card card-plain">
                     <div class="header">
                         <h4 class="title">Receita Federal</h4>
-                        <p class="category">Submeter Arquivos</p>
+                        <p class="category">Submeter Master</p>
                     </div>
                 </div>
             </div>
@@ -24,7 +24,7 @@
                                 <div style="display: table-cell">&nbsp;</div>
                                 <div style="display: table-cell">
                                     <dx-button-group [items]="botoesGBItems" accessKey="vooid" keyExpr="vooid"
-                                        [selectedItemKeys]="[curVoo]" (onItemClick)="OnItemClick($event)">
+                                        [selectedItemKeys]="[curVoo]" (onItemClick)="onItemClick($event)">
                                     </dx-button-group>
                                 </div>
                             </div>
@@ -35,55 +35,12 @@
                 </dx-toolbar>
             </div>
         </div>
-        <div class="row">
-            <div class="col-md-12">
-                <dx-data-grid id="tasks" [dataSource]="vooDetalheLista" keyExpr="VooId" [columnAutoWidth]="true"
-                    [wordWrapEnabled]="true" [showBorders]="true" (onRowPrepared)="OnRowPrepared($event)"
-                    [height]="120">
-                    <dxo-load-panel [enabled]="false"></dxo-load-panel>
-                    <dxi-column dataField="Numero" caption="Voo #" [width]="150" cellTemplate="numeroTemplate">
-                        <div *dxTemplate="let data of 'numeroTemplate'">
-                            <i *ngIf="data.data.StatusId == 1 && data.data.SituacaoRFBId == 0" class="dx-icon-check"
-                                style="color: green"></i>
-                            <i *ngIf="data.data.StatusId == 2 && data.data.SituacaoRFBId == 3" class="dx-icon-check"
-                                style="color: green"></i>
-                            <i *ngIf="data.data.StatusId == 2 && data.data.SituacaoRFBId == 1" class="dx-icon-info"
-                                style="color: blue"></i>
-                            {{ data.value }}<br />
-                            {{ statusData[data.data.StatusId].Descricao}}
-                        </div>
-                    </dxi-column>
-                    <dxi-column dataField="DataHoraSaidaEstimada" caption="Hora Saida Estimada" dataType="datetime">
-                    </dxi-column>
-                    <dxi-column dataField="DataHoraSaidaReal" caption="Hora Saida Atual" dataType="datetime">
-                    </dxi-column>
-                    <dxi-column dataField="DataHoraChegadaEstimada" caption="Hora Chegada Estimada" dataType="datetime">
-                    </dxi-column>
-                    <dxi-column dataField="DataHoraChegadaReal" caption="Hora Chegada Atual" dataType="datetime">
-                    </dxi-column>
-                    <dxi-column dataField="PortoOrigemId" caption="Porto Origem">
-                        <dxo-lookup [dataSource]="portosData" displayExpr="Codigo" valueExpr="PortoId">
-                        </dxo-lookup>
-                    </dxi-column>
-                    <dxi-column dataField="PortoDestinoId" caption="Porto Destino">
-                        <dxo-lookup [dataSource]="portosData" displayExpr="Codigo" valueExpr="PortoId">
-                        </dxo-lookup>
-                    </dxi-column>
-                    <dxi-column dataField="SituacaoRFBId" caption="Situação RFB">
-                        <dxo-lookup [dataSource]="statusRFB" displayExpr="Descricao" valueExpr="Id">
-                        </dxo-lookup>
-                    </dxi-column>
-                    <dxi-column dataField="Reenviar" caption="Reenviar">
-                    </dxi-column>
-                </dx-data-grid>
-            </div>
-        </div>
         <br/>
         <div class="row">
             <div class="col-md-12">
                 <dx-data-grid id="tasks" [dataSource]="mastersData" #masterDataGrid keyExpr="MasterId"
                     [columnAutoWidth]="true" [wordWrapEnabled]="true" [showBorders]="true"
-                    (onRowPrepared)="OnMasterRowPrepared($event)">
+                    (onRowPrepared)="onMasterRowPrepared($event)">
                     <dxo-load-panel [enabled]="false"></dxo-load-panel>
                     <dxi-column dataField="Numero" caption="MAWB/AWB" [width]="150" cellTemplate="awbTemplate">
                         <div *dxTemplate="let data of 'awbTemplate'">
@@ -145,7 +102,7 @@
         </div>
         <div class="row">
             <div class="col-md-12" style="margin-top: 20px;">
-                <app-button (buttonClicked)="OnClickUpload($event)"
+                <app-button (buttonClicked)="onClickUpload($event)"
                     [isButtonOrange]="true" [isDisabled]="!botaoUploadEnabled" [mobileFull]="true" id="modal-create-master-group-link">
                     Submeter Receita Federal
                 </app-button>

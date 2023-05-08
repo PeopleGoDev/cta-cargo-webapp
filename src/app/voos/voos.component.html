@@ -78,21 +78,23 @@
                                 </dxi-item>
                                 <dxi-item dataField="DataHoraChegadaEstimada">
                                     <dxi-validation-rule type="required" message="Data de Chegada Estimada requerida!"></dxi-validation-rule>
+                                    <dxi-validation-rule type="compare" 
+                                        [comparisonTarget]="validateActualDepartureDate" comparisonType=">"
+                                        message="A data de Chegada Estimada deve ser maior que a data de Saida Atual!">
+                                    </dxi-validation-rule>
                                 </dxi-item>
-                                <!-- <dxi-item dataField="DataHoraChegadaEstimada">
-                                    <dxi-validation-rule type="required" message="Chegada Estimada requerida!"></dxi-validation-rule>
-                                    <dxi-validation-rule type="compare" comparisonType=">"
-                                        [comparisonTarget]="onDataChegadaEstimadaValidation"
-                                        message="A data estimada de chegada dever maior que a data de saida estimada!">
+                                <dxi-item dataField="DataHoraChegadaReal">
+                                    <dxi-validation-rule type="custom" 
+                                        [validationCallback]="validateActualArrivalDateField"
+                                        message="A data de Chegada Atual deve ser maior que a data de Saida Atual!">
                                     </dxi-validation-rule>
-                                    <dxi-validation-rule type="compare" comparisonType=">"
-                                        [comparisonTarget]="onDataChegadaRealValidation"
-                                        message="A data estimada de chegada dever maior que a data de saida real!">
-                                    </dxi-validation-rule>
-                                </dxi-item> -->
-                                <dxi-item dataField="DataHoraChegadaReal"></dxi-item>
+                                </dxi-item>
                                 <dxi-item dataField="DataHoraSaidaEstimada">
                                     <dxi-validation-rule type="required" message="Saida Estimada requerida!"></dxi-validation-rule>
+                                    <dxi-validation-rule type="compare" 
+                                        [comparisonTarget]="validateActualArrivalDate" comparisonType=">"
+                                        message="A data estima dever ser maior que a data de Chegada Atual!">
+                                    </dxi-validation-rule>
                                 </dxi-item>
                             </dxi-item>
                         </dxo-form>
@@ -108,7 +110,7 @@
                         <dxi-column dataField="DataHoraSaidaEstimada" width="150" caption="Saida Estimada"
                             dataType="datetime" editCellTemplate="dataCellTemplate">
                         </dxi-column>
-                        <dxi-column dataField="DataHoraSaidaReal" width="150" caption="Saida Atual" 
+                        <dxi-column dataField="DataHoraSaidaReal" [setCellValue]="setActualDepartureDateCellValue" width="150" caption="Saida Atual" 
                             dataType="datetime" editCellTemplate="dataCellTemplate">
                         </dxi-column>
                         <dxi-column dataField="DataHoraChegadaEstimada" width="150" caption="Chegada Estimada"

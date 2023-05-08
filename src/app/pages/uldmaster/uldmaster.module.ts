@@ -13,7 +13,7 @@ import {
   DxScrollViewModule
 } from 'devextreme-angular';
 import { UldmasterComponent } from './uldmaster.component';
-import { MasteruldsumarioComponent } from 'app/uldmaster/components/masteruldsumario/masteruldsumario.component';
+import { MasteruldsumarioComponent } from 'app/pages/uldmaster/components/masteruldsumario/masteruldsumario.component';
 import { UldClient, VooClient } from 'app/shared/proxy/ctaapi';
 import { PipesModule } from 'app/shared/util/pipes.module';
 import { UldMasterDetailComponent } from './components/uld-master-detail/uld-master-detail.component';

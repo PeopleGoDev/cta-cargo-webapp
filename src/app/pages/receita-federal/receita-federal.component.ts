@@ -1,8 +1,9 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { MasterListarRequestDto, MasterResponseDto } from 'app/shared/model/dto/masterdto';
 import { PortoIATAResponseDto } from 'app/shared/model/dto/portoiatadto';
+import { MasterUldUploadByFlightDto } from 'app/shared/model/dto/uldmasterdto';
 import { StatusVoo } from 'app/shared/model/statusvoo';
-import { ReceitaFederalClient, UsuarioInfoResponse, VooClient, VooListaResponseDto, VooListarInputDto, VooResponseDto, VooUploadInput } from 'app/shared/proxy/ctaapi';
+import { ReceitaFederalClient, UsuarioInfoResponse, VooClient, VooListaResponseDto, VooListarInputDto, VooResponseDto, VooUploadInput, VooUploadResponse } from 'app/shared/proxy/ctaapi';
 import { LocalStorageService } from 'app/shared/services/localstorage.service';
 import { MasterService } from 'app/shared/services/master.service';
 import { StatusService } from 'app/shared/services/status.service';
@@ -21,14 +22,15 @@ export class ReceitaFederalComponent implements OnInit {
   refreshIcon: any;
   filtroDataVoo: Date;
   vooData: VooListaResponseDto[];
-  vooDetalheLista: VooResponseDto[] = [];
-  mastersData: Array<MasterResponseDto>;
+  vooDetalheLista: VooUploadResponse[] = [];
+  mastersDetail: Array<MasterUldUploadByFlightDto>;
   botoesGBItems: any = [];
   portosData: Array<PortoIATAResponseDto>;
   statusData: Array<StatusVoo>;
   statusRFB: Array<StatusVoo>;
   curVoo: number = -1;
   botaoUploadEnabled: boolean = false;
+  botaoUploadLabel: string = "SUBMETER VOO RFB";
   private usuarioInfo: UsuarioInfoResponse;
 
   constructor(private masterService: MasterService,
@@ -43,7 +45,7 @@ export class ReceitaFederalComponent implements OnInit {
     this.refreshIcon = {
       icon: "refresh",
       hint: "Refresh",
-      onClick: this.refreshGrid.bind(this)
+      onClick: this.refreshVooDetalhe.bind(this)
     };
   }
 
@@ -54,6 +56,7 @@ export class ReceitaFederalComponent implements OnInit {
   }
 
   async refreshListaVoos() {
+    this.mastersDetail = [];
     this.filtroDataVoo.setSeconds(0);
     this.filtroDataVoo.setMinutes(0);
     this.filtroDataVoo.setHours(0);
@@ -65,7 +68,6 @@ export class ReceitaFederalComponent implements OnInit {
     this.curVoo = -1;
     this.vooData = [];
     this.vooDetalheLista = [];
-    this.mastersData = null;
     this.botoesGBItems = null;
     this.botaoUploadEnabled = false;
 
@@ -74,10 +76,9 @@ export class ReceitaFederalComponent implements OnInit {
         if (res.result.Sucesso) {
           this.vooData = res.result.Dados;
           if (this.vooData.length > 0) {
-            this.botoesGBItems = this.AutoMapper(this.vooData);
+            this.botoesGBItems = this.autoMapper(this.vooData);
             this.curVoo = this.vooData[0].VooId;
             this.refreshVooDetalhe();
-            this.refreshGrid();
           }
         }
         else {
@@ -90,13 +91,13 @@ export class ReceitaFederalComponent implements OnInit {
 
   async refreshVooDetalhe() {
     this.vooDetalheLista = [];
-    this.vooClient.obterVooPorId(this.curVoo)
+    this.mastersDetail = [];
+    this.vooClient.obterVooUploadPorId(this.curVoo)
       .subscribe(res => {
         if (res.result.Sucesso) {
-
           this.vooDetalheLista.push(res.result.Dados);
-          if (res.result.Dados)
-            this.botaoUploadEnabled = true;
+          this.generateUldMasterList(res.result.Dados);
+          this.enableUploadButton(res.result.Dados);
         }
         else {
           notify(res.result.Notificacoes[0].Mensagem, 'error', environment.ErrorTimeout);
@@ -107,25 +108,28 @@ export class ReceitaFederalComponent implements OnInit {
       });
   }
 
-  async refreshGrid() {
-    let input: MasterListarRequestDto = new MasterListarRequestDto();
-
-    input.EmpresaId = +this.usuarioInfo.EmpresaId;
-    input.VooId = this.curVoo;
-
-    let res = await this.masterService.Listar(input);
-    if (res.Sucesso) {
-      this.mastersData = res.Dados;
-    }
-    else {
-      this.mastersData = null;
-      notify(res.Notificacoes[0].Mensagem, 'error', environment.ErrorTimeout);
-    }
+  private generateUldMasterList(data: VooUploadResponse) {
+    data.ULDs?.forEach(item => {
+      item.ULDs?.forEach(awb => {
+        let newItem: MasterUldUploadByFlightDto = {
+          ULD: item.ULDLinha,
+          Master: awb.MasterNumero,
+          Quantidade: awb.QuantidadePecas,
+          Peso: awb.Peso,
+          PesoUnidade: awb.PesoUnidade,
+          TotalParcial: awb.TotalParcial
+        };
+        this.mastersDetail.push(newItem);
+      });
+    });
   }
 
-  async UploadCompleto() {
+  private enableUploadButton(data: VooUploadResponse) {
+    this.botaoUploadEnabled = (data?.SituacaoRFBId !== 2 || (data?.SituacaoRFBId === 2 && data?.Reenviar));
+  }
+
+  async uploadCompleto() {
     let input: VooUploadInput = {
-      UsuarioId: +this.usuarioInfo.UsuarioId,
       VooId: this.curVoo
     }
 
@@ -133,25 +137,23 @@ export class ReceitaFederalComponent implements OnInit {
       .subscribe(res => {
         if (res.result.Sucesso) {
           this.refreshVooDetalhe();
-          this.refreshGrid();
-          notify("Arquivo Submetido com Sucesso!", 'success', environment.ErrorTimeout);
+          notify(res.result.Dados ?? "Arquivo Submetido com Sucesso!", 'success', environment.ErrorTimeout);
         }
         else {
           if (res.result.Notificacoes == undefined) {
-            notify("Erro desconhecido!", 'error', environment.ErrorTimeout)
+            notify(res.result.Dados ?? "Erro desconhecido!", 'error', environment.ErrorTimeout)
           }
           else {
             notify(res.result.Notificacoes[0].Mensagem, 'error', environment.ErrorTimeout);
           }
           this.refreshVooDetalhe();
-          this.refreshGrid();
         }
       }, err => {
         notify(err, 'error', environment.ErrorTimeout)
       });
   }
 
-  AutoMapper(dados: VooListaResponseDto[]) {
+  autoMapper(dados: VooListaResponseDto[]) {
     let arrayBG: any = [];
     if (dados == null) return arrayBG;
 
@@ -172,31 +174,20 @@ export class ReceitaFederalComponent implements OnInit {
     this.refreshListaVoos();
   }
 
-  OnItemClick(e) {
+  onItemClick(e) {
     if (e.itemData.vooid == this.curVoo) return;
     this.curVoo = e.itemData.vooid;
     this.refreshVooDetalhe();
-    this.refreshGrid();
   }
 
-  OnRowPrepared(e: any) {
+  onRowPrepared(e: any) {
     if (e.rowType == 'data') {
       if (e.data.SituacaoRFBId == 3)
         e.rowElement.style.color = 'red';
     }
   }
 
-  OnMasterRowPrepared(e: any) {
-
-    if (e.rowType != 'data' || e.data.SituacaoRFB != 3) return;
-
-    e.rowElement.style.color = 'red';
-
-    return;
-
-  }
-
-  UploadAction() {
+  uploadAction() {
     if (this.vooDetalheLista == undefined || this.vooDetalheLista == null || this.vooDetalheLista.length == 0) {
       this.botaoUploadEnabled = false;
       return;
@@ -220,11 +211,11 @@ export class ReceitaFederalComponent implements OnInit {
 
   }
 
-  OnClickUpload(e: any) {
+  onClickUpload(e: any) {
     let result = confirm("<i>Você tem certeza?</i>", "Você está prestes a enviar os dados para a Receita Federal. Confirma ?");
     result.then((dialogResult) => {
       if (dialogResult) {
-        this.UploadCompleto();
+        this.uploadCompleto();
       }
     });
   }

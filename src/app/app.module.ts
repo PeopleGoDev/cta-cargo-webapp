@@ -1,5 +1,5 @@
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { NgModule, LOCALE_ID } from '@angular/core';
+import { NgModule, LOCALE_ID, DEFAULT_CURRENCY_CODE } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
@@ -20,19 +20,19 @@ import { HomeModule } from './home/home.module';
 import { CiaaereasModule } from './ciaaereas/ciaaereas.module';
 import { VoosModule } from './voos/voos.module';
 import { MastersModule } from './masters/masters.module';
-import { HousesModule } from './houses/houses.module';
+import { HousesModule } from './pages/houses/houses.module';
 import { registerLocaleData } from '@angular/common';
 import ptBr from '@angular/common/locales/pt';
 import { locale, loadMessages } from 'devextreme/localization';
 import config from 'devextreme/core/config';
-import { ReceitaFederalModule } from './receita-federal/receita-federal.module';
-import { UldmasterModule } from './uldmaster/uldmaster.module';
+import { ReceitaFederalModule } from './pages/receita-federal/receita-federal.module';
+import { UldmasterModule } from './pages/uldmaster/uldmaster.module';
 import { PortoIataModule } from './porto-iata/porto-iata.module';
 import { NaturezaCargaModule } from './natureza-carga/natureza-carga.module';
 import { URL_BASE_URL_API } from './shared/proxy/ctaapi';
 import { environment } from 'environments/environment';
 import { AgenteCargaModule } from './agente-carga/agente-carga.module';
-import { ReceitaFederalHouseModule } from './receita-federal-house/receita-federal-house.module';
+import { ReceitaFederalHouseModule } from './pages/receita-federal-house/receita-federal-house.module';
 import { NgxSpinnerModule } from "ngx-spinner";
 import { SharedModule } from './shared/shared.module';
 import { ConsultaModule } from './consulta/consulta.module';
@@ -89,6 +89,9 @@ config({
       useValue: environment.BaseUrlApiCta,
       multi: true,
     },
+    // *************************************************
+    { provide: DEFAULT_CURRENCY_CODE, useValue: 'BRL' },
+    // *************************************************
   ],
   bootstrap: [AppComponent]
 })

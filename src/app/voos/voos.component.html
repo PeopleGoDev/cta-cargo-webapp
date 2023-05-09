@@ -12,8 +12,8 @@
         </div>
         <div class="row">
             <div class="col-md-12">
-                <dx-data-grid id="dataGrid" #dataGrid [dataSource]="voosData" keyExpr="VooId"
-                    [hoverStateEnabled]="true" [showBorders]="true" [columnAutoWidth]="true" [height]="400"
+                <dx-data-grid id="dataGrid" #dataGrid [dataSource]="voosData" keyExpr="VooId" [hoverStateEnabled]="true"
+                    [showBorders]="true" [columnAutoWidth]="true" [height]="400"
                     [masterDetail]="{ enabled: false, template: 'detail' }" (onRowUpdating)="onRowUpdating($event)"
                     (onRowInserting)="onRowInserting($event)" (onToolbarPreparing)="onToolbarPreparing($event)"
                     (onEditorPreparing)="onEditorPreparing($event)" (onRowPrepared)="onRowPrepared($event)">
@@ -74,26 +74,28 @@
                             </dxi-item>
                             <dxi-item itemType="group" caption="Datas" [colCount]="2" [colSpan]="2">
                                 <dxi-item dataField="DataHoraSaidaReal">
-                                    <dxi-validation-rule type="required" message="Saida Real requerida!"></dxi-validation-rule>
+                                    <dxi-validation-rule type="required"
+                                        message="Saida Real requerida!"></dxi-validation-rule>
                                 </dxi-item>
                                 <dxi-item dataField="DataHoraChegadaEstimada">
-                                    <dxi-validation-rule type="required" message="Data de Chegada Estimada requerida!"></dxi-validation-rule>
-                                    <dxi-validation-rule type="compare" 
-                                        [comparisonTarget]="validateActualDepartureDate" comparisonType=">"
+                                    <dxi-validation-rule type="required"
+                                        message="Data de Chegada Estimada requerida!"></dxi-validation-rule>
+                                    <dxi-validation-rule type="custom" [validationCallback]="validateEstimateArrivalDateField"
                                         message="A data de Chegada Estimada deve ser maior que a data de Saida Atual!">
                                     </dxi-validation-rule>
                                 </dxi-item>
                                 <dxi-item dataField="DataHoraChegadaReal">
-                                    <dxi-validation-rule type="custom" 
+                                    <dxi-validation-rule type="custom"
                                         [validationCallback]="validateActualArrivalDateField"
                                         message="A data de Chegada Atual deve ser maior que a data de Saida Atual!">
                                     </dxi-validation-rule>
                                 </dxi-item>
                                 <dxi-item dataField="DataHoraSaidaEstimada">
-                                    <dxi-validation-rule type="required" message="Saida Estimada requerida!"></dxi-validation-rule>
-                                    <dxi-validation-rule type="compare" 
-                                        [comparisonTarget]="validateActualArrivalDate" comparisonType=">"
-                                        message="A data estima dever ser maior que a data de Chegada Atual!">
+                                    <dxi-validation-rule type="required"
+                                        message="Saida Estimada requerida!"></dxi-validation-rule>
+                                    <dxi-validation-rule type="custom"
+                                        [validationCallback]="validateEstimatedDepartureDateField"
+                                        message="A data de Saida Estimada dever ser maior que a data de Chegada Atual ou maior que a data de Chegada Estimada!">
                                     </dxi-validation-rule>
                                 </dxi-item>
                             </dxi-item>
@@ -108,10 +110,10 @@
                         <dxi-column dataField="Numero" width="110"></dxi-column>
                         <dxi-column dataField="DataVoo" width="110" dataType="date" format="shortDate"></dxi-column>
                         <dxi-column dataField="DataHoraSaidaEstimada" width="150" caption="Saida Estimada"
-                            dataType="datetime" editCellTemplate="dataCellTemplate">
+                            dataType="datetime">
                         </dxi-column>
-                        <dxi-column dataField="DataHoraSaidaReal" [setCellValue]="setActualDepartureDateCellValue" width="150" caption="Saida Atual" 
-                            dataType="datetime" editCellTemplate="dataCellTemplate">
+                        <dxi-column dataField="DataHoraSaidaReal" [setCellValue]="setActualDepartureDateCellValue"
+                            width="150" caption="Saida Atual" dataType="datetime">
                         </dxi-column>
                         <dxi-column dataField="DataHoraChegadaEstimada" width="150" caption="Chegada Estimada"
                             dataType="datetime"></dxi-column>
@@ -174,7 +176,8 @@
                         Data Final&nbsp;
                     </div>
                     <div *dxTemplate="let cell of 'dataCellTemplate'">
-                        <dx-date-box [value]="cell.value" type="datetime" (onValueChanged)="onDataSaidaEstimadaChanged($event, cell)">
+                        <dx-date-box [value]="cell.value" type="datetime"
+                            (onValueChanged)="onDataSaidaEstimadaChanged($event, cell)">
                         </dx-date-box>
                     </div>
                     <div *dxTemplate="let voo of 'detail'">

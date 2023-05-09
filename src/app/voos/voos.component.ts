@@ -33,6 +33,7 @@ export class VoosComponent implements OnInit {
   currentRow: number;
 
   private editDataHoraSaidaReal: Date;
+  private editDataChegadaEstimada: Date;
   private editDataChegadaReal: Date;
 
   buttonOptionsExcluir = {
@@ -63,6 +64,8 @@ export class VoosComponent implements OnInit {
     this.validateActualDepartureDate = this.validateActualDepartureDate.bind(this);
     this.setActualDepartureDateCellValue = this.setActualDepartureDateCellValue.bind(this);
     this.validateActualArrivalDateField = this.validateActualArrivalDateField.bind(this);
+    this.validateEstimatedDepartureDateField = this.validateEstimatedDepartureDateField.bind(this);
+    this.validateEstimateArrivalDateField = this.validateEstimateArrivalDateField.bind(this);
   }
 
   ngOnInit(): void {
@@ -250,11 +253,26 @@ export class VoosComponent implements OnInit {
   onEditorPreparing(e: any): void {
     this.somenteLeitura = false;
 
-    if (e.parentType == 'dataRow' && e.dataField == 'DataHoraChegadaReal') {  
-      e.editorOptions.onValueChanged = function(e) {
-        this.editDataChegadaReal = e.value;  
+    if (e.parentType == 'dataRow' && e.dataField == 'DataHoraSaidaReal') {
+      this.editDataHoraSaidaReal = e.value;
+      e.editorOptions.onValueChanged = function (e) {
+        this.editDataHoraSaidaReal = e.value;
       }.bind(this);
-  }  
+    }
+
+    if (e.parentType == 'dataRow' && e.dataField == 'DataHoraChegadaReal') {
+      this.editDataChegadaReal = e.value;
+      e.editorOptions.onValueChanged = function (e) {
+        this.editDataChegadaReal = e.value;
+      }.bind(this);
+    }
+
+    if (e.parentType == 'dataRow' && e.dataField == 'DataHoraChegadaEstimada') {
+      this.editDataChegadaEstimada = e.value;
+      e.editorOptions.onValueChanged = function(e) {
+        this.editDataChegadaEstimada = e.value;  
+      }.bind(this);
+    }
 
     if (e.parentType == "dataRow") {
       this.currentRow = e.row.rowIndex;
@@ -345,12 +363,29 @@ export class VoosComponent implements OnInit {
     return this.editDataChegadaReal;
   }
 
+  validateEstimatedDepartureDateField(e) {
+    if (this.editDataChegadaReal)
+      return e.value > this.editDataHoraSaidaReal;
+
+    if (this.editDataChegadaEstimada)
+      return e.value > this.editDataChegadaEstimada;
+
+    return false;
+  }
+
+  validateEstimateArrivalDateField(e) {
+    if (this.editDataHoraSaidaReal)
+    return e.value > this.editDataHoraSaidaReal;
+
+    return false;
+  };
+
   validateActualDepartureDate() {
     return this.editDataHoraSaidaReal;
   }
 
   validateActualArrivalDateField(e) {
-    if(!(e.value)) return true;
+    if (!(e.value)) return true;
 
     return e.value > this.editDataHoraSaidaReal;
   }

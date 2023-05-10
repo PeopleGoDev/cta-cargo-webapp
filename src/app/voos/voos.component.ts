@@ -9,7 +9,8 @@ import { StatusService } from 'app/shared/services/status.service';
 import notify from 'devextreme/ui/notify';
 import { UsuarioInfoResponse, VooClient, VooListarInputDto, VooResponseDto, VooUpdateRequestDto } from 'app/shared/proxy/ctaapi';
 import { environment } from 'environments/environment';
-import { DxDataGridComponent } from 'devextreme-angular';
+import { DxDataGridComponent, DxFormComponent } from 'devextreme-angular';
+import validationEngine from 'devextreme/ui/validation_engine';
 
 @Component({
   selector: 'app-voos',
@@ -19,6 +20,7 @@ import { DxDataGridComponent } from 'devextreme-angular';
 
 export class VoosComponent implements OnInit {
   @ViewChild("dataGrid") dataGrid: DxDataGridComponent;
+  @ViewChild("formGrid") formGrid: any;
   botaoModo: string;
   filtroDataInicial: Date;
   filtroDataFinal: Date;
@@ -32,9 +34,10 @@ export class VoosComponent implements OnInit {
   private usuarioInfo: UsuarioInfoResponse;
   currentRow: number;
 
-  private editDataHoraSaidaReal: Date;
+  private editDataSaidaReal: Date;
   private editDataChegadaEstimada: Date;
   private editDataChegadaReal: Date;
+  private editDataSaidaEstimada: Date;
 
   buttonOptionsExcluir = {
     text: "Excluir",
@@ -60,12 +63,12 @@ export class VoosComponent implements OnInit {
     this.onEditDelete = this.onEditDelete.bind(this);
     this.onRowDelete = this.onRowDelete.bind(this);
     this.onResendFlight = this.onResendFlight.bind(this);
-    this.validateActualArrivalDate = this.validateActualArrivalDate.bind(this);
-    this.validateActualDepartureDate = this.validateActualDepartureDate.bind(this);
-    this.setActualDepartureDateCellValue = this.setActualDepartureDateCellValue.bind(this);
     this.validateActualArrivalDateField = this.validateActualArrivalDateField.bind(this);
     this.validateEstimatedDepartureDateField = this.validateEstimatedDepartureDateField.bind(this);
     this.validateEstimateArrivalDateField = this.validateEstimateArrivalDateField.bind(this);
+    this.onDataSaidaEstimadaChanged = this.onDataSaidaEstimadaChanged.bind(this);
+    this.validateEstimateArrivalDateCompare = this.validateEstimateArrivalDateCompare.bind(this);
+    this.validateEstimatedDepartureDateCompare = this.validateEstimatedDepartureDateCompare.bind(this);
   }
 
   ngOnInit(): void {
@@ -253,29 +256,15 @@ export class VoosComponent implements OnInit {
   onEditorPreparing(e: any): void {
     this.somenteLeitura = false;
 
-    if (e.parentType == 'dataRow' && e.dataField == 'DataHoraSaidaReal') {
-      this.editDataHoraSaidaReal = e.value;
-      e.editorOptions.onValueChanged = function (e) {
-        this.editDataHoraSaidaReal = e.value;
-      }.bind(this);
-    }
-
-    if (e.parentType == 'dataRow' && e.dataField == 'DataHoraChegadaReal') {
-      this.editDataChegadaReal = e.value;
-      e.editorOptions.onValueChanged = function (e) {
-        this.editDataChegadaReal = e.value;
-      }.bind(this);
-    }
-
-    if (e.parentType == 'dataRow' && e.dataField == 'DataHoraChegadaEstimada') {
-      this.editDataChegadaEstimada = e.value;
-      e.editorOptions.onValueChanged = function(e) {
-        this.editDataChegadaEstimada = e.value;  
-      }.bind(this);
-    }
-
     if (e.parentType == "dataRow") {
       this.currentRow = e.row.rowIndex;
+    }
+
+    if(e.row.data) {
+      this.editDataSaidaReal = e.row.data.DataHoraSaidaReal ? new Date(e.row.data.DataHoraSaidaReal) : undefined;
+      this.editDataChegadaEstimada = e.row.data.DataHoraChegadaEstimada ? new Date(e.row.data.DataHoraChegadaEstimada) : undefined;
+      this.editDataChegadaReal = e.row.data.DataHoraChegadaReal ? new Date(e.row.data.DataHoraChegadaReal) : undefined;
+      this.editDataSaidaEstimada = e.row.data.DataHoraSaidaEstimada ? new Date(e.row.data.DataHoraSaidaEstimada) : undefined;
     }
 
     if (e.row?.isNewRow) {
@@ -313,11 +302,17 @@ export class VoosComponent implements OnInit {
   }
 
   onEditSave(e: any) {
+    let gridInstance = this.dataGrid.instance as any;
+    gridInstance.getController("validating").validate(true)
+    .then((r) => {
+      // gridInstance.refresh();
+    });
 
     this.dataGrid.instance.saveEditData().then(() => {
       if (!this.dataGrid.instance.hasEditData()) {
         // Saved successfully
       } else {
+        console.log('Nada para salvar!');
         // Saving failed
       }
     });
@@ -359,13 +354,9 @@ export class VoosComponent implements OnInit {
 
   }
 
-  validateActualArrivalDate() {
-    return this.editDataChegadaReal;
-  }
-
   validateEstimatedDepartureDateField(e) {
     if (this.editDataChegadaReal)
-      return e.value > this.editDataHoraSaidaReal;
+      return e.value > this.editDataSaidaReal;
 
     if (this.editDataChegadaEstimada)
       return e.value > this.editDataChegadaEstimada;
@@ -374,29 +365,48 @@ export class VoosComponent implements OnInit {
   }
 
   validateEstimateArrivalDateField(e) {
-    if (this.editDataHoraSaidaReal)
-    return e.value > this.editDataHoraSaidaReal;
+    if (this.editDataSaidaReal)
+      return e.value > this.editDataSaidaReal;
 
     return false;
   };
 
-  validateActualDepartureDate() {
-    return this.editDataHoraSaidaReal;
-  }
+  validateEstimateArrivalDateCompare() {
+    return this.editDataSaidaReal;
+  };
+
+  validateEstimatedDepartureDateCompare() {
+    if (this.editDataChegadaReal)
+      return this.editDataChegadaReal;
+
+    return this.editDataChegadaEstimada;
+  };
+
 
   validateActualArrivalDateField(e) {
     if (!(e.value)) return true;
 
-    return e.value > this.editDataHoraSaidaReal;
-  }
-
-  setActualDepartureDateCellValue(newData, value, currentRowData) {
-    newData.DataHoraSaidaReal = value;
-    this.editDataHoraSaidaReal = value;
+    return e.value > this.editDataSaidaReal;
   }
 
   onDataSaidaEstimadaChanged(e, cell) {
+
     cell.setValue(e.value);
+
+    switch(cell.column.dataField) {
+      case "DataHoraSaidaReal":
+        this.editDataSaidaReal = e.value;
+        break;
+      case "DataHoraChegadaEstimada":
+        this.editDataChegadaEstimada = e.value;
+        break;
+      case "DataHoraChegadaReal":
+        this.editDataChegadaReal = e.value;
+        break;
+      case "DataHoraSaidaEstimada":
+        this.editDataSaidaEstimada = e.value;
+        break;
+    }
   }
 
 }

@@ -1,10 +1,8 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { MasterListarRequestDto } from 'app/shared/model/dto/masterdto';
+import { Component, OnInit } from '@angular/core';
 import { PortoIATAResponseDto } from 'app/shared/model/dto/portoiatadto';
 import { StatusVoo } from 'app/shared/model/statusvoo';
-import { MasterClient, MasterResponseDto, ReceitaFederalClient, UsuarioInfoResponse, VooClient, VooListaResponseDto, VooListarInputDto, VooResponseDto, VooUploadInput } from 'app/shared/proxy/ctaapi';
+import { MasterClient, MasterListarRequest, MasterResponseDto, ReceitaFederalClient, UsuarioInfoResponse, VooClient, VooListaResponseDto, VooListarInputDto, VooResponseDto, VooUploadInput } from 'app/shared/proxy/ctaapi';
 import { LocalStorageService } from 'app/shared/services/localstorage.service';
-import { MasterService } from 'app/shared/services/master.service';
 import { StatusService } from 'app/shared/services/status.service';
 import { confirm } from 'devextreme/ui/dialog';
 import notify from 'devextreme/ui/notify';
@@ -31,8 +29,7 @@ export class ReceitaFederalMasterComponent implements OnInit {
   botaoUploadEnabled: boolean = false;
   private usuarioInfo: UsuarioInfoResponse;
 
-  constructor(private masterService: MasterService,
-    private localstorageService: LocalStorageService,
+  constructor(private localstorageService: LocalStorageService,
     private statusService: StatusService,
     private vooClient: VooClient,
     private masterClient: MasterClient,
@@ -89,10 +86,9 @@ export class ReceitaFederalMasterComponent implements OnInit {
   }
 
   async refreshGrid() {
-    let input: MasterListarRequestDto = new MasterListarRequestDto();
-
-    input.EmpresaId = +this.usuarioInfo.EmpresaId;
-    input.VooId = this.curVoo;
+    const input: MasterListarRequest = {
+      VooId: this.curVoo
+    }
 
     let res = await this.masterClient.listarMasters(input)
     .subscribe(res => {

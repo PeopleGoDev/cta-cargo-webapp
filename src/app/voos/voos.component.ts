@@ -1,16 +1,13 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { VooInsertRequestDto } from 'app/shared/model/dto/voodto';
 import { LocalStorageService } from 'app/shared/services/localstorage.service';
-import { VoosService } from 'app/shared/services/voos.service';
 import { PortoIATAResponseDto } from 'app/shared/model/dto/portoiatadto';
 import { StatusVoo } from 'app/shared/model/statusvoo';
 import { confirm } from 'devextreme/ui/dialog';
 import { StatusService } from 'app/shared/services/status.service';
 import notify from 'devextreme/ui/notify';
-import { UsuarioInfoResponse, VooClient, VooListarInputDto, VooResponseDto, VooUpdateRequestDto } from 'app/shared/proxy/ctaapi';
+import { UsuarioInfoResponse, VooClient, VooInsertRequestDto, VooListarInputDto, VooResponseDto, VooUpdateRequestDto } from 'app/shared/proxy/ctaapi';
 import { environment } from 'environments/environment';
-import { DxDataGridComponent, DxFormComponent } from 'devextreme-angular';
-import validationEngine from 'devextreme/ui/validation_engine';
+import { DxDataGridComponent } from 'devextreme-angular';
 
 @Component({
   selector: 'app-voos',
@@ -52,8 +49,7 @@ export class VoosComponent implements OnInit {
     }
   };
 
-  constructor(private voosService: VoosService,
-    private localstorage: LocalStorageService,
+  constructor(private localstorage: LocalStorageService,
     private statusService: StatusService,
     private vooClient: VooClient) {
     this.statusData = this.statusService.getStatus();
@@ -121,51 +117,54 @@ export class VoosComponent implements OnInit {
 
     const newData: VooResponseDto = e.data;
 
-    const insertRequest: VooInsertRequestDto = new VooInsertRequestDto(
-      +this.usuarioInfo.EmpresaId,
-      newData.Numero.toUpperCase(),
-      newData.DataVoo,
-      +this.usuarioInfo.UsuarioId,
-      newData.DataHoraSaidaEstimada,
-      newData.DataHoraSaidaReal,
-      newData.DataHoraChegadaEstimada,
-      newData.DataHoraChegadaReal,
-      newData.PesoBruto,
-      newData.PesoBrutoUnidade,
-      newData.Volume,
-      newData.VolumeUnidade,
-      newData.TotalPacotes,
-      newData.TotalPecas
-    );
-    insertRequest.AeroportoOrigemCodigo = newData.AeroportoOrigemCodigo.toUpperCase();
-    insertRequest.AeroportoDestinoCodigo = newData.AeroportoDestinoCodigo.toUpperCase();
+    const insertRequest: VooInsertRequestDto = {
+      Numero: newData.Numero.toUpperCase(),
+      DataVoo: newData.DataVoo,
+      UsuarioInsercaoId: +this.usuarioInfo.UsuarioId,
+      DataHoraSaidaEstimada: newData.DataHoraSaidaEstimada,
+      DataHoraSaidaReal: newData.DataHoraSaidaReal,
+      DataHoraChegadaEstimada: newData.DataHoraChegadaEstimada,
+      DataHoraChegadaReal: newData.DataHoraChegadaReal,
+      PesoBruto: newData.PesoBruto,
+      PesoBrutoUnidade: newData.PesoBrutoUnidade,
+      Volume: newData.Volume,
+      VolumeUnidade: newData.VolumeUnidade,
+      TotalPacotes: newData.TotalPacotes,
+      TotalPecas: newData.TotalPecas,
+      AeroportoOrigemCodigo: newData.AeroportoOrigemCodigo.toUpperCase(),
+      AeroportoDestinoCodigo: newData.AeroportoDestinoCodigo.toUpperCase()
+    };
 
-    let res = await this.voosService.Inserir(insertRequest);
-
-    if (res.Sucesso) {
-      // Atualiza o item da lista de Cia Aéreas
-      this.voosData.push(res.Dados);
-      this.dataGrid.instance.cancelEditData();
-    }
-    else {
-      notify(res.Notificacoes[0].Mensagem, 'error', 3000);
-    }
+    this.vooClient.inserirVoo(insertRequest)
+      .subscribe(res => {
+        if (res.result.Sucesso) {
+          this.voosData.push(res.result.Dados);
+          this.dataGrid.instance.cancelEditData();
+        }
+        else {
+          notify(res.result.Notificacoes[0].Mensagem, 'error', 3000);
+        }
+      }, err => {
+        notify(err, 'error', 3000);
+      });
   }
 
   async onRowDelete() {
-
-    let res = await this.voosService.Excluir(this.curgridKey);
-
-    if (res.Sucesso) {
-      let item = this.voosData.find(x => x.VooId == this.curgridKey);
-      var index = this.voosData.indexOf(item);
-      this.voosData.splice(index, 1);
-      this.dataGrid.instance.cancelEditData();
-    }
-    else {
-      notify(res.Notificacoes[0].Mensagem, 'error', 3000);
-      this.dataGrid.instance.cancelEditData();
-    }
+    this.vooClient.excluirVoo(this.curgridKey)
+      .subscribe(res => {
+        if (res.result.Sucesso) {
+          let item = this.voosData.find(x => x.VooId == this.curgridKey);
+          var index = this.voosData.indexOf(item);
+          this.voosData.splice(index, 1);
+          this.dataGrid.instance.cancelEditData();
+        }
+        else {
+          notify(res.result.Notificacoes[0].Mensagem, 'error', 3000);
+          this.dataGrid.instance.cancelEditData();
+        }
+      }, err => {
+        notify(err, 'error', 3000);
+      });
   }
 
   onToolbarPreparing(e) {
@@ -260,7 +259,7 @@ export class VoosComponent implements OnInit {
       this.currentRow = e.row.rowIndex;
     }
 
-    if(e.row.data) {
+    if (e.row.data) {
       this.editDataSaidaReal = e.row.data.DataHoraSaidaReal ? new Date(e.row.data.DataHoraSaidaReal) : undefined;
       this.editDataChegadaEstimada = e.row.data.DataHoraChegadaEstimada ? new Date(e.row.data.DataHoraChegadaEstimada) : undefined;
       this.editDataChegadaReal = e.row.data.DataHoraChegadaReal ? new Date(e.row.data.DataHoraChegadaReal) : undefined;
@@ -304,9 +303,9 @@ export class VoosComponent implements OnInit {
   onEditSave(e: any) {
     let gridInstance = this.dataGrid.instance as any;
     gridInstance.getController("validating").validate(true)
-    .then((r) => {
-      // gridInstance.refresh();
-    });
+      .then((r) => {
+        // gridInstance.refresh();
+      });
 
     this.dataGrid.instance.saveEditData().then(() => {
       if (!this.dataGrid.instance.hasEditData()) {
@@ -393,7 +392,7 @@ export class VoosComponent implements OnInit {
 
     cell.setValue(e.value);
 
-    switch(cell.column.dataField) {
+    switch (cell.column.dataField) {
       case "DataHoraSaidaReal":
         this.editDataSaidaReal = e.value;
         break;

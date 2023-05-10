@@ -1,10 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AutenticacaoService } from 'app/shared/services/autenticacao.service';
 import { LocalStorageService } from 'app/shared/services/localstorage.service';
-import { Observable } from 'rxjs/Rx';
 import notify from 'devextreme/ui/notify';
-import { LoginInput } from 'app/shared/model/logininput';
 import { AccountClient, UsuarioLoginRequest } from 'app/shared/proxy/ctaapi';
 
 @Component({
@@ -26,7 +23,6 @@ export class LoginComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private autenticacaoService: AutenticacaoService,
     private localstorage: LocalStorageService,
     private accountClient: AccountClient,
   ) { }

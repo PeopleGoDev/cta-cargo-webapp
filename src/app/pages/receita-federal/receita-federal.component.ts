@@ -1,15 +1,20 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { MasterListarRequestDto, MasterResponseDto } from 'app/shared/model/dto/masterdto';
 import { PortoIATAResponseDto } from 'app/shared/model/dto/portoiatadto';
-import { MasterUldUploadByFlightDto } from 'app/shared/model/dto/uldmasterdto';
 import { StatusVoo } from 'app/shared/model/statusvoo';
-import { ReceitaFederalClient, UsuarioInfoResponse, VooClient, VooListaResponseDto, VooListarInputDto, VooResponseDto, VooUploadInput, VooUploadResponse } from 'app/shared/proxy/ctaapi';
-import { LocalStorageService } from 'app/shared/services/localstorage.service';
-import { MasterService } from 'app/shared/services/master.service';
+import { ReceitaFederalClient, VooClient, VooListaResponseDto, VooListarInputDto, VooUploadInput, VooUploadResponse } from 'app/shared/proxy/ctaapi';
 import { StatusService } from 'app/shared/services/status.service';
 import { confirm } from 'devextreme/ui/dialog';
 import notify from 'devextreme/ui/notify';
 import { environment } from 'environments/environment';
+
+export class MasterUldUploadByFlightDto {
+  public ULD: string
+  public Master?: string
+  public Quantidade?: number
+  public Peso?: number
+  public PesoUnidade?: string
+  public TotalParcial?: string
+}
 
 @Component({
   selector: 'app-receita-federal',
@@ -31,11 +36,8 @@ export class ReceitaFederalComponent implements OnInit {
   curVoo: number = -1;
   botaoUploadEnabled: boolean = false;
   botaoUploadLabel: string = "SUBMETER VOO RFB";
-  private usuarioInfo: UsuarioInfoResponse;
 
-  constructor(private masterService: MasterService,
-    private localstorageService: LocalStorageService,
-    private statusService: StatusService,
+  constructor(private statusService: StatusService,
     private vooClient: VooClient,
     private receitaFederalClient: ReceitaFederalClient) {
 
@@ -51,7 +53,6 @@ export class ReceitaFederalComponent implements OnInit {
 
   ngOnInit(): void {
     this.filtroDataVoo = new Date();
-    this.usuarioInfo = this.localstorageService.getLocalStore().UsuarioInfo;
     this.refreshListaVoos();
   }
 

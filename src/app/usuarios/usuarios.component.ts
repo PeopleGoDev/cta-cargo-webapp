@@ -1,16 +1,11 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { CiaAereaUsuario } from 'app/shared/model/ciaaereausuario';
-import { CiaAereaSimplesResponseDto } from 'app/shared/model/dto/ciaaereadto';
 import { UsuarioInsertDto, UsuarioResponseDto, UsuarioUpdateDto, UsuarioResetDto } from 'app/shared/model/dto/usuariodto';
-import { Result } from 'app/shared/model/result';
-import { CiaaereaService } from 'app/shared/services/ciaaerea.service';
 import { UsuariosService } from 'app/shared/services/usuarios.service';
 import notify from 'devextreme/ui/notify';
 import { confirm } from 'devextreme/ui/dialog';
-import { CertificadoService } from 'app/shared/services/certificado.service';
-import { CertificadoDigitalResponseDto } from 'app/shared/model/dto/certificadodigitaldto';
 import { LocalStorageService } from 'app/shared/services/localstorage.service';
-import { UsuarioInfoResponse } from 'app/shared/proxy/ctaapi';
+import { CertificadoDigitalClient, CiaAereaClient, CiaAreaListaSimplesResponse, UsuarioInfoResponse } from 'app/shared/proxy/ctaapi';
+import { environment } from 'environments/environment';
 
 @Component({
   selector: 'app-usuarios',
@@ -21,11 +16,9 @@ import { UsuarioInfoResponse } from 'app/shared/proxy/ctaapi';
 export class UsuariosComponent implements OnInit {
   @ViewChild("dataGrid") dataGrid;
   usuarios: UsuarioResponseDto[];
-  cias: CiaAereaSimplesResponseDto[];
+  cias: CiaAreaListaSimplesResponse[];
   certificados: any[];
   loadingVisible: boolean = false;
-  private empresaId: number = 1;
-  private usuarioId: number = 2;
   newrowBotao: boolean = false;
   private curgridKey: number = 0;
   buttonOptions = {
@@ -55,22 +48,22 @@ export class UsuariosComponent implements OnInit {
   private usuarioInfo: UsuarioInfoResponse;
 
   constructor(private usuariosService: UsuariosService,
-    private ciasService: CiaaereaService,
+    private ciaAereaClient: CiaAereaClient,
     private localstorageService: LocalStorageService,
-    private certificadoService: CertificadoService) { 
-      this.onRowDelete = this.onRowDelete.bind(this);
-      this.buttonOptions.onClick = this.buttonOptions.onClick.bind(this);
-      this.buttonOptionsExcluir.onClick = this.buttonOptionsExcluir.onClick.bind(this);
-      this.ResetarSenha = this.ResetarSenha.bind(this);
-    }
+    private certificadoDigitalClient: CertificadoDigitalClient) {
+    this.onRowDelete = this.onRowDelete.bind(this);
+    this.buttonOptions.onClick = this.buttonOptions.onClick.bind(this);
+    this.buttonOptionsExcluir.onClick = this.buttonOptionsExcluir.onClick.bind(this);
+    this.ResetarSenha = this.ResetarSenha.bind(this);
+  }
 
   ngOnInit(): void {
 
     this.usuarioInfo = this.localstorageService.getLocalStore().UsuarioInfo;
-    
-    const ciasObservable = this.ciasService.ListarSimples(this.usuarioInfo.EmpresaId);
-    ciasObservable.subscribe((ciasData: Result<CiaAereaSimplesResponseDto[]>) => {
-      this.cias = ciasData.Dados;
+
+    const ciasObservable = this.ciaAereaClient.listarCiasAereasSimples(this.usuarioInfo.EmpresaId);
+    ciasObservable.subscribe((ciasData) => {
+      this.cias = ciasData.result.Dados;
     }, err => {
       // Notificar erro
     });
@@ -99,7 +92,7 @@ export class UsuariosComponent implements OnInit {
       this.usuarioInfo.UsuarioId
     );
 
-    updateRequest.CertificadoDigitalId = newData.CertificadoDigitalId == null ? null: newData.CertificadoDigitalId;
+    updateRequest.CertificadoDigitalId = newData.CertificadoDigitalId == null ? null : newData.CertificadoDigitalId;
 
     let res = await this.usuariosService.Atualizar(updateRequest);
 
@@ -135,7 +128,7 @@ export class UsuariosComponent implements OnInit {
       newData.AcessoCompanhias,
       this.usuarioInfo.UsuarioId
     );
-    insertRequest.CertificadoDigitalId = newData.CertificadoDigitalId == null ? null: newData.CertificadoDigitalId;
+    insertRequest.CertificadoDigitalId = newData.CertificadoDigitalId == null ? null : newData.CertificadoDigitalId;
 
     let res = await this.usuariosService.Inserir(insertRequest);
 
@@ -226,7 +219,7 @@ export class UsuariosComponent implements OnInit {
       if (e.dataField == "AcessoCompanhias" && e.parentType == "dataRow") {
         e.editorOptions.value = false;
       }
-      
+
     }
     else {
       if (e.dataField == "Nome" && e.parentType == "dataRow") {
@@ -253,27 +246,28 @@ export class UsuariosComponent implements OnInit {
     }
   }
 
-  async RefreshCertificados() {
-
+  RefreshCertificados() {
     this.loadingVisible = true;
 
-    const res = await this.certificadoService.Listar(this.usuarioInfo.EmpresaId);
-
-    if (res.Sucesso) {
-      this.certificados = res.Dados.map(item => {
-        return {
-          id: item.Id,
-          nome: `${item.NomeDono} | Vencimento: ${item.DataVencimento}`,
-          expireDate: item.DataVencimento,
+    this.certificadoDigitalClient.listarCertificadosDigitais(this.usuarioInfo.EmpresaId)
+      .subscribe(res => {
+        if (res.result.Sucesso) {
+          this.certificados = res.result.Dados.map(item => {
+            return {
+              id: item.Id,
+              nome: `${item.NomeDono} | Vencimento: ${item.DataVencimento}`,
+              expireDate: item.DataVencimento,
+            }
+          });
+          this.loadingVisible = false;
         }
+        else {
+          notify(res.result.Notificacoes[0].Mensagem, 'error', 3000);
+          this.loadingVisible = false;
+        }
+      }, err => {
+        notify(err, 'error', environment.ErrorTimeout);
       });
-      this.loadingVisible = false;
-    }
-    else {
-      notify(res.Notificacoes[0].Mensagem, 'error', 3000);
-      this.loadingVisible = false;
-    }
-
   }
 
 }

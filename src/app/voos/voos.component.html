@@ -54,12 +54,14 @@
                             }">
                             </dxi-toolbar-item>
                         </dxo-popup>
-                        <dxo-form>
+                        <dxo-form validationGroup="gridForm" validationGroup="groupName" #formGrid>
                             <dxi-item itemType="group" caption="Informações do Voo" [colCount]="2" [colSpan]="2">
                                 <dxi-item dataField="Numero"
                                     [editorOptions]="{ maxLength: 6, inputAttr: {'style': 'text-transform: uppercase'} }">
+                                    <dxi-validation-rule type="required" message="Número do voo é requerido!"></dxi-validation-rule>
                                 </dxi-item>
                                 <dxi-item dataField="DataVoo">
+                                    <dxi-validation-rule type="required" message="A data do voo é requerida!"></dxi-validation-rule>
                                 </dxi-item>
                                 <dxi-item dataField="AeroportoOrigemCodigo" [editorOptions]="{ maxLength: 3 }">
                                     <dxi-validation-rule type="required"></dxi-validation-rule>
@@ -80,7 +82,8 @@
                                 <dxi-item dataField="DataHoraChegadaEstimada">
                                     <dxi-validation-rule type="required"
                                         message="Data de Chegada Estimada requerida!"></dxi-validation-rule>
-                                    <dxi-validation-rule type="custom" [validationCallback]="validateEstimateArrivalDateField"
+                                    <dxi-validation-rule type="compare" type="compare" comparisonType=">"
+                                        [comparisonTarget]="validateEstimateArrivalDateCompare"
                                         message="A data de Chegada Estimada deve ser maior que a data de Saida Atual!">
                                     </dxi-validation-rule>
                                 </dxi-item>
@@ -93,8 +96,8 @@
                                 <dxi-item dataField="DataHoraSaidaEstimada">
                                     <dxi-validation-rule type="required"
                                         message="Saida Estimada requerida!"></dxi-validation-rule>
-                                    <dxi-validation-rule type="custom"
-                                        [validationCallback]="validateEstimatedDepartureDateField"
+                                    <dxi-validation-rule type="compare" comparisonType=">"
+                                        [comparisonTarget]="validateEstimatedDepartureDateCompare"
                                         message="A data de Saida Estimada dever ser maior que a data de Chegada Atual ou maior que a data de Chegada Estimada!">
                                     </dxi-validation-rule>
                                 </dxi-item>
@@ -110,15 +113,14 @@
                         <dxi-column dataField="Numero" width="110"></dxi-column>
                         <dxi-column dataField="DataVoo" width="110" dataType="date" format="shortDate"></dxi-column>
                         <dxi-column dataField="DataHoraSaidaEstimada" width="150" caption="Saida Estimada"
-                            dataType="datetime">
+                            dataType="datetime" editCellTemplate="dataCellTemplate">
                         </dxi-column>
-                        <dxi-column dataField="DataHoraSaidaReal" [setCellValue]="setActualDepartureDateCellValue"
-                            width="150" caption="Saida Atual" dataType="datetime">
+                        <dxi-column dataField="DataHoraSaidaReal" width="150" caption="Saida Atual" dataType="datetime" editCellTemplate="dataCellTemplate">
                         </dxi-column>
                         <dxi-column dataField="DataHoraChegadaEstimada" width="150" caption="Chegada Estimada"
-                            dataType="datetime"></dxi-column>
+                            dataType="datetime" editCellTemplate="dataCellTemplate"></dxi-column>
                         <dxi-column dataField="DataHoraChegadaReal" width="150" caption="Chegada Atual"
-                            dataType="datetime">
+                            dataType="datetime" editCellTemplate="dataCellTemplate">
                         </dxi-column>
                         <dxi-column dataField="StatusId" width="160" caption="Status" [allowEditing]="false">
                             <dxo-lookup [dataSource]="statusData" displayExpr="Descricao" valueExpr="Id">

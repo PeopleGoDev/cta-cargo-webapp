@@ -1,17 +1,13 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { AdminLayoutComponent } from 'app/layouts/admin-layout/admin-layout.component';
 import { AWBReference } from 'app/shared/lib';
-import { UldMasterInsertRequest, UldMasterResponseDto, UldMasterUpdateRequest, UldMasterDeleteByTagInput, UldMasterDeleteByIdInput } from 'app/shared/model/dto/uldmasterdto';
-import { ListaUldMasterRequest, MasterNumeroUldSumario, UldClient, UldMasterNumeroQuery, UsuarioInfoResponse, VooClient, VooListaResponseDto, VooListarInputDto } from 'app/shared/proxy/ctaapi';
+import { ListaUldMasterRequest, MasterNumeroUldSumario, UldClient, UldMasterDeleteByIdInput, UldMasterDeleteByTagInput, UldMasterInsertRequest, UldMasterNumeroQuery, UldMasterResponseDto, UldMasterUpdateRequest, UsuarioInfoResponse, VooClient, VooListaResponseDto, VooListarInputDto } from 'app/shared/proxy/ctaapi';
 import { LocalStorageService } from 'app/shared/services/localstorage.service';
-import { UldmasterService } from 'app/shared/services/uldmaster.service';
-import { VoosService } from 'app/shared/services/voos.service';
 import notify from 'devextreme/ui/notify';
 import { environment } from 'environments/environment';
 import { MasteruldsumarioComponent } from './components/masteruldsumario/masteruldsumario.component';
 import * as pdfMake from "pdfmake/build/pdfmake";
 import * as pdfFonts from "pdfmake/build/vfs_fonts";
-const htmlToPdfmake = require("html-to-pdfmake");
 (pdfMake as any).vfs = pdfFonts.pdfMake.vfs;
 
 import jsPDF from 'jspdf';
@@ -51,9 +47,7 @@ export class UldmasterComponent implements OnInit {
   private awbref: AWBReference = new AWBReference();
 
 
-  constructor(private vooService: VoosService,
-    private uldMasterService: UldmasterService,
-    private localStorageService: LocalStorageService,
+  constructor(private localStorageService: LocalStorageService,
     private vooClient: VooClient,
     private uldClient: UldClient,
     private parentComponent: AdminLayoutComponent) {
@@ -210,37 +204,24 @@ export class UldmasterComponent implements OnInit {
 
     const newData: UldMasterResponseDto = e.data;
 
-    const insertRequest: UldMasterInsertRequest = new UldMasterInsertRequest();
     let insertRequests: UldMasterInsertRequest[] = new Array<UldMasterInsertRequest>();
 
-    insertRequest.EmpresaId = +this.usuarioInfo.EmpresaId;
-    insertRequest.MasterNumero = newData.MasterNumero;
-    insertRequest.Peso = +newData.Peso;
-    insertRequest.QuantidadePecas = +newData.QuantidadePecas;
-    insertRequest.UldCaracteristicaCodigo = item.ULDCaracteristicaCodigo;
-    insertRequest.UldId = item.ULDId;
-    insertRequest.UldIdPrimario = item.ULDIdPrimario;
-    insertRequest.UsuarioId = +this.usuarioInfo.UsuarioId;
-    insertRequest.VooId = this.curVoo.VooId;
+    const insertRequest: UldMasterInsertRequest = {
+      EmpresaId: +this.usuarioInfo.EmpresaId,
+      MasterNumero: newData.MasterNumero,
+      Peso: +newData.Peso,
+      QuantidadePecas: +newData.QuantidadePecas,
+      UldCaracteristicaCodigo: item.ULDCaracteristicaCodigo,
+      UldId: item.ULDId,
+      UldIdPrimario: item.ULDIdPrimario,
+      UsuarioId: +this.usuarioInfo.UsuarioId,
+      VooId: this.curVoo.VooId,
+    }
 
     insertRequests.push(insertRequest);
 
-    let res = this.uldMasterService.inserirUldMaster(insertRequests);
-
-    e.cancel = Promise.all([res])
-      .then(res => {
-        if (res[0].Sucesso) {
-          return false;
-        }
-        else {
-          notify(res[0].Notificacoes[0].Mensagem, 'error', 3000);
-          return true;
-        }
-      })
-      .catch(err => {
-        notify(err.message, 'error', 3000);
-        return true;
-      });
+    const res = await this.uldClient.inserirUldMaster(insertRequests)
+    return res.subscribe(() => false, () => true);
 
   }
 
@@ -248,63 +229,34 @@ export class UldmasterComponent implements OnInit {
 
     const newData: UldMasterResponseDto = Object.assign(e.oldData, e.newData)
 
-    const updateRequest: UldMasterUpdateRequest = new UldMasterUpdateRequest();
     let updateRequests: UldMasterUpdateRequest[] = new Array<UldMasterUpdateRequest>();
-
-    updateRequest.MasterNumero = newData.MasterNumero;
-    updateRequest.Peso = newData.Peso;
-    updateRequest.QuantidadePecas = newData.QuantidadePecas;
-    updateRequest.UldCaracteristicaCodigo = newData.UldCaracteristicaCodigo;
-    updateRequest.UldId = newData.UldId;
-    updateRequest.UldIdPrimario = newData.UldIdPrimario;
-    updateRequest.UsuarioId = +this.usuarioInfo.UsuarioId;
-    updateRequest.VooId = this.curVoo.VooId;
-    updateRequest.Id = newData.Id;
+    const updateRequest: UldMasterUpdateRequest = {
+      MasterNumero: newData.MasterNumero,
+      Peso: newData.Peso,
+      QuantidadePecas: newData.QuantidadePecas,
+      UldCaracteristicaCodigo: newData.UldCaracteristicaCodigo,
+      UldId: newData.UldId,
+      UldIdPrimario: newData.UldIdPrimario,
+      UsuarioId: +this.usuarioInfo.UsuarioId,
+      VooId: this.curVoo.VooId,
+      Id: newData.Id,
+    }
 
     updateRequests.push(updateRequest);
 
-    let res = this.uldMasterService.atualizarUldMaster(updateRequests);
-
-    e.cancel = Promise.all([res])
-      .then(res => {
-        if (res[0].Sucesso) {
-          return false;
-        }
-        else {
-          notify(res[0].Notificacoes[0].Mensagem, 'error', 3000);
-          return true;
-        }
-      })
-      .catch(err => {
-        notify(err.message, 'error', 3000);
-        return true;
-      });
-
+    const res = await this.uldClient.atualizarUldMaster(updateRequests);
+    return res.subscribe(() => false, () => true);
   }
 
   async onRowRemoving(e) {
 
-    let input: UldMasterDeleteByIdInput = new UldMasterDeleteByIdInput()
-    input.VooId = this.curVoo.VooId
-    input.ListaIds = [e.key];
-
-    let res = this.uldMasterService.excluirUldMaster(input);
-
-    e.cancel = Promise.all([res])
-      .then(res => {
-        if (res[0].Sucesso) {
-          return false;
-        }
-        else {
-          notify(res[0].Notificacoes[0].Mensagem, 'error', 3000);
-          return true;
-        }
-      })
-      .catch(err => {
-        notify(err.message, 'error', 3000);
-        return true;
-      });
-
+    let input: UldMasterDeleteByIdInput = {
+      VooId: this.curVoo.VooId,
+      ListaIds: [e.key]
+    }
+    const res = await this.uldClient.excluirUldMaster(input)
+    return res.subscribe(() => false, () => true);
+  
   }
 
   async onGridRowInserting(e) {
@@ -362,38 +314,15 @@ export class UldmasterComponent implements OnInit {
 
     e.cancel = true
 
-    let removeData: UldMasterDeleteByTagInput = new UldMasterDeleteByTagInput();
+    let removeData: UldMasterDeleteByTagInput = {
+      ULDId: e.data.ULDId,
+      ULDCaracteristicaCodigo: e.data.ULDCaracteristicaCodigo,
+      ULDIdPrimario: e.data.ULDIdPrimario,
+      VooId: this.curVoo.VooId
+    }
 
-    removeData.ULDId = e.data.ULDId
-    removeData.ULDCaracteristicaCodigo = e.data.ULDCaracteristicaCodigo
-    removeData.ULDIdPrimario = e.data.ULDIdPrimario
-    removeData.VooId = this.curVoo.VooId
-
-    let res = this.uldMasterService.excluirUld(removeData)
-
-    e.cancel = Promise.all([res])
-      .then(res => {
-
-        if (res[0].Sucesso) {
-
-          return false;
-
-        }
-        else {
-
-          notify(res[0].Notificacoes[0].Mensagem, 'error', 3000);
-
-          return true;
-
-        }
-      })
-      .catch(err => {
-
-        notify(err.message, 'error', 3000);
-
-        return true;
-
-      });
+    const res = await this.uldClient.excluirUld(removeData);
+    return res.subscribe(() => false, () => true);
 
   }
 
@@ -404,7 +333,7 @@ export class UldmasterComponent implements OnInit {
   public print(): void {
 
     var pdfw = this.mainContent.nativeElement.scrollWidth - 80;
-    var pdfh = 3428 * (pdfw/2400);
+    var pdfh = 3428 * (pdfw / 2400);
 
     const doc = new jsPDF({
       unit: 'px',
@@ -413,7 +342,8 @@ export class UldmasterComponent implements OnInit {
 
     const pdf = new jsPDF('p', 'pt', 'a4');
 
-    doc.html(this.mainContent.nativeElement, { margin: [40, 40, 40, 40],
+    doc.html(this.mainContent.nativeElement, {
+      margin: [40, 40, 40, 40],
       callback: (pdf: jsPDF) => {
         doc.save('pdf-export');
       }

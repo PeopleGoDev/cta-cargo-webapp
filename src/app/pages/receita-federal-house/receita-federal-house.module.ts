@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ReceitaFederalHouseComponent } from './receita-federal-house.component';
 import { DxButtonGroupModule, DxButtonModule, DxDataGridModule, DxDateBoxModule, DxLoadPanelModule, DxPopupModule, DxToolbarModule } from 'devextreme-angular';
 import { HouseClient } from 'app/shared/proxy/ctaapi';
+import { ButtonModule } from '@shared/atoms/button/button.module';
 
 @NgModule({
   declarations: [ReceitaFederalHouseComponent],
@@ -13,7 +14,8 @@ import { HouseClient } from 'app/shared/proxy/ctaapi';
     DxButtonGroupModule,
     DxPopupModule,
     DxToolbarModule,
-    DxDataGridModule
+    DxDataGridModule,
+    ButtonModule
   ],
   providers: [HouseClient]
 })

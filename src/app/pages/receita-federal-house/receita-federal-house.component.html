@@ -51,7 +51,7 @@
             <div class="col-md-12">
                 <dx-data-grid id="tasks" [dataSource]="dataHouse" #masterDataGrid keyExpr="HouseId"
                     [columnAutoWidth]="true" [wordWrapEnabled]="true" [showBorders]="true"
-                    (onRowPrepared)="onGridRowPrepared($event)">
+                    (onRowPrepared)="onRowPrepared($event)">
                     <dxi-column dataField="Numero" caption="Número" [width]="150" cellTemplate="awbTemplate">
                         <div *dxTemplate="let data of 'awbTemplate'">
                             <i *ngIf="data.data.StatusId == 1" class="dx-icon-check" style="color: green"></i>
@@ -61,9 +61,22 @@
                         </div>
                     </dxi-column>
                     <dxi-column caption="Peso/Volume">
-                        <dxi-column dataField="TotalVolumes" caption="Volumes" dataType="number" [width]="70">
+                        <dxi-column dataField="TotalVolumes" caption="Volumes" dataType="number" [width]="60">
                         </dxi-column>
                         <dxi-column dataField="PesoTotalBruto" caption="Peso Total" dataType="number" format="decimal"
+                            [editorOptions]="{
+                            format: 'decimal',
+                            precision: 3,
+                            showClearButton: true }" [width]="80">
+                            <dxo-format type="fixedPoint" [precision]="3">
+                            </dxo-format>
+                        </dxi-column>
+                        <dxi-column dataField="PesoTotalBrutoUN" caption="Peso Unidade" alignment="right" [width]="80">
+                        </dxi-column>
+                        <dxi-column dataField="DescricaoMercadoria" caption="Desc Merc"></dxi-column>
+                    </dxi-column>
+                    <dxi-column caption="Valor Frete">
+                        <dxi-column dataField="ValorFretePP" caption="Frete PrePaid" dataType="number" format="decimal"
                             [editorOptions]="{
                             format: 'decimal',
                             precision: 3,
@@ -71,48 +84,47 @@
                             <dxo-format type="fixedPoint" [precision]="3">
                             </dxo-format>
                         </dxi-column>
-                        <dxi-column dataField="PesoTotalBrutoUN" caption="Peso Unidade" alignment="right" [width]="90">
-                        </dxi-column>
-                        <dxi-column dataField="DescricaoMercadoria" caption="Desc Merc" [width]="170"></dxi-column>
-                    </dxi-column>
-                    <dxi-column caption="Valor Frete">
-                        <dxi-column dataField="ValorFretePP" caption="Frete PrePaid" dataType="number" format="decimal"
-                            [editorOptions]="{
-                            format: 'decimal',
-                            precision: 3,
-                            showClearButton: true }" [width]="100">
-                            <dxo-format type="fixedPoint" [precision]="3">
-                            </dxo-format>
-                        </dxi-column>
-                        <dxi-column dataField="ValorFretePPUN" caption="Moeda" alignment="right" [width]="70">
+                        <dxi-column dataField="ValorFretePPUN" caption="Moeda" alignment="right" [width]="60">
                         </dxi-column>
                         <dxi-column dataField="ValorFreteFC" caption="Frete Collect" dataType="number" format="decimal"
                             [editorOptions]="{
                             format: 'decimal',
                             precision: 3,
-                            showClearButton: true }" [width]="100">
+                            showClearButton: true }" [width]="90">
                             <dxo-format type="fixedPoint" [precision]="3">
                             </dxo-format>
                         </dxi-column>
-                        <dxi-column dataField="ValorFreteFCUN" caption="Moeda" alignment="right" [width]="70">
+                        <dxi-column dataField="ValorFreteFCUN" caption="Moeda" alignment="right" [width]="60">
                         </dxi-column>
                     </dxi-column>
                     <dxi-column caption="Outras Informações" [visible]="true">
-                        <dxi-column dataField="SituacaoRFB" caption="Situação RFB" [width]="110">
+                        <dxi-column dataField="SituacaoRFB" caption="Situação House RFB" [width]="170">
                             <dxo-lookup [dataSource]="statusRFB" displayExpr="Descricao" valueExpr="Id">
                             </dxo-lookup>
                         </dxi-column>
-                        <dxi-column dataField="DescricoErroRFB" caption="Erro RFB">
+                        <dxi-column dataField="SituacaoAssociacaoRFBId" caption="Situacao Associação RFB" [width]="170">
+                            <dxo-lookup [dataSource]="statusRFB" displayExpr="Descricao" valueExpr="Id">
+                            </dxo-lookup>
                         </dxi-column>
                     </dxi-column>
+                    <div *dxTemplate="let cell of 'erroRFBTemplate'">
+                        {{ cell.text ? textToHtml(cell) : ''}}
+                    </div>
                 </dx-data-grid>
             </div>
         </div>
         <div class="row">
             <div class="col-md-12" style="margin-top: 20px;">
-                <dx-button stylingMode="contained" text="Upload" type="normal" [width]="120"
-                    [disabled]="!botaoUploadEnabled" icon="upload" (onClick)="onClickUpload($event)">
-                </dx-button>
+                <app-button (buttonClicked)="onClickUpload($event)" [isButtonOrange]="true"
+                    [isDisabled]="!botaoUploadEnabled" [mobileFull]="true" id="modal-create-master-group-link">
+                    {{botaoUploadLabel}}
+                </app-button>
+            </div>
+            <div class="col-md-12" style="margin-top: 20px;">
+                <app-button (buttonClicked)="onClickUploadAssociacao($event)" [isButtonOrange]="true"
+                    [isDisabled]="!botaoAssociacaoUploadEnabled" [mobileFull]="true" id="modal-create-master-group-link">
+                    {{botaoAssociacaoUploadLabel}}
+                </app-button>
             </div>
         </div>
     </div>

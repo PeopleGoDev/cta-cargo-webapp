@@ -35,7 +35,7 @@ export class ReceitaFederalComponent implements OnInit {
   statusRFB: Array<StatusVoo>;
   curVoo: number = -1;
   botaoUploadEnabled: boolean = false;
-  botaoUploadLabel: string = "SUBMETER VOO RFB";
+  botaoUploadLabel: string = "Submeter Receita Federal";
 
   constructor(private statusService: StatusService,
     private vooClient: VooClient,

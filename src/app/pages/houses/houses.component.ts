@@ -19,11 +19,13 @@ import {
   UsuarioInfoResponse,
 } from "app/shared/proxy/ctaapi";
 import { LocalStorageService } from "app/shared/services/localstorage.service";
+import { NCMService } from "app/shared/services/ncm.service";
 import { PortoIATAService } from "app/shared/services/portoiata.service";
 import { cnpj, cpf } from "cpf-cnpj-validator";
 import { confirm } from "devextreme/ui/dialog";
 import notify from "devextreme/ui/notify";
 import { environment } from "environments/environment";
+import ArrayStore from 'devextreme/data/array_store';
 
 @Component({
   selector: "app-houses",
@@ -45,6 +47,7 @@ export class HousesComponent implements OnInit, AfterViewInit {
   loadingVoos: boolean = false;
   curgridKey: number = 0;
   private usuarioInfo: UsuarioInfoResponse;
+  readOnlyEdition: boolean = false;
   // Data Soure
   housesData: HouseResponseDto[] = [];
   portosData: PortoIATAResponseDto[];
@@ -63,12 +66,14 @@ export class HousesComponent implements OnInit, AfterViewInit {
   selectedRows: number[] = [];
   rfbProcessedRows: number[] = [];
   rfbNonProcessedRows: number[] = [];
+  dataSource: any;
 
   constructor(
     private houseClient: HouseClient,
     private agenteDeCargaClient: AgenteDeCargaClient,
     private localstorageService: LocalStorageService,
-    private portoIATAClient: PortoIATAClient
+    private portoIATAClient: PortoIATAClient,
+    private ncmService: NCMService
   ) {
     this.listaOpcoes = [
       {
@@ -151,6 +156,10 @@ export class HousesComponent implements OnInit, AfterViewInit {
       0
     );
     this.usuarioInfo = this.localstorageService.getLocalStore().UsuarioInfo;
+    this.dataSource = new ArrayStore({
+      data: ncmService.getNCMs(),
+      key: 'Codigo',
+    });
     this.refreshIataPorts();
     this.refreshGrid();
   }
@@ -494,6 +503,43 @@ export class HousesComponent implements OnInit, AfterViewInit {
   onEditorPreparing(e: any): void {
     if (e.parentType !== "dataRow") return;
 
+    if (e.row?.isNewRow) {
+      if (e.parentType == "dataRow" && e.dataField == "Numero") {
+        e.editorOptions.readOnly = false;
+        this.curgridKey = 0;
+      }
+    }
+    else {
+      switch (e.parentType) {
+        case "dataRow":
+          switch (e.row.data.SituacaoRFB) {
+            case LocalSituacaoRfb.Received:
+            case LocalSituacaoRfb.ProcessedDeletion:
+            case LocalSituacaoRfb.Processed:
+              if (e.row.data.Reenviar) {
+                this.readOnlyEdition = false;
+                e.editorOptions.readOnly = false;
+              } else {
+                this.readOnlyEdition = true;
+                e.editorOptions.readOnly = true;
+              }
+              break;
+            default:
+              this.readOnlyEdition = false;
+              if (e.dataField == "Numero") {
+                e.editorOptions.readOnly = true;
+                this.curgridKey = e.row.key;
+                return;
+              }
+              break;
+          }
+          break;
+        default:
+          break;
+      }
+    }
+
+
     if (
       e.dataField === "AeroportoOrigem" ||
       e.dataField === "AeroportoDestino"
@@ -542,7 +588,15 @@ export class HousesComponent implements OnInit, AfterViewInit {
   }
 
   isEditVisible(e) {
-    return true;
+    return !(e.row.data.StatusId == 2);
+  }
+
+  isViewVisible(e) {
+    return (e.row.data.StatusId == 2);
+  }
+
+  isCheckStatusAvailable(e) {
+    return (e.row.data.SituacaoRFB == 1 || e.row.data.SituacaoRFB == 4);
   }
 
   ValidaCnpj(e) {
@@ -657,5 +711,9 @@ export class HousesComponent implements OnInit, AfterViewInit {
     }
 
     return arrayBG;
+  }
+
+  onClickVerificarStatus(e: any) {
+    console.log(e);
   }
 }

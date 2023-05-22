@@ -8,6 +8,7 @@ import { confirm } from 'devextreme/ui/dialog';
 import notify from 'devextreme/ui/notify';
 import { environment } from 'environments/environment';
 
+
 @Component({
   selector: 'app-receita-federal-house',
   templateUrl: './receita-federal-house.component.html',
@@ -18,6 +19,9 @@ export class ReceitaFederalHouseComponent implements OnInit {
 
   curAgenteDeCarga: number = -1;
   botaoUploadEnabled: boolean = false;
+  botaoUploadLabel: string = 'Submeter House RFB';
+  botaoAssociacaoUploadEnabled: boolean = false;
+  botaoAssociacaoUploadLabel: string = 'Submeter Associação RFB';
   dataHouse: HouseResponseDto[] = [];
   statusData: StatusVoo[];
   filtroDataProcessamento: Date = undefined;
@@ -30,6 +34,7 @@ export class ReceitaFederalHouseComponent implements OnInit {
     onClick: this.refreshGridIcon.bind(this)
   };
   private apiVersion: string = '1';
+  
 
   constructor(private houseClient: HouseClient,
     private agenteDeCargaClient: AgenteDeCargaClient,
@@ -37,6 +42,7 @@ export class ReceitaFederalHouseComponent implements OnInit {
     private localStorageService: LocalStorageService,
     private statusService: StatusService) {
     this.statusRFB = this.statusService.getStatusRFB();
+
   }
 
   ngOnInit(): void {
@@ -117,10 +123,13 @@ export class ReceitaFederalHouseComponent implements OnInit {
     });
   }
 
-  onGridRowPrepared(e: any) {
-    // if (e.rowType != 'data' || e.data.SituacaoRFB != 3) return;
-    // e.rowElement.style.color = 'red';
-    return;
+  onClickUploadAssociacao(e: any) {
+    let result = confirm("<i>Você tem certeza?</i>", "Você está prestes a enviar os dados para a Receita Federal. Confirma ?");
+    result.then((dialogResult) => {
+      if (dialogResult) {
+        this.uploadAssociacaoRFB(this.curAgenteDeCarga);
+      }
+    });
   }
 
   onItemClick(e) {
@@ -146,12 +155,9 @@ export class ReceitaFederalHouseComponent implements OnInit {
   }
 
   private activateUpload() {
-    var validList = this.dataHouse.filter(item => {
-      return item.StatusId == 1;
-    })
-    if (validList.length > 0) {
-      this.botaoUploadEnabled = true;
-    }
+    this.botaoUploadEnabled = this.dataHouse.findIndex(x => x.SituacaoRFB == 1 || x.SituacaoRFB == 3) > -1;
+    this.botaoAssociacaoUploadEnabled = this.dataHouse.findIndex(x => x.SituacaoRFB ==2 && 
+      (x.SituacaoAssociacaoRFBId == 0 || x.SituacaoAssociacaoRFBId == 1 || x.SituacaoAssociacaoRFBId == 3)) > -1;
   }
 
   async uploadRFB(agenteDeCargaId: number) {
@@ -178,4 +184,41 @@ export class ReceitaFederalHouseComponent implements OnInit {
         notify(err, 'error', environment.ErrorTimeout)
       });
   }
+
+  async uploadAssociacaoRFB(agenteDeCargaId: number) {
+    let input: SubmeterRFBHouseRequest = {
+      DataProcessamento: this.filtroDataProcessamento,
+      AgenteDeCargaId: agenteDeCargaId
+    }
+
+    await this.receitaFederalClient.submeterAssociacaoHouseMaster(input)
+      .subscribe(res => {
+        if (res.result.Sucesso) {
+          notify("Arquivo Submetido com Sucesso!", 'success', environment.ErrorTimeout);
+        }
+        else {
+          if (res.result.Notificacoes == undefined) {
+            notify("Erro desconhecido!", 'error', environment.ErrorTimeout)
+          }
+          else {
+            notify(res.result.Notificacoes[0].Mensagem, 'error', environment.ErrorTimeout);
+          }
+        }
+        this.refreshGrid(agenteDeCargaId);
+      }, err => {
+        notify(err, 'error', environment.ErrorTimeout)
+      });
+  }
+
+  onRowPrepared(e: any) {
+    if (e.rowType == 'data') {
+      if (e.data.SituacaoRFB == 3)
+        e.rowElement.style.color = 'red';
+    }
+  }
+
+  textToHtml(value) {
+    return value.text;
+  }
+
 }

@@ -193,6 +193,9 @@
                     <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[10, 25, 50, 100]"></dxo-pager>
                     <dxi-column type="buttons" width="50" caption="Editar">
                         <dxi-button name="edit" hint="Editar" icon="edit" [visible]="isEditVisible"></dxi-button>
+                        <dxi-button name="edit" hint="Visualizar" icon="find" [visible]="isViewVisible"></dxi-button>
+                        <dxi-button name="verificarStatus" hint="Verificar Status da Carga RFB" icon="refresh"
+                            [onClick]="onClickVerificarStatus" [visible]="isCheckStatusAvailable"></dxi-button>
                     </dxi-column>
                     <dxi-column dataField="HouseId" caption="Id" [visible]="false"></dxi-column>
                     <dxi-column dataField="Numero" caption="Número" [width]="150"></dxi-column>
@@ -276,10 +279,14 @@
                     <dxo-export [enabled]="permitirAdicao"></dxo-export>
 
                     <div *dxTemplate="let cell of 'dataCellTemplate'">
-                        <dx-tag-box [value]="cell.value" [searchEnabled]="false" [acceptCustomValue]="true"
+                        <!-- <dx-tag-box [value]="cell.value" [searchEnabled]="false" [acceptCustomValue]="true"
                             [showMultiTagOnly]="false" [openOnFieldClick]="false" [items]="cell.value"
                             [items]="cell.value" (onValueChanged)="onNCMValueChanged($event, cell)">
-                        </dx-tag-box>
+                        </dx-tag-box> -->
+                        <dx-tag-box [dataSource]="dataSource" displayExpr="Descricao"
+                        valueExpr="Codigo" applyValueMode="useButtons" 
+                        (onValueChanged)="onNCMValueChanged($event, cell)">
+                    </dx-tag-box>
                     </div>
                 </dx-data-grid>
             </div>

@@ -15,6 +15,7 @@ import { DxDataGridModule ,
   DxAutocompleteModule} from 'devextreme-angular';
 import { PipesModule } from 'app/shared/util/pipes.module';
 import { PortoIATAClient } from 'app/shared/proxy/ctaapi';
+import { NCMService } from 'app/shared/services/ncm.service';
 
 @NgModule({
   declarations: [HousesComponent],
@@ -35,6 +36,6 @@ import { PortoIATAClient } from 'app/shared/proxy/ctaapi';
     PipesModule
   ],
   exports: [HousesComponent],
-  providers: [PortoIATAClient]
+  providers: [PortoIATAClient, NCMService]
 })
 export class HousesModule { }

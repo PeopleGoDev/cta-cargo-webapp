@@ -38,10 +38,9 @@
         <div class="row">
             <div class="col-md-12">
                 <dx-data-grid id="tasks" [dataSource]="vooDetalheLista" keyExpr="VooId" [columnAutoWidth]="true"
-                    [wordWrapEnabled]="true" [showBorders]="true" (onRowPrepared)="onRowPrepared($event)"
-                    [height]="120">
+                    [wordWrapEnabled]="true" [showBorders]="true" (onRowPrepared)="onRowPrepared($event)">
                     <dxo-load-panel [enabled]="false"></dxo-load-panel>
-                    <dxi-column dataField="Numero" caption="Voo #" [width]="150" cellTemplate="numeroTemplate">
+                    <dxi-column dataField="Numero" caption="Voo #" [width]="130" cellTemplate="numeroTemplate">
                         <div *dxTemplate="let data of 'numeroTemplate'">
                             <i *ngIf="data.data.StatusId == 1 && data.data.SituacaoRFBId == 0" class="dx-icon-check"
                                 style="color: green"></i>
@@ -53,23 +52,26 @@
                             {{ statusData[data.data.StatusId].Descricao}}
                         </div>
                     </dxi-column>
-                    <dxi-column dataField="DataHoraSaidaReal" [width]="150" caption="Hora Saida Atual" dataType="datetime">
+                    <dxi-column dataField="DataHoraSaidaReal" [width]="120" caption="Hora Saida Atual" dataType="datetime">
                     </dxi-column>
-                    <dxi-column dataField="DataHoraChegadaEstimada" [width]="150" caption="Hora Chegada Estimada" dataType="datetime">
+                    <dxi-column dataField="DataHoraChegadaEstimada" [width]="120" caption="Hora Chegada Estimada" dataType="datetime">
                     </dxi-column>
-                    <dxi-column dataField="DataHoraChegadaReal" [width]="150" caption="Hora Chegada Atual" dataType="datetime">
+                    <dxi-column dataField="DataHoraChegadaReal" [width]="120" caption="Hora Chegada Atual" dataType="datetime">
                     </dxi-column>
-                    <dxi-column dataField="DataHoraSaidaEstimada" [width]="150" caption="Hora Saida Estimada Próximo Trecho" dataType="datetime">
+                    <dxi-column dataField="DataHoraSaidaEstimada" [width]="120" caption="Hora Saida Estimada Próximo Trecho" dataType="datetime">
                     </dxi-column>
-                    <dxi-column dataField="AeroportoOrigemCodigo" [width]="150" caption="Porto Origem">
+                    <dxi-column dataField="AeroportoOrigemCodigo" [width]="60" caption="Porto Origem">
                     </dxi-column>
-                    <dxi-column dataField="AeroportoDestinoCodigo" [width]="150" caption="Porto Destino">
+                    <dxi-column dataField="AeroportoDestinoCodigo" [width]="60" caption="Porto Destino">
                     </dxi-column>
-                    <dxi-column dataField="SituacaoRFBId" caption="Situação RFB">
+                    <dxi-column dataField="SituacaoRFBId" [width]="90" caption="Situação RFB">
                         <dxo-lookup [dataSource]="statusRFB" displayExpr="Descricao" valueExpr="Id">
                         </dxo-lookup>
                     </dxi-column>
-                    <dxi-column dataField="Reenviar" [width]="70" caption="Reenviar">
+                    <dxi-column dataField="ErroDescricaoRFB" caption="Erro RFB" cssClass="word-wrap">
+                    </dxi-column>
+                    
+                    <dxi-column dataField="Reenviar" [width]="60" caption="Reenviar">
                     </dxi-column>
                 </dx-data-grid>
             </div>

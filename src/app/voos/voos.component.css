@@ -1,0 +1,4 @@
+::ng-deep .dx-data-row .word-wrap, .word-wrap {
+    word-wrap: break-word;
+    white-space: normal !important;
+}

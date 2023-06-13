@@ -1685,61 +1685,6 @@ export class MasterClient {
      * @param body (optional) 
      * @return Success
      */
-    atualizarParcialTotalMaster(body: MasterUpdateTotalParcialRequestDto | undefined): Observable<SwaggerResponse<MasterResponseDtoApiResponse>> {
-        let url_ = this.baseUrl + "/api/v1/Master/AtualizarParcialTotalMaster";
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(body);
-
-        let options_ : any = {
-            body: content_,
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Content-Type": "application/json",
-                "Accept": "text/plain"
-            })
-        };
-
-        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processAtualizarParcialTotalMaster(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processAtualizarParcialTotalMaster(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<SwaggerResponse<MasterResponseDtoApiResponse>>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<SwaggerResponse<MasterResponseDtoApiResponse>>;
-        }));
-    }
-
-    protected processAtualizarParcialTotalMaster(response: HttpResponseBase): Observable<SwaggerResponse<MasterResponseDtoApiResponse>> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result200: any = null;
-            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as MasterResponseDtoApiResponse;
-            return _observableOf(new SwaggerResponse(status, _headers, result200));
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf<SwaggerResponse<MasterResponseDtoApiResponse>>(new SwaggerResponse(status, _headers, null as any));
-    }
-
-    /**
-     * @param body (optional) 
-     * @return Success
-     */
     atualizarReeviarMaster(body: AtualizarMasterReenviarRequest | undefined): Observable<SwaggerResponse<MasterResponseDtoIEnumerableApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/Master/AtualizarReeviarMaster";
         url_ = url_.replace(/[?&]$/, "");
@@ -2178,6 +2123,61 @@ export class NcmClient {
     }
 
     protected processSearch(response: HttpResponseBase): Observable<SwaggerResponse<NCM[]>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as NCM[];
+            return _observableOf(new SwaggerResponse(status, _headers, result200));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<NCM[]>>(new SwaggerResponse(status, _headers, null as any));
+    }
+
+    /**
+     * @param body (optional) 
+     * @return Success
+     */
+    searchcodes(body: string[] | null | undefined): Observable<SwaggerResponse<NCM[]>> {
+        let url_ = this.baseUrl + "/api/v1/Ncm/searchcodes";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processSearchcodes(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processSearchcodes(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<NCM[]>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<NCM[]>>;
+        }));
+    }
+
+    protected processSearchcodes(response: HttpResponseBase): Observable<SwaggerResponse<NCM[]>> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -4231,6 +4231,8 @@ export interface UsuarioLoginRequest {
 export interface UsuarioInfoResponse {
     UsuarioId?: number;
     EmpresaId?: number;
+    EmpresaNome?: string | undefined;
+    EmpresaLogoUrl?: string | undefined;
     Nome?: string | undefined;
     Sobrenome?: string | undefined;
     Email?: string | undefined;
@@ -4413,7 +4415,7 @@ export interface HouseResponseDto {
     PesoTotalBruto?: number;
     PesoTotalBrutoUN?: string | undefined;
     TotalVolumes?: number;
-    Volume?: number;
+    Volume?: number | undefined;
     VolumeUN?: string | undefined;
     ValorFretePP?: number;
     ValorFretePPUN?: string | undefined;
@@ -4421,7 +4423,7 @@ export interface HouseResponseDto {
     ValorFreteFCUN?: string | undefined;
     IndicadorMadeiraMacica?: boolean;
     DescricaoMercadoria?: string | undefined;
-    CodigoRecintoAduaneiro?: number;
+    CodigoRecintoAduaneiro?: string | undefined;
     RUC?: string | undefined;
     ConsignatarioNome?: string | undefined;
     ConsignatarioEndereco?: string | undefined;
@@ -4490,7 +4492,7 @@ export interface HouseInsertRequestDto {
     PesoTotalBruto?: number;
     PesoTotalBrutoUN?: string | undefined;
     TotalVolumes?: number;
-    Volume?: number;
+    Volume?: number | undefined;
     VolumeUN?: string | undefined;
     ValorFretePP?: number;
     ValorFretePPUN?: string | undefined;
@@ -4498,7 +4500,7 @@ export interface HouseInsertRequestDto {
     ValorFreteFCUN?: string | undefined;
     IndicadorMadeiraMacica?: boolean;
     DescricaoMercadoria?: string | undefined;
-    CodigoRecintoAduaneiro?: number;
+    CodigoRecintoAduaneiro?: string | undefined;
     RUC?: string | undefined;
     ConsignatarioNome?: string | undefined;
     ConsignatarioEndereco?: string | undefined;
@@ -4526,7 +4528,7 @@ export interface HouseUpdateRequestDto {
     PesoTotalBruto?: number;
     PesoTotalBrutoUN?: string | undefined;
     TotalVolumes?: number;
-    Volume?: number;
+    Volume?: number | undefined;
     VolumeUN?: string | undefined;
     ValorFretePP?: number;
     ValorFretePPUN?: string | undefined;
@@ -4534,7 +4536,7 @@ export interface HouseUpdateRequestDto {
     ValorFreteFCUN?: string | undefined;
     IndicadorMadeiraMacica?: boolean;
     DescricaoMercadoria?: string | undefined;
-    CodigoRecintoAduaneiro?: number;
+    CodigoRecintoAduaneiro?: string | undefined;
     RUC?: string | undefined;
     ConsignatarioNome?: string | undefined;
     ConsignatarioEndereco?: string | undefined;
@@ -4581,7 +4583,7 @@ export interface MasterResponseDto {
     IndicadorMadeiraMacica?: boolean;
     IndicadorNaoDesunitizacao?: boolean;
     DescricaoMercadoria?: string | undefined;
-    CodigoRecintoAduaneiro?: number;
+    CodigoRecintoAduaneiro?: string | undefined;
     RUC?: string | undefined;
     RemetenteNome?: string | undefined;
     RemetenteEndereco?: string | undefined;
@@ -4604,6 +4606,8 @@ export interface MasterResponseDto {
     ConsolidadoDireto?: string | undefined;
     TotalParcial?: string | undefined;
     NaturezaCarga?: string | undefined;
+    Volume?: number | undefined;
+    VolumeUN?: string | undefined;
     MasterId?: number;
     StatusId?: number;
     SituacaoRFB?: number;
@@ -4692,7 +4696,7 @@ export interface MasterInsertRequestDto {
     IndicadorMadeiraMacica?: boolean;
     IndicadorNaoDesunitizacao?: boolean;
     DescricaoMercadoria?: string | undefined;
-    CodigoRecintoAduaneiro?: number;
+    CodigoRecintoAduaneiro?: string | undefined;
     RUC?: string | undefined;
     RemetenteNome?: string | undefined;
     RemetenteEndereco?: string | undefined;
@@ -4715,6 +4719,8 @@ export interface MasterInsertRequestDto {
     ConsolidadoDireto?: string | undefined;
     TotalParcial?: string | undefined;
     NaturezaCarga?: string | undefined;
+    Volume?: number | undefined;
+    VolumeUN?: string | undefined;
     VooId?: number;
     UsuarioInsercaoId?: number;
     CiaAereaId?: number;
@@ -4735,7 +4741,7 @@ export interface MasterUpdateRequestDto {
     IndicadorMadeiraMacica?: boolean;
     IndicadorNaoDesunitizacao?: boolean;
     DescricaoMercadoria?: string | undefined;
-    CodigoRecintoAduaneiro?: number;
+    CodigoRecintoAduaneiro?: string | undefined;
     RUC?: string | undefined;
     RemetenteNome?: string | undefined;
     RemetenteEndereco?: string | undefined;
@@ -4758,15 +4764,11 @@ export interface MasterUpdateRequestDto {
     ConsolidadoDireto?: string | undefined;
     TotalParcial?: string | undefined;
     NaturezaCarga?: string | undefined;
+    Volume?: number | undefined;
+    VolumeUN?: string | undefined;
     MasterId?: number;
     UsuarioAlteradorId?: number;
     DataVoo?: Date;
-}
-
-export interface MasterUpdateTotalParcialRequestDto {
-    MasterId?: number;
-    UsuarioAlteradorId?: number;
-    TotalParcial?: string | undefined;
 }
 
 export interface AtualizarMasterReenviarRequest {
@@ -4819,6 +4821,7 @@ export interface NCM {
     Codigo: string;
     Descricao: string;
     DescricaoConcatenada: string;
+    Seleciona?: boolean;
 }
 
 export interface PortoIATAResponseDto {

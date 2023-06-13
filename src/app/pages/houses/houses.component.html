@@ -149,34 +149,45 @@
                                 </dxi-item>
                             </dxi-item>
 
-                            <dxi-item itemType="group" caption="Caracteristicas/Origem/Destino" [colCount]="3"
+                            <dxi-item itemType="group" caption="Descrição/Peso/Origem/Destino" [colCount]="4"
                                 [colSpan]="3">
-                                <dxi-item dataField="TotalVolumes">
-                                    <dxi-validation-rule type="required"></dxi-validation-rule>
+                                <dxi-item itemType="group">
+                                    <dxi-item dataField="NCMLista">
+                                        <dxi-validation-rule type="required"></dxi-validation-rule>
+                                    </dxi-item>
                                 </dxi-item>
-                                <dxi-item dataField="PesoTotalBruto">
-                                    <dxi-validation-rule type="required"></dxi-validation-rule>
+                                <dxi-item itemType="group">
+                                    <dxi-item dataField="TotalVolumes">
+                                        <dxi-validation-rule type="required"></dxi-validation-rule>
+                                    </dxi-item>
+                                    <dxi-item dataField="PesoTotalBruto">
+                                        <dxi-validation-rule type="required"></dxi-validation-rule>
+                                    </dxi-item>
+                                    <dxi-item dataField="PesoTotalBrutoUN" [editorOptions]="{ maxLength: 3 }">
+                                        <dxi-validation-rule type="required"></dxi-validation-rule>
+                                    </dxi-item>
                                 </dxi-item>
-                                <dxi-item dataField="PesoTotalBrutoUN" [editorOptions]="{ maxLength: 3 }">
-                                    <dxi-validation-rule type="required"></dxi-validation-rule>
+                                <dxi-item itemType="group" [colSpan]="2" [colCount]="2">
+                                    <dxi-item itemType="group">
+                                        <dxi-item dataField="Volume">
+                                        </dxi-item>
+                                        <dxi-item dataField="VolumeUN">
+                                        </dxi-item>
+                                    </dxi-item>
+                                    <dxi-item itemType="group">
+                                        <dxi-item dataField="AeroportoOrigem" [editorOptions]="{ maxLength: 3 }">
+                                            <dxi-validation-rule type="required"></dxi-validation-rule>
+                                        </dxi-item>
+                                        <dxi-item dataField="AeroportoDestino" [editorOptions]="{ maxLength: 3 }">
+                                            <dxi-validation-rule type="required"></dxi-validation-rule>
+                                        </dxi-item>
+                                    </dxi-item>
+                                    <dxi-item itemType="group" [colSpan]="2" [colCount]="1">
+                                        <dxi-item dataField="DescricaoMercadoria">
+                                            <dxi-validation-rule type="required"></dxi-validation-rule>
+                                        </dxi-item>
+                                    </dxi-item>
                                 </dxi-item>
-                                <dxi-item dataField="Volume">
-                                </dxi-item>
-                                <dxi-item dataField="VolumeUN">
-                                </dxi-item>
-                                <dxi-item dataField="DescricaoMercadoria">
-                                    <dxi-validation-rule type="required"></dxi-validation-rule>
-                                </dxi-item>
-                                <dxi-item dataField="NCMLista">
-                                    <dxi-validation-rule type="required"></dxi-validation-rule>
-                                </dxi-item>
-                                <dxi-item dataField="AeroportoOrigem" [editorOptions]="{ maxLength: 3 }">
-                                    <dxi-validation-rule type="required"></dxi-validation-rule>
-                                </dxi-item>
-                                <dxi-item dataField="AeroportoDestino" [editorOptions]="{ maxLength: 3 }">
-                                    <dxi-validation-rule type="required"></dxi-validation-rule>
-                                </dxi-item>
-                                <dxi-item itemType="empty"></dxi-item>
                             </dxi-item>
 
                             <dxi-item itemType="group" caption="Frete" [colCount]="2" [colSpan]="2">
@@ -198,7 +209,8 @@
                                 <dxi-item dataField="DataEmissaoXML">
                                     <dxi-validation-rule type="required"></dxi-validation-rule>
                                 </dxi-item>
-                                <dxi-item dataField="CodigoRecintoAduaneiro">
+                                <dxi-item dataField="CodigoRecintoAduaneiro" [editorOptions]="{ maxLength: 7 }">
+                                    <dxi-validation-rule type="required"></dxi-validation-rule>
                                 </dxi-item>
                             </dxi-item>
 
@@ -299,28 +311,9 @@
                         <dxi-column dataField="DataEmissaoXML" dataType="datetime"></dxi-column>
                     </dxi-column>
                     <dxo-export [enabled]="permitirAdicao"></dxo-export>
-                    <div *dxTemplate="let cell of 'dataCellTemplate'">
-                        <dx-tag-box [value]="cell.value" [searchEnabled]="false" [acceptCustomValue]="true"
-                            [showMultiTagOnly]="false" [openOnFieldClick]="false" [items]="cell.value"
-                            [items]="cell.value" (onValueChanged)="onNCMValueChanged($event, cell)"
-                            [readOnly]="readOnlyEdition">
-                        </dx-tag-box>
-                    </div>
                     <div *dxTemplate="let cell of 'dataNCMCellTemplate'">
-                        <dx-autocomplete placeholder="Entre com a descrição..." [minSearchLength]="2"
-                            [searchTimeout]="500" valueExpr="DescricaoConcatenada" [dataSource]="clientsStore"
-                            [showClearButton]="true" (onSelectionChanged)="onNCMValueChanged($event, cell)">
-                            <div *dxTemplate="let item of 'item'">
-                                <div class="autocomplete-item">
-                                    <div style="padding-right: 5px;">
-                                        <p class="text-style">{{ item.Codigo }}</p>
-                                    </div>
-                                    <div>
-                                        <p class="text-style">{{ item.DescricaoConcatenada }}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </dx-autocomplete>
+                        <app-ncm-selector [(value)]="cell.value" [readOnly]="readOnlyEdition"
+                        (onItemSelected)="onNcmValueChanged($event, cell)"></app-ncm-selector>
                     </div>
                 </dx-data-grid>
             </div>

@@ -15,6 +15,7 @@ import { DxDataGridModule ,
   DxAutocompleteModule} from 'devextreme-angular';
 import { PipesModule } from 'app/shared/util/pipes.module';
 import { CertificadoDigitalClient, NcmClient, PortoIATAClient } from 'app/shared/proxy/ctaapi';
+import { NcmSelectorModule } from 'app/shared/components/ncm-selector/ncm-selector.module';
 
 @NgModule({
   declarations: [HousesComponent],
@@ -32,9 +33,10 @@ import { CertificadoDigitalClient, NcmClient, PortoIATAClient } from 'app/shared
     DxValidationGroupModule,
     DxTagBoxModule,
     DxAutocompleteModule,
+    NcmSelectorModule,
     PipesModule
   ],
   exports: [HousesComponent],
-  providers: [PortoIATAClient, CertificadoDigitalClient, NcmClient]
+  providers: [PortoIATAClient, CertificadoDigitalClient]
 })
 export class HousesModule { }

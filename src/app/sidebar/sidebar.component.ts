@@ -32,12 +32,16 @@ export const ROUTES: RouteInfo[] = [
 
 export class SidebarComponent implements OnInit {
   menuItems: any[];
-  company: string = environment.company;
+  company: string = '';
+  imageUrl: string = '/assets/img/flying plane_1567082.png';
 
   constructor(private localstorage: LocalStorageService,
     private router: Router) { }
 
   ngOnInit() {
+    const storage = this.localstorage.getLocalStore();
+    this.company = storage.UsuarioInfo?.EmpresaNome ?? environment.company;
+    this.imageUrl = storage.UsuarioInfo?.EmpresaLogoUrl ?? '/assets/img/flying plane_1567082.png';
     this.menuItems = ROUTES.filter(menuItem => menuItem.location == 'sidebar' );
   }
 

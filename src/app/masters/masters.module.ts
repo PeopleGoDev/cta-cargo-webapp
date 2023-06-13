@@ -16,6 +16,7 @@ import { DxLoadPanelModule,
 import { PipesModule } from 'app/shared/util/pipes.module';
 import { MasterClient, VooClient } from 'app/shared/proxy/ctaapi';
 import { SharedModule } from 'app/shared/shared.module';
+import { NcmSelectorModule } from 'app/shared/components/ncm-selector/ncm-selector.module';
 
 @NgModule({
   declarations: [MastersComponent],
@@ -33,6 +34,7 @@ import { SharedModule } from 'app/shared/shared.module';
     DxValidationGroupModule,
     DxTagBoxModule,
     PipesModule,
+    NcmSelectorModule,
     SharedModule
   ],
   exports: [MastersComponent],

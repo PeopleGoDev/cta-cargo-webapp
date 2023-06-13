@@ -7,6 +7,8 @@ import { TextMaskModule } from 'angular2-text-mask';
 import { MasterDetailComponent } from 'app/masters/components/master-detail/master-detail.component';
 import { SelectComponent } from '@shared/atoms/select/select.component';
 import { TitleComponent } from './components/title/title.component';
+import { NcmSelectorModule } from './components/ncm-selector/ncm-selector.module';
+import { NcmSelectorComponent } from './components/ncm-selector/ncm-selector.component';
 
 @NgModule({
   declarations: [InputComponent, SelectComponent, MasterDetailComponent, TitleComponent],
@@ -14,7 +16,8 @@ import { TitleComponent } from './components/title/title.component';
     CommonModule,
     ButtonModule,
     FormsModule,
-    TextMaskModule
+    TextMaskModule,
+    NcmSelectorModule
   ], 
   exports: [InputComponent, SelectComponent, MasterDetailComponent, TitleComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]

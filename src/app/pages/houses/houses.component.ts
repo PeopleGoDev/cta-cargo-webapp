@@ -6,7 +6,7 @@ import {
   ViewChild,
 } from "@angular/core";
 import { LocalSituacaoRfb } from "app/shared/enum/api.enum";
-import { NcmClient, PortoIATAResponseDto } from "app/shared/proxy/ctaapi";
+import { PortoIATAResponseDto } from "app/shared/proxy/ctaapi";
 import { PortoIATAClient } from "app/shared/proxy/ctaapi";
 import {
   AgenteDeCargaClient,
@@ -23,10 +23,6 @@ import { cnpj, cpf } from "cpf-cnpj-validator";
 import { confirm } from "devextreme/ui/dialog";
 import notify from "devextreme/ui/notify";
 import { environment } from "environments/environment";
-import ArrayStore from 'devextreme/data/array_store';
-import CustomStore from 'devextreme/data/custom_store';
-import { HttpClient, HttpClientModule, HttpParams } from '@angular/common/http';
-
 
 function isNotEmpty(value: any): boolean {
   return value !== undefined && value !== null && value !== '';
@@ -73,29 +69,13 @@ export class HousesComponent implements OnInit, AfterViewInit {
   rfbNonProcessedRows: number[] = [];
   rfbAssociationProcessedRows: number[] = [];
   dataSource: any;
-  clientsStore: CustomStore;
 
   constructor(
     private houseClient: HouseClient,
     private agenteDeCargaClient: AgenteDeCargaClient,
     private localstorageService: LocalStorageService,
-    private portoIATAClient: PortoIATAClient,
-    private ncmClient: NcmClient,
-    private httpClient: HttpClient
+    private portoIATAClient: PortoIATAClient
   ) {
-
-    this.clientsStore = new CustomStore({
-      key: 'Id',
-      useDefaultSearch: true,
-      load(loadOptions: any) {        
-        return ncmClient.search(loadOptions.filter[0][2])
-          .toPromise()
-          .then((res) => { 
-              return { data: res.result }
-          })
-          .catch((error) => { throw 'Data Loading Error'; });
-      },
-    });
 
     this.listaOpcoes = [
       {
@@ -347,7 +327,7 @@ export class HousesComponent implements OnInit, AfterViewInit {
       ValorFreteFCUN: newData.ValorFreteFCUN.toUpperCase(),
       IndicadorMadeiraMacica: newData.IndicadorMadeiraMacica,
       DescricaoMercadoria: newData.DescricaoMercadoria.toUpperCase(),
-      CodigoRecintoAduaneiro: +newData.CodigoRecintoAduaneiro,
+      CodigoRecintoAduaneiro: newData.CodigoRecintoAduaneiro,
       RUC: newData.RUC == null ? null : newData.RUC.toUpperCase(),
       RemetenteNome: newData.RemetenteNome.toUpperCase(),
       RemetenteEndereco: newData.RemetenteEndereco
@@ -436,7 +416,7 @@ export class HousesComponent implements OnInit, AfterViewInit {
       ValorFreteFCUN: newData.ValorFreteFCUN.toUpperCase(),
       IndicadorMadeiraMacica: newData.IndicadorMadeiraMacica,
       DescricaoMercadoria: newData.DescricaoMercadoria.toUpperCase(),
-      CodigoRecintoAduaneiro: newData.CodigoRecintoAduaneiro ? +newData.CodigoRecintoAduaneiro : 0, // Recinto Aduaneiro
+      CodigoRecintoAduaneiro: newData.CodigoRecintoAduaneiro, // Recinto Aduaneiro
       AgenteDeCargaNumero: newData.AgenteDeCargaNumero.toUpperCase(), // Código Agente de Carga
       RUC: newData.RUC ? newData.RUC.toUpperCase() : null,
       RemetenteNome: newData.RemetenteNome.toUpperCase(),
@@ -527,6 +507,7 @@ export class HousesComponent implements OnInit, AfterViewInit {
 
     if (e.row?.isNewRow) {
       if (e.parentType == "dataRow" && e.dataField == "Numero") {
+        this.readOnlyEdition = false;
         e.editorOptions.readOnly = false;
         this.curgridKey = 0;
       }
@@ -566,9 +547,11 @@ export class HousesComponent implements OnInit, AfterViewInit {
       e.dataField === "AeroportoOrigem" ||
       e.dataField === "AeroportoDestino"
     ) {
+      const portos = this.portosData ? this.portosData.map((x) => `${x.Codigo} - ${x.Nome}`): [];
+      
       e.editorType = "dxAutocomplete";
       e.editorOptions = {
-        items: this.portosData.map((x) => `${x.Codigo} - ${x.Nome}`),
+        items: portos,
         minSearchLength: "2",
         searchTimeout: "500",
         value: e.value,
@@ -671,9 +654,14 @@ export class HousesComponent implements OnInit, AfterViewInit {
     this.dataGrid.instance.cancelEditData();
   }
 
-  onNCMValueChanged(e: any, cell) {
-    if(e.selectedItem)
-      cell.setValue(e.selectedItem.Id);
+  onNcmValueChanged(e: any, cell) {
+    if (e.length > 0) {
+      const value = e.map(x => x.code);
+      if (value)
+        cell.setValue(value);
+      return;
+    }
+    cell.setValue(null);
   }
 
   selectionChangedHandler() {

@@ -8,8 +8,8 @@ import { environment } from 'environments/environment';
 import { confirm } from 'devextreme/ui/dialog';
 import { StatusService } from 'app/shared/services/status.service';
 import { StatusVoo } from 'app/shared/model/statusvoo';
-import { AtualizarMasterReenviarRequest, ExcluirMastersByIdRequest, MasterClient, MasterInsertRequestDto, MasterListarRequest, MasterResponseDto, MasterUpdateRequestDto, MasterUpdateTotalParcialRequestDto, UsuarioInfoResponse, VooClient, VooListaResponseDto, VooListarInputDto } from 'app/shared/proxy/ctaapi';
-import { LocalRecordStatus, LocalSituacaoRfb } from 'app/shared/enum/api.enum';
+import { AtualizarMasterReenviarRequest, ExcluirMastersByIdRequest, MasterClient, MasterInsertRequestDto, MasterListarRequest, MasterResponseDto, MasterUpdateRequestDto, UsuarioInfoResponse, VooClient, VooListaResponseDto, VooListarInputDto } from 'app/shared/proxy/ctaapi';
+import { LocalSituacaoRfb } from 'app/shared/enum/api.enum';
 import { DxDataGridComponent } from 'devextreme-angular';
 
 @Component({
@@ -24,6 +24,7 @@ export class MastersComponent implements OnInit {
   @ViewChild("panel2") panel2Element: ElementRef;
   @ViewChild("panel3") panel3Element: ElementRef;
   curVoo: number = -1;
+  curVooNumber: string;
   filtroData: Date;
   filtroDataFinal: Date;
   filtroDataVoo: Date;
@@ -167,6 +168,7 @@ export class MastersComponent implements OnInit {
   onItemClick(e) {
     if (e.itemData.vooid == this.curVoo) return;
     this.curVoo = e.itemData.vooid;
+    this.curVooNumber = e.itemData.VooNumero;
     this.refreshGrid();
   }
 
@@ -204,6 +206,7 @@ export class MastersComponent implements OnInit {
         if (this.vooData && this.vooData.length > 0) {
           this.botoesGBItems = this.mapearButtonGroup(this.vooData);
           this.curVoo = this.vooData[0].VooId;
+          this.curVooNumber = this.vooData[0].Numero;
           this.refreshGrid();
         }
       }, err => {
@@ -259,22 +262,9 @@ export class MastersComponent implements OnInit {
     this.dataGrid.instance.exportToExcel(false);
   }
 
-  onRowUpdating(e) {
-
+  async onRowUpdating(e) {
     e.cancel = true;
-
-    if (e.oldData.SituacaoRFB)
-      if (this.editarSomenteLeitura && this.reeviarVoo) {
-        this.updateTotalParcialMaster(e);
-        return;
-      }
-
-    this.updateFullMaster(e);
-
-  }
-
-  updateFullMaster(e) {
-
+    
     const newData: MasterResponseDto = Object.assign(e.oldData, e.newData)
 
     const updateRequest: MasterUpdateRequestDto = {
@@ -316,37 +306,7 @@ export class MastersComponent implements OnInit {
       NaturezaCarga: newData.NaturezaCarga && newData.NaturezaCarga.trim().length > 0 ? newData.NaturezaCarga.toUpperCase() : undefined
     }
 
-    this.masterClient.atualizarMaster(updateRequest)
-      .subscribe(res => {
-        if (res.result.Sucesso) {
-          for (var i in this.mastersData) {
-            if (this.mastersData[i].MasterId == newData.MasterId) {
-              this.mastersData[i] = res.result.Dados;
-              break;
-            }
-          }
-          this.dataGrid.instance.cancelEditData();
-        }
-        else {
-          notify(res.result.Notificacoes[0].Mensagem, 'error', environment.ErrorTimeout);
-        }
-      }, err => {
-        notify(err, 'error', environment.ErrorTimeout);
-      });
-
-  }
-
-  updateTotalParcialMaster(e) {
-
-    const newData: MasterResponseDto = Object.assign(e.oldData, e.newData)
-
-    const updateRequest: MasterUpdateTotalParcialRequestDto = {
-      MasterId: newData.MasterId,
-      UsuarioAlteradorId: this.usuarioInfo.UsuarioId,
-      TotalParcial: newData.TotalParcial ? newData.TotalParcial.toUpperCase() : undefined,
-    }
-
-    this.masterClient.atualizarParcialTotalMaster(updateRequest)
+    await this.masterClient.atualizarMaster(updateRequest)
       .subscribe(res => {
         if (res.result.Sucesso) {
           for (var i in this.mastersData) {
@@ -386,14 +346,14 @@ export class MastersComponent implements OnInit {
       IndicadorMadeiraMacica: newData.IndicadorMadeiraMacica,
       IndicadorNaoDesunitizacao: newData.IndicadorNaoDesunitizacao,
       DescricaoMercadoria: newData.DescricaoMercadoria.toUpperCase(),
-      CodigoRecintoAduaneiro: 0,
-      RUC: newData.RUC ? newData.RUC.toUpperCase() : undefined,
+      CodigoRecintoAduaneiro: newData.CodigoRecintoAduaneiro ? newData.CodigoRecintoAduaneiro.toUpperCase(): null,
+      RUC: newData.RUC ? newData.RUC.toUpperCase() : null,
       ConsignatarioNome: newData.ConsignatarioNome.toUpperCase(),
-      ConsignatarioEndereco: newData.ConsignatarioEndereco ? newData.ConsignatarioEndereco.toUpperCase() : undefined,
-      ConsignatarioPostal: newData.ConsignatarioPostal ? newData.ConsignatarioPostal.toUpperCase() : undefined,
-      ConsignatarioCidade: newData.ConsignatarioCidade ? newData.ConsignatarioCidade.toUpperCase() : undefined,
+      ConsignatarioEndereco: newData.ConsignatarioEndereco ? newData.ConsignatarioEndereco.toUpperCase() : null,
+      ConsignatarioPostal: newData.ConsignatarioPostal ? newData.ConsignatarioPostal.toUpperCase() : null,
+      ConsignatarioCidade: newData.ConsignatarioCidade ? newData.ConsignatarioCidade.toUpperCase() : null,
       ConsignatarioPaisCodigo: newData.ConsignatarioPaisCodigo.toUpperCase(),
-      ConsignatarioSubdivisao: newData.ConsignatarioSubdivisao ? newData.ConsignatarioSubdivisao.toUpperCase() : undefined,
+      ConsignatarioSubdivisao: newData.ConsignatarioSubdivisao ? newData.ConsignatarioSubdivisao.toUpperCase() : null,
       ConsignatarioCNPJ: newData.ConsignatarioCNPJ.toUpperCase(),
       CiaAereaId: +this.usuarioInfo.CompanhiaId,
       DataEmissaoXML: newData.DataEmissaoXML,
@@ -461,9 +421,18 @@ export class MastersComponent implements OnInit {
 
   onEditorPreparing(e: any): void {
     if (e.row?.isNewRow) {
-      if (e.parentType == "dataRow" && e.dataField == "Numero") {
-        e.editorOptions.readOnly = false;
-        this.curgridKey = 0;
+      if (e.parentType == "dataRow") {
+        switch(e.dataField){
+          case "Numero":
+            e.editorOptions.readOnly = false;
+            this.editarSomenteLeitura = false;
+            this.curgridKey = 0;
+            break;
+          case "NumeroVooXML":
+            e.editorOptions.value = this.curVooNumber;
+            e.setValue(this.curVooNumber);
+            break;
+        }
       }
     }
     else {
@@ -490,14 +459,6 @@ export class MastersComponent implements OnInit {
               }
               break;
           }
-          if (e.dataField == "TotalParcial") {
-            e.editorOptions.readOnly = false;
-            if (e.row.data.StatusVoo == LocalRecordStatus.ReceivedByRFB && !e.row.data.VooReenviar) {
-              e.editorOptions.readOnly = true;
-            }
-            return;
-          }
-          break;
         default:
           break;
       }
@@ -651,8 +612,14 @@ export class MastersComponent implements OnInit {
     this.curgridKey = e.key;
   }
 
-  OnNCMValueChanged(e: any, cell) {
-    cell.setValue(e.value);
+  onNcmValueChanged(e: any, cell) {
+    if (e.length > 0) {
+      const value = e.map(x => x.code);
+      if (value)
+        cell.setValue(value);
+      return;
+    }
+    cell.setValue(null);
   }
 
   async onClickVerificarStatus(e: any) {

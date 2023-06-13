@@ -1,0 +1,13 @@
+::ng-deep .dx-data-row .word-wrap, .word-wrap {
+    word-wrap: break-word;
+    white-space: normal !important;
+}
+
+.text-style{
+    white-space: pre-wrap
+}
+
+.autocomplete-item {
+    display: grid;
+    grid-template-columns: 1fr 5fr;
+}

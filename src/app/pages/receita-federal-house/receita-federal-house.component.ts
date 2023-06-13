@@ -47,6 +47,7 @@ export class ReceitaFederalHouseComponent implements OnInit {
 
   ngOnInit(): void {
     this.filtroDataProcessamento = new Date();
+    this.filtroDataProcessamento.setHours(0, 0, 0, 0);
     this.statusData = this.statusService.getStatus();
     this.usuarioInfo = this.localStorageService.getLocalStore().UsuarioInfo;
 
@@ -54,9 +55,8 @@ export class ReceitaFederalHouseComponent implements OnInit {
   }
 
   onDataProcessamentoChanged(e: any) {
-    let data: Date = new Date(e.value.getFullYear(),
-      e.value.getMonth(),
-      e.value.getDate(), 0, 0, 0, 0);
+    let data: Date = new Date(e.value);
+    data.setHours(0, 0, 0, 0);
 
     this.filtroDataProcessamento = data;
     this.refreshGrid(this.curAgenteDeCarga);
@@ -155,7 +155,8 @@ export class ReceitaFederalHouseComponent implements OnInit {
   }
 
   private activateUpload() {
-    this.botaoUploadEnabled = this.dataHouse.findIndex(x => x.SituacaoRFB == 1 || x.SituacaoRFB == 3) > -1;
+    this.botaoUploadEnabled = this.dataHouse.findIndex(x => 
+      x.SituacaoRFB == 0 || x.SituacaoRFB == 1 || x.SituacaoRFB == 3) > -1;
     this.botaoAssociacaoUploadEnabled = this.dataHouse.findIndex(x => x.SituacaoRFB ==2 && 
       (x.SituacaoAssociacaoRFBId == 0 || x.SituacaoAssociacaoRFBId == 1 || x.SituacaoAssociacaoRFBId == 3)) > -1;
   }

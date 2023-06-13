@@ -61,7 +61,7 @@
                         </div>
                     </dxi-column>
                     <dxi-column caption="Peso/Volume">
-                        <dxi-column dataField="TotalVolumes" caption="Volumes" dataType="number" [width]="60">
+                        <dxi-column dataField="TotalVolumes" caption="Qde" dataType="number" [width]="60">
                         </dxi-column>
                         <dxi-column dataField="PesoTotalBruto" caption="Peso Total" dataType="number" format="decimal"
                             [editorOptions]="{
@@ -98,17 +98,32 @@
                         </dxi-column>
                     </dxi-column>
                     <dxi-column caption="Outras Informações" [visible]="true">
-                        <dxi-column dataField="SituacaoRFB" caption="Situação House RFB" [width]="170">
-                            <dxo-lookup [dataSource]="statusRFB" displayExpr="Descricao" valueExpr="Id">
-                            </dxo-lookup>
+                        <dxi-column dataField="SituacaoRFB" caption="Situação House RFB" [width]="170" 
+                            cellTemplate="erroRFBTemplate">
                         </dxi-column>
-                        <dxi-column dataField="SituacaoAssociacaoRFBId" caption="Situacao Associação RFB" [width]="170">
-                            <dxo-lookup [dataSource]="statusRFB" displayExpr="Descricao" valueExpr="Id">
-                            </dxo-lookup>
+                        <dxi-column dataField="SituacaoAssociacaoRFBId" caption="Situacao Associação RFB" [width]="170" cellTemplate="erroAssociacaoRFBTemplate">
                         </dxi-column>
                     </dxi-column>
                     <div *dxTemplate="let cell of 'erroRFBTemplate'">
                         {{ cell.text ? textToHtml(cell) : ''}}
+                    </div>
+                    <div *dxTemplate="let cell of 'erroRFBTemplate'">
+                        <div *ngIf="cell.value === 3">
+                            <b>{{ statusRFB[cell.value].Descricao }}</b><br/>
+                            {{ cell.data.DescricaoErroRFB }}
+                        </div>
+                        <div *ngIf="cell.value !== 3">
+                            {{ statusRFB[cell.value].Descricao }}
+                        </div>
+                    </div>
+                    <div *dxTemplate="let cell of 'erroAssociacaoRFBTemplate'">
+                        <span *ngIf="cell.value === 3" style="color: red">
+                            <b>{{ statusRFB[cell.value].Descricao }}</b><br/>
+                            {{ cell.data.DescricaoErroAssociacaoRFB }}
+                        </span>
+                        <span *ngIf="cell.value !== 3">
+                            {{ statusRFB[cell.value].Descricao }}
+                        </span>
                     </div>
                 </dx-data-grid>
             </div>

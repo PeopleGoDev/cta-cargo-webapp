@@ -1178,6 +1178,61 @@ export class HouseClient {
      * @param houseId (optional) 
      * @return Success
      */
+    atualizarReenviarAssociacaoHouse(houseId: number | undefined): Observable<SwaggerResponse<HouseResponseDtoApiResponse>> {
+        let url_ = this.baseUrl + "/api/v1/House/AtualizarReenviarAssociacaoHouse?";
+        if (houseId === null)
+            throw new Error("The parameter 'houseId' cannot be null.");
+        else if (houseId !== undefined)
+            url_ += "houseId=" + encodeURIComponent("" + houseId) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processAtualizarReenviarAssociacaoHouse(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processAtualizarReenviarAssociacaoHouse(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<HouseResponseDtoApiResponse>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<HouseResponseDtoApiResponse>>;
+        }));
+    }
+
+    protected processAtualizarReenviarAssociacaoHouse(response: HttpResponseBase): Observable<SwaggerResponse<HouseResponseDtoApiResponse>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as HouseResponseDtoApiResponse;
+            return _observableOf(new SwaggerResponse(status, _headers, result200));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<HouseResponseDtoApiResponse>>(new SwaggerResponse(status, _headers, null as any));
+    }
+
+    /**
+     * @param houseId (optional) 
+     * @return Success
+     */
     excluirHouse(houseId: number | undefined): Observable<SwaggerResponse<HouseResponseDtoApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/House/ExcluirHouse?";
         if (houseId === null)
@@ -2076,6 +2131,71 @@ export class NaturezaCargaClient {
             }));
         }
         return _observableOf<SwaggerResponse<NaturezaCargaResponseDtoApiResponse>>(new SwaggerResponse(status, _headers, null as any));
+    }
+}
+
+@Injectable()
+export class NcmClient {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(URL_BASE_URL_API) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    /**
+     * @param q (optional) 
+     * @return Success
+     */
+    search(q: string | null | undefined): Observable<SwaggerResponse<NCM[]>> {
+        let url_ = this.baseUrl + "/api/v1/Ncm/search?";
+        if (q !== undefined && q !== null)
+            url_ += "q=" + encodeURIComponent("" + q) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processSearch(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processSearch(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<NCM[]>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<NCM[]>>;
+        }));
+    }
+
+    protected processSearch(response: HttpResponseBase): Observable<SwaggerResponse<NCM[]>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as NCM[];
+            return _observableOf(new SwaggerResponse(status, _headers, result200));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<NCM[]>>(new SwaggerResponse(status, _headers, null as any));
     }
 }
 
@@ -4293,6 +4413,8 @@ export interface HouseResponseDto {
     PesoTotalBruto?: number;
     PesoTotalBrutoUN?: string | undefined;
     TotalVolumes?: number;
+    Volume?: number;
+    VolumeUN?: string | undefined;
     ValorFretePP?: number;
     ValorFretePPUN?: string | undefined;
     ValorFreteFC?: number;
@@ -4368,6 +4490,8 @@ export interface HouseInsertRequestDto {
     PesoTotalBruto?: number;
     PesoTotalBrutoUN?: string | undefined;
     TotalVolumes?: number;
+    Volume?: number;
+    VolumeUN?: string | undefined;
     ValorFretePP?: number;
     ValorFretePPUN?: string | undefined;
     ValorFreteFC?: number;
@@ -4402,6 +4526,8 @@ export interface HouseUpdateRequestDto {
     PesoTotalBruto?: number;
     PesoTotalBrutoUN?: string | undefined;
     TotalVolumes?: number;
+    Volume?: number;
+    VolumeUN?: string | undefined;
     ValorFretePP?: number;
     ValorFretePPUN?: string | undefined;
     ValorFreteFC?: number;
@@ -4686,6 +4812,13 @@ export interface NaturezaCargaUpdateRequestDto {
     NaturezaCargaId?: number;
     Descricao?: string | undefined;
     UsuarioModificadorId?: number;
+}
+
+export interface NCM {
+    Id: number;
+    Codigo: string;
+    Descricao: string;
+    DescricaoConcatenada: string;
 }
 
 export interface PortoIATAResponseDto {

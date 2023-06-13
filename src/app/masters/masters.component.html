@@ -363,7 +363,8 @@
                     <div *dxTemplate="let cell of 'dataCellTemplate'">
                         <dx-tag-box [value]="cell.value" [searchEnabled]="false" [acceptCustomValue]="true"
                             [showMultiTagOnly]="false" [openOnFieldClick]="false" [items]="cell.value"
-                            [items]="cell.value" (onValueChanged)="OnNCMValueChanged($event, cell)">
+                            [items]="cell.value" (onValueChanged)="OnNCMValueChanged($event, cell)"
+                            [readOnly]="editarSomenteLeitura">
                         </dx-tag-box>
                     </div>
 

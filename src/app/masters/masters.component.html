@@ -17,17 +17,19 @@
                     </dxi-item>
                     <dxi-item location="before">
                         <div *dxTemplate>
-                            <div id="panel1" #panel1 style="display: table; vertical-align: middle;">
+                            <div id="panel1" #panel1 style="display: flex; align-items: center;">
                                 <div style="display: table-cell">Data do Voo&nbsp;</div>
                                 <div style="display: table-cell">
                                     <dx-date-box [value]="filtroDataVoo" type="date" width="115"
                                         (onValueChanged)="handleValueDataChangeDataVoo($event)"></dx-date-box>
                                 </div>
-                                <div style="display: table-cell">&nbsp;</div>
-                                <div style="display: table-cell">
-                                    <dx-button-group [items]="botoesGBItems" accessKey="vooid" keyExpr="vooid"
-                                        [selectedItemKeys]="[curVoo]" (onItemClick)="onItemClick($event)">
-                                    </dx-button-group>
+                                <div style="display: table-cell; width: 10px;">&nbsp;</div>
+                                <div style="display: table-cell;">
+                                    <dx-drop-down-button [splitButton]="true" [useSelectMode]="false"
+                                        text="Selecione o Voo" icon="airplane" [items]="botoesGBItems" [selectedItemKey]="curVoo"
+                                        (onItemClick)="onItemClick($event)" displayExpr="text" keyExpr="vooid"
+                                        [disabled]="!vooData || vooData.length === 0" [useSelectMode]="true"
+                                        width="105px"></dx-drop-down-button>
                                 </div>
                             </div>
                         </div>
@@ -63,7 +65,7 @@
                                                     message="O número do Master requer 11 digitos!">
                                                 </dxi-validation-rule>
                                                 <dxi-validation-rule type="custom" message="Numero do Master invalido!"
-                                                    [validationCallback]="ValidaMasterNumero">
+                                                    [validationCallback]="validaMasterNumero">
                                                 </dxi-validation-rule>
                                             </dx-validator>
                                         </dx-text-box>
@@ -85,10 +87,9 @@
                         </dx-button>
                     </dxi-item>
                     <dxi-item location="after">
-                        <dx-button stylingMode="contained" icon="plus" text="Adicionar Master" type="normal"
-                            hint="Adicionar Master" [disabled]="!vooData || vooData.length === 0"
-                            (click)="addRow($event)">
-                        </dx-button>
+                        <dx-drop-down-button [splitButton]="true" [useSelectMode]="false" text="Adicionar Master"
+                            icon="plus" [items]="buttonNewAction" (onItemClick)="addRow($event)"
+                            [disabled]="!vooData || vooData.length === 0"></dx-drop-down-button>
                     </dxi-item>
                     <dxi-item location="after" widget="dxButton" [options]="excelIcon">
                         <dx-button stylingMode="contained" icon="xlsxfile" text="Exportar" type="normal"
@@ -132,10 +133,10 @@
                         <dxo-form [colCount]="3">
                             <dxi-item itemType="group" [colCount]="3" [colSpan]="3">
                                 <dxi-item dataField="Numero" [colSpan]="1"
-                                    [editorOptions]="{ maxLength: 12, mask: '000-00000000' }">
+                                    [editorOptions]="{ maxLength: 12, mask: 'AAA-AAAAAAAA' }">
                                     <dxi-validation-rule type="required"></dxi-validation-rule>
                                     <dxi-validation-rule type="custom" message="Numero do Master invalido!"
-                                        [validationCallback]="ValidaMasterNumero">
+                                        [validationCallback]="validaMasterNumero">
                                     </dxi-validation-rule>
                                 </dxi-item>
                                 <dxi-item dataField="ConsolidadoDireto">
@@ -327,7 +328,7 @@
                             <dxo-format type="fixedPoint" [precision]="3">
                             </dxo-format>
                         </dxi-column>
-                        <dxi-column dataField="VolumeUN" caption="Volume Unidade" alignment="right" width="110">
+                        <dxi-column dataField="VolumeUN" caption="MC/CBM" alignment="right" width="110">
                         </dxi-column>
                         <dxi-column dataField="DescricaoMercadoria" caption="Desc Merc" width="180"
                             cssClass="word-wrap"></dxi-column>
@@ -358,6 +359,8 @@
                         </dxi-column>
                     </dxi-column>
                     <dxi-column caption="Outras Informações" [visible]="true">
+                        <dxi-column dataField="IndicadorAwbNaoIata" caption="AWB Não IATA" width="140">
+                        </dxi-column>
                         <dxi-column dataField="DataEmissaoXML" caption="Data/Hora Emissão" width="140"
                             dataType="datetime">
                         </dxi-column>

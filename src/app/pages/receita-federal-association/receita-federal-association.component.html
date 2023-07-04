@@ -1,0 +1,141 @@
+<div class="main-content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card card-plain">
+                    <div class="header">
+                        <h4 class="title">Receita Federal</h4>
+                        <p class="category">Submeter Associação House-Master</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12" style="margin-bottom: 10px;">
+                <dx-toolbar>
+                    <dxi-item location="before">
+                        <div *dxTemplate>
+                            <div id="panel1" #panel1 style="display: table; vertical-align: middle;">
+                                <div style="display: table-cell">Data de Processamento&nbsp;</div>
+                                <div style="display: table-cell">
+                                    <dx-date-box [value]="filtroDataProcessamento" type="date" width="115"
+                                        (onValueChanged)="onDataProcessamentoChanged($event)"></dx-date-box>
+                                </div>
+                            </div>
+                        </div>
+                    </dxi-item>
+                    <dxi-item location="after" widget="dxButton" [options]="refreshIcon">
+                    </dxi-item>
+                </dx-toolbar>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12" style="margin-bottom: 10px;">
+                <dx-toolbar>
+                    <dxi-item location="before">
+                        <div *dxTemplate>
+                            <div id="panel1" #panel1 style="display: table; vertical-align: middle;">
+                                <div style="display: table-cell">
+                                    <dx-button-group [items]="botoesGBItems" accessKey="agenteid" keyExpr="agenteid"
+                                        stylingMode="text" [selectedItemKeys]="[curAgenteDeCarga]"
+                                        (onItemClick)="onItemClick($event)">
+                                    </dx-button-group>
+                                </div>
+                            </div>
+                        </div>
+                    </dxi-item>
+                </dx-toolbar>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="grid">
+                    <div class="table-house-item">
+                        <div class="table-header-item center">
+                            <div class="middle"><input type="checkbox" class="checkbox" [checked]="checkedAll"
+                                    [disabled]="dataHouse?.length === 0" (change)="onCheckAllChange($event)"></div>
+                        </div>
+                        <div class="table-header-item">Master</div>
+                        <div class="table-header-item">Status</div>
+                        <div class="table-header-item">House Number</div>
+                        <div class="table-header-item right">Total Pacotes</div>
+                        <div class="table-header-item right">Total Peças</div>
+                        <div class="table-header-item right">Peso</div>
+                        <div class="table-header-item right">Peso Unidade</div>
+                        <div class="table-header-item right">Origem</div>
+                        <div class="table-header-item right">Destino</div>
+                        <div class="table-header-item right">Protocolo/Status</div>
+
+                        <ng-container *ngFor="let item of dataHouse; let idx=index">
+
+                            <div class="table-item-row center"><input type="checkbox" class="checkbox"
+                                    [disabled]="item.disabled" [checked]="item.checked" [value]="idx"
+                                    (change)="onCheckChange($event)"></div>
+                            <div class="table-item-row summary" [class.error]="item.Houses[0].AssociationStatusId === 3">{{ item.Number | master }}</div>
+                            <div class="table-item-row summary" [class.error]="item.Houses[0].AssociationStatusId === 3">{{ statusRFB[item.Houses[0].AssociationStatusId].Descricao }}</div>
+                            <div class="table-item-row summary" [class.error]="item.Houses[0].AssociationStatusId === 3">Master Header - House(s) Summary</div>
+                            <div class="table-item-row right summary" [class.error]="item.Houses[0].AssociationStatusId === 3">{{ item.Summary?.PackageQuantity }}</div>
+                            <div class="table-item-row right summary" [class.error]="item.Houses[0].AssociationStatusId === 3">{{ item.Summary?.TotalPieceQuantity }}</div>
+                            <div class="table-item-row right summary" [class.error]="item.Houses[0].AssociationStatusId === 3">{{ item.Summary?.TotalWeight | number:'1.4-4' }}
+                            </div>
+                            <div class="table-item-row right summary" [class.error]="item.Houses[0].AssociationStatusId === 3">{{ item.Summary?.TotalWeightUnit }}</div>
+                            <div class="table-item-row right summary" [class.error]="item.Houses[0].AssociationStatusId === 3">{{ item.Summary?.OriginLocation }}</div>
+                            <div class="table-item-row right summary" [class.error]="item.Houses[0].AssociationStatusId === 3">{{ item.Summary?.DestinationLocation }}</div>
+                            <div class="table-item-row right summary" [class.error]="item.Houses[0].AssociationStatusId === 3">{{ item.Houses[0].AssociationProtocol }}
+                                <ng-container *ngIf="item.Houses[0].AssociationStatusId === 3">
+                                    <br/>{{ item.Houses[0].AssociationErrorDescription }}
+                                </ng-container>
+                            </div>
+
+                            <ng-container *ngFor="let house of item.Houses; let idx1=index">
+                                <div class="table-item-row"></div>
+                                <div class="table-item-row"></div>
+                                <div class="table-item-row"></div>
+                                <div class="table-item-row" [class.error]="item.Houses[0].AssociationStatusId === 3">{{ house.Number }} ({{ house.ProcessDate | date:
+                                    'dd/MM/yyyy'
+                                    }})</div>
+                                <div class="table-item-row right" [class.error]="item.Houses[0].AssociationStatusId === 3">{{ house.PackageQuantity }}</div>
+                                <div class="table-item-row right" [class.error]="item.Houses[0].AssociationStatusId === 3">{{ house.TotalPieceQuantity }}</div>
+                                <div class="table-item-row right" [class.error]="item.Houses[0].AssociationStatusId === 3">{{ house.TotalWeight | number:'1.4-4' }}</div>
+                                <div class="table-item-row right" [class.error]="item.Houses[0].AssociationStatusId === 3">{{ house.TotalWeightUnit }}</div>
+                                <div class="table-item-row right" [class.error]="item.Houses[0].AssociationStatusId === 3">{{ house.OriginLocation }}</div>
+                                <div class="table-item-row right" [class.error]="item.Houses[0].AssociationStatusId === 3">{{ house.DestinationLocation }}</div>
+                                <div class="table-item-row right" [class.error]="item.Houses[0].AssociationStatusId === 3">
+                                    {{ house.AssociationProtocol }}</div>
+                            </ng-container>
+                        </ng-container>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12" style="margin-top: 20px;">
+                    <app-button (buttonClicked)="onClickUpload($event)" [isButtonOrange]="true"
+                        [isDisabled]="totalChecked === 0" [mobileFull]="true" id="modal-create-master-group-link">
+                        {{botaoUploadLabel}}
+                    </app-button>
+                </div>
+                <!-- <div class="col-md-12" style="margin-top: 20px;">
+                <app-button (buttonClicked)="onClickUploadAssociacao($event)" [isButtonOrange]="true"
+                    [isDisabled]="!botaoAssociacaoUploadEnabled" [mobileFull]="true" id="modal-create-master-group-link">
+                    {{botaoAssociacaoUploadLabel}}
+                </app-button>
+            </div> -->
+            </div>
+        </div>
+    </div>
+    <dx-popup #popconfirm [width]="400" [height]="280" [showTitle]="true" title="Atenção!" [dragEnabled]="false"
+        [closeOnOutsideClick]="false" [showCloseButton]="true" container=".dx-viewport">
+        <p>Você tem certeza que deseja submeter os Houses para a Receita Federal?</p>
+        <div class="buttons-line">
+            <div>
+                <dx-button stylingMode="contained" text="Confirmar" type="normal" [width]="120"
+                    (onClick)="popUpConfirm.visible = false">
+                </dx-button>
+            </div>
+            <div>
+                <dx-button stylingMode="outlined" text="Cancelar" type="normal" [width]="120"
+                    (onClick)="popUpConfirm.visible = false">
+                </dx-button>
+            </div>
+        </div>
+    </dx-popup>

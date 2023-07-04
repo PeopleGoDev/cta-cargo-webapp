@@ -18,6 +18,7 @@ import { AgenteCargaComponent } from './agente-carga/agente-carga.component';
 import { ReceitaFederalHouseComponent } from './pages/receita-federal-house/receita-federal-house.component';
 import { ConsultaComponent } from './consulta/consulta.component';
 import { ReceitaFederalMasterComponent } from './pages/receita-federal-master/receita-federal-master.component';
+import { ReceitaFederalAssociationComponent } from './pages/receita-federal-association/receita-federal-association.component';
 
 const routes: Routes = [
   {
@@ -39,6 +40,7 @@ const routes: Routes = [
       { path: "uldtag", component: UldmasterComponent },
       { path: "receita-federal", component: ReceitaFederalComponent },
       { path: "receita-federal-house", component: ReceitaFederalHouseComponent },
+      { path: "receita-federal-association", component: ReceitaFederalAssociationComponent },
       { path: "receita-federal-master", component: ReceitaFederalMasterComponent },
       { path: "porto-iata", component: PortoIataComponent },
       { path: "natureza-carga", component: NaturezaCargaComponent },

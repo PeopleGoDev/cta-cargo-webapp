@@ -192,23 +192,23 @@ export class ReceitaFederalHouseComponent implements OnInit {
       AgenteDeCargaId: agenteDeCargaId
     }
 
-    await this.receitaFederalClient.submeterAssociacaoHouseMaster(input)
-      .subscribe(res => {
-        if (res.result.Sucesso) {
-          notify("Arquivo Submetido com Sucesso!", 'success', environment.ErrorTimeout);
-        }
-        else {
-          if (res.result.Notificacoes == undefined) {
-            notify("Erro desconhecido!", 'error', environment.ErrorTimeout)
-          }
-          else {
-            notify(res.result.Notificacoes[0].Mensagem, 'error', environment.ErrorTimeout);
-          }
-        }
-        this.refreshGrid(agenteDeCargaId);
-      }, err => {
-        notify(err, 'error', environment.ErrorTimeout)
-      });
+    // await this.receitaFederalClient.submeterAssociacaoHouseMaster(input)
+    //   .subscribe(res => {
+    //     if (res.result.Sucesso) {
+    //       notify("Arquivo Submetido com Sucesso!", 'success', environment.ErrorTimeout);
+    //     }
+    //     else {
+    //       if (res.result.Notificacoes == undefined) {
+    //         notify("Erro desconhecido!", 'error', environment.ErrorTimeout)
+    //       }
+    //       else {
+    //         notify(res.result.Notificacoes[0].Mensagem, 'error', environment.ErrorTimeout);
+    //       }
+    //     }
+    //     this.refreshGrid(agenteDeCargaId);
+    //   }, err => {
+    //     notify(err, 'error', environment.ErrorTimeout)
+    //   });
   }
 
   onRowPrepared(e: any) {

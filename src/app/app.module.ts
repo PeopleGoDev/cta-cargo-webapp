@@ -36,6 +36,8 @@ import { ReceitaFederalHouseModule } from './pages/receita-federal-house/receita
 import { NgxSpinnerModule } from "ngx-spinner";
 import { SharedModule } from './shared/shared.module';
 import { ConsultaModule } from './consulta/consulta.module';
+import { ReceitaFederalMasterModule } from './pages/receita-federal-master/receita-federal-master.module';
+import { ReceitaFederalAssociationModule } from './pages/receita-federal-association/receita-federal-association.module';
 
 let messagesptBR = require('devextreme/localization/messages/pt.json');
 loadMessages(messagesptBR);
@@ -69,6 +71,8 @@ config({
     HousesModule,
     ReceitaFederalModule,
     ReceitaFederalHouseModule,
+    ReceitaFederalMasterModule,
+    ReceitaFederalAssociationModule,
     PortoIataModule,
     NaturezaCargaModule,
     AgenteCargaModule,

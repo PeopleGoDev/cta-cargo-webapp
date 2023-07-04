@@ -65,6 +65,8 @@ export class NcmSelectorComponent implements OnInit {
       if (foundItem)
         return;
       this.selectedItens.push({ code: e.selectedItem.Codigo, description: e.selectedItem.DescricaoConcatenada });
+      if(!this.value)
+        this.value=[];
       this.value.push(e.selectedItem.Codigo);
       this.emitChange();
     }

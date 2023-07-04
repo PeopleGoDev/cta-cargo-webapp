@@ -167,7 +167,10 @@
                     <dxi-column caption="Outras Informações">
                         <dxi-column dataField="UsuarioCriacao" width="150" caption="Usuário Criação">
                         </dxi-column>
-                        <dxi-column dataField="DataCriacao" width="150" caption="Data/Hora Criação" dataType="datetime">
+                        <dxi-column dataField="DataCriacao" width="150" caption="Data/Hora Criação" cellTemplate="dataCriacaoTemplate">
+                            <div *dxTemplate="let data of 'dataCriacaoTemplate'">
+                                {{ addHours(data.value, -3) | date : 'dd/MM/yyyy HH:mm' }}
+                            </div>
                         </dxi-column>
                     </dxi-column>
 

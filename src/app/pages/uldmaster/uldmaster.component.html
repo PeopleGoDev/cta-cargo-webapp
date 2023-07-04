@@ -88,11 +88,11 @@
                             <dxo-selection [selectAllMode]="'allPages'" [showCheckBoxesMode]="'onClick'"
                                 mode="multiple"></dxo-selection>
                             <dxi-column dataField="MasterNumero" caption="Master" width="180" cellTemplate="awbTemplate"
-                                [editorOptions]="{ maxLength: 12, mask: '000-00000000' }">
+                                [editorOptions]="{ maxLength: 12, mask: 'AAA-AAAAAAAA' }">
                                 <dxi-validation-rule type="required"></dxi-validation-rule>
-                                <dxi-validation-rule type="custom" message="Numero do Master invalido!"
+                                <!-- <dxi-validation-rule type="custom" message="Numero do Master invalido!"
                                     [validationCallback]="ValidarMasterNumero">
-                                </dxi-validation-rule>
+                                </dxi-validation-rule> -->
                                 <div *dxTemplate="let data of 'awbTemplate'">
                                     {{ data.value | master }}
                                 </div>

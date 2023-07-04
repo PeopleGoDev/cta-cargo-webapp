@@ -58,6 +58,8 @@ export class MastersComponent implements OnInit {
   selectedRows: number[] = [];
   rfbProcessedRows: number[] = [];
   rfbNonProcessedRows: number[] = [];
+  buttonNewAction = ['Padrão IATA', 'Padrão NÃO IATA']
+  awbPadraoNaoIata: boolean = false;
   // Privados
 
   private usuarioInfo: UsuarioInfoResponse;
@@ -103,6 +105,7 @@ export class MastersComponent implements OnInit {
     this.onRowDelete = this.onRowDelete.bind(this);
     this.onEditSave = this.onEditSave.bind(this);
     this.onEditCancel = this.onEditCancel.bind(this);
+    this.validaMasterNumero = this.validaMasterNumero.bind(this);
 
     this.consolidadoDiretoData = this.consolidadoDiretoService.Listar();
   }
@@ -254,6 +257,7 @@ export class MastersComponent implements OnInit {
   }
 
   addRow(e) {
+    this.awbPadraoNaoIata = e.itemData === 'Padrão NÃO IATA';
     this.curTipoMaster = "";
     this.dataGrid.instance.addRow();
   }
@@ -264,7 +268,7 @@ export class MastersComponent implements OnInit {
 
   async onRowUpdating(e) {
     e.cancel = true;
-    
+
     const newData: MasterResponseDto = Object.assign(e.oldData, e.newData)
 
     const updateRequest: MasterUpdateRequestDto = {
@@ -280,6 +284,7 @@ export class MastersComponent implements OnInit {
       ValorFreteFCUN: newData.ValorFreteFCUN.toUpperCase(),
       IndicadorMadeiraMacica: newData.IndicadorMadeiraMacica,
       IndicadorNaoDesunitizacao: newData.IndicadorNaoDesunitizacao,
+      IndicadorAwbNaoIata: this.awbPadraoNaoIata,
       DescricaoMercadoria: newData.DescricaoMercadoria.toUpperCase(),
       CodigoRecintoAduaneiro: newData.CodigoRecintoAduaneiro,
       RUC: newData.RUC ? newData.RUC.toUpperCase() : undefined,
@@ -326,7 +331,7 @@ export class MastersComponent implements OnInit {
 
   }
 
-  onRowInserting(e) {
+  async onRowInserting(e) {
 
     e.cancel = true;
 
@@ -345,8 +350,9 @@ export class MastersComponent implements OnInit {
       ValorFreteFCUN: newData.ValorFreteFCUN.toUpperCase(),
       IndicadorMadeiraMacica: newData.IndicadorMadeiraMacica,
       IndicadorNaoDesunitizacao: newData.IndicadorNaoDesunitizacao,
+      IndicadorAwbNaoIata: this.awbPadraoNaoIata,
       DescricaoMercadoria: newData.DescricaoMercadoria.toUpperCase(),
-      CodigoRecintoAduaneiro: newData.CodigoRecintoAduaneiro ? newData.CodigoRecintoAduaneiro.toUpperCase(): null,
+      CodigoRecintoAduaneiro: newData.CodigoRecintoAduaneiro ? newData.CodigoRecintoAduaneiro.toUpperCase() : null,
       RUC: newData.RUC ? newData.RUC.toUpperCase() : null,
       ConsignatarioNome: newData.ConsignatarioNome.toUpperCase(),
       ConsignatarioEndereco: newData.ConsignatarioEndereco ? newData.ConsignatarioEndereco.toUpperCase() : null,
@@ -372,7 +378,7 @@ export class MastersComponent implements OnInit {
       NaturezaCarga: newData.NaturezaCarga ? newData.NaturezaCarga.toUpperCase() : undefined,
     }
 
-    this.masterClient.inserirMaster(insertRequest)
+    await this.masterClient.inserirMaster(insertRequest)
       .subscribe(res => {
         if (res.result.Sucesso) {
           this.mastersData.push(res.result.Dados);
@@ -420,49 +426,47 @@ export class MastersComponent implements OnInit {
   }
 
   onEditorPreparing(e: any): void {
-    if (e.row?.isNewRow) {
-      if (e.parentType == "dataRow") {
-        switch(e.dataField){
-          case "Numero":
-            e.editorOptions.readOnly = false;
-            this.editarSomenteLeitura = false;
-            this.curgridKey = 0;
-            break;
-          case "NumeroVooXML":
-            e.editorOptions.value = this.curVooNumber;
-            e.setValue(this.curVooNumber);
-            break;
-        }
-      }
-    }
-    else {
-      switch (e.parentType) {
-        case "dataRow":
-          switch (e.row.data.SituacaoRFB) {
-            case LocalSituacaoRfb.Received:
-            case LocalSituacaoRfb.ProcessedDeletion:
-            case LocalSituacaoRfb.Processed:
-              if (e.row.data.Reenviar) {
-                this.editarSomenteLeitura = false;
-                e.editorOptions.readOnly = false;
-              } else {
-                this.editarSomenteLeitura = true;
-                e.editorOptions.readOnly = true;
-              }
-              break;
-            default:
-              this.editarSomenteLeitura = false;
-              if (e.dataField == "Numero") {
-                e.editorOptions.readOnly = true;
-                this.curgridKey = e.row.key;
-                return;
-              }
-              break;
-          }
-        default:
+
+    if (e.row?.isNewRow && e.parentType == "dataRow") {
+      switch (e.dataField) {
+        case "Numero":
+          e.editorOptions.readOnly = false;
+          this.editarSomenteLeitura = false;
+          this.curgridKey = 0;
+          break;
+        case "NumeroVooXML":
+          e.editorOptions.value = this.curVooNumber;
+          e.setValue(this.curVooNumber);
           break;
       }
+      return;
     }
+
+    if (e.parentType == "dataRow") {
+
+      if (e.dataField == "Numero") {
+        e.editorOptions.readOnly = true;
+        this.awbPadraoNaoIata = e.row.data.IndicadorAwbNaoIata;
+        this.curgridKey = e.row.key;
+      }
+
+      switch (e.row.data.SituacaoRFB) {
+        case LocalSituacaoRfb.Received:
+        case LocalSituacaoRfb.ProcessedDeletion:
+        case LocalSituacaoRfb.Processed:
+          if (e.row.data.Reenviar) {
+            this.editarSomenteLeitura = false;
+            e.editorOptions.readOnly = false;
+          } else {
+            this.editarSomenteLeitura = true;
+            e.editorOptions.readOnly = true;
+          }
+          break;
+        default:
+      }
+
+    }
+
   }
 
   selectionChangedHandler() {
@@ -539,7 +543,6 @@ export class MastersComponent implements OnInit {
   mapearButtonGroup(dados: VooListaResponseDto[]) {
     let arrayBG: any = [];
     if (dados == null) return arrayBG;
-
     for (var i in dados) {
       let item = {
         icon: "airplane",
@@ -568,7 +571,10 @@ export class MastersComponent implements OnInit {
     return false;
   }
 
-  ValidaMasterNumero(e) {
+  validaMasterNumero(e) {
+    if (this.awbPadraoNaoIata)
+      return true;
+
     if (e.value.length != 11)
       return false;
     if (typeof e.value != "string" || Number.isNaN(Number(e.value)))

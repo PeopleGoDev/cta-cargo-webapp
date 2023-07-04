@@ -98,11 +98,11 @@
                         </dxi-column>
                     </dxi-column>
                     <dxi-column caption="Outras Informações" [visible]="true">
-                        <dxi-column dataField="SituacaoRFB" caption="Situação House RFB" [width]="170" 
+                        <dxi-column dataField="SituacaoRFB" caption="Situação House RFB" [width]="260" 
                             cellTemplate="erroRFBTemplate">
                         </dxi-column>
-                        <dxi-column dataField="SituacaoAssociacaoRFBId" caption="Situacao Associação RFB" [width]="170" cellTemplate="erroAssociacaoRFBTemplate">
-                        </dxi-column>
+                        <!-- <dxi-column dataField="SituacaoAssociacaoRFBId" caption="Situacao Associação RFB" [width]="170" cellTemplate="erroAssociacaoRFBTemplate">
+                        </dxi-column> -->
                     </dxi-column>
                     <div *dxTemplate="let cell of 'erroRFBTemplate'">
                         {{ cell.text ? textToHtml(cell) : ''}}
@@ -113,18 +113,20 @@
                             {{ cell.data.DescricaoErroRFB }}
                         </div>
                         <div *ngIf="cell.value !== 3">
-                            {{ statusRFB[cell.value].Descricao }}
+                            {{ statusRFB[cell.value].Descricao }}<br/>
+                            {{ cell.data.ProtocoloRFB }}
                         </div>
                     </div>
-                    <div *dxTemplate="let cell of 'erroAssociacaoRFBTemplate'">
+                    <!-- <div *dxTemplate="let cell of 'erroAssociacaoRFBTemplate'">
                         <span *ngIf="cell.value === 3" style="color: red">
                             <b>{{ statusRFB[cell.value].Descricao }}</b><br/>
                             {{ cell.data.DescricaoErroAssociacaoRFB }}
                         </span>
                         <span *ngIf="cell.value !== 3">
-                            {{ statusRFB[cell.value].Descricao }}
+                            {{ statusRFB[cell.value].Descricao }}<br/>
+                            {{ cell.data.ProtocoloAssociacaoRFB }}
                         </span>
-                    </div>
+                    </div> -->
                 </dx-data-grid>
             </div>
         </div>
@@ -135,12 +137,12 @@
                     {{botaoUploadLabel}}
                 </app-button>
             </div>
-            <div class="col-md-12" style="margin-top: 20px;">
+            <!-- <div class="col-md-12" style="margin-top: 20px;">
                 <app-button (buttonClicked)="onClickUploadAssociacao($event)" [isButtonOrange]="true"
                     [isDisabled]="!botaoAssociacaoUploadEnabled" [mobileFull]="true" id="modal-create-master-group-link">
                     {{botaoAssociacaoUploadLabel}}
                 </app-button>
-            </div>
+            </div> -->
         </div>
     </div>
 </div>

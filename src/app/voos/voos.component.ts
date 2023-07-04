@@ -381,7 +381,6 @@ export class VoosComponent implements OnInit {
     return this.editDataChegadaEstimada;
   };
 
-
   validateActualArrivalDateField(e) {
     if (!(e.value)) return true;
 
@@ -408,4 +407,12 @@ export class VoosComponent implements OnInit {
     }
   }
 
+  addHours(date, hours) {
+    if(!date)
+      return undefined;
+
+    const dateCopy = new Date(date);
+    dateCopy.setHours(dateCopy.getHours() + hours);
+    return dateCopy;
+  }
 }

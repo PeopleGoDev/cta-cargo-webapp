@@ -12,7 +12,8 @@ import { DxLoadPanelModule,
   DxButtonModule,
   DxValidatorModule,
   DxValidationGroupModule,
-  DxTagBoxModule } from 'devextreme-angular';
+  DxTagBoxModule, 
+  DxDropDownButtonModule} from 'devextreme-angular';
 import { PipesModule } from 'app/shared/util/pipes.module';
 import { MasterClient, VooClient } from 'app/shared/proxy/ctaapi';
 import { SharedModule } from 'app/shared/shared.module';
@@ -33,6 +34,7 @@ import { NcmSelectorModule } from 'app/shared/components/ncm-selector/ncm-select
     DxValidatorModule,
     DxValidationGroupModule,
     DxTagBoxModule,
+    DxDropDownButtonModule,
     PipesModule,
     NcmSelectorModule,
     SharedModule

@@ -98,7 +98,7 @@
                         </dxo-popup>
                         <dxo-form [colCount]="3">
                             <dxi-item itemType="group" [colCount]="3" [colSpan]="3">
-                                <dxi-item dataField="Numero" [editorOptions]="{ maxLength: 15 }">
+                                <dxi-item dataField="Numero" [editorOptions]="{ maxLength: 11 }">
                                     <dxi-validation-rule type="required"></dxi-validation-rule>
                                 </dxi-item>
                                 <dxi-item dataField="MasterNumeroXML"
@@ -277,7 +277,7 @@
                         </dxi-column>
                         <dxi-column dataField="PesoTotalBrutoUN" caption="Peso Unidade" alignment="right"></dxi-column>
                         <dxi-column dataField="Volume" caption="Volume" alignment="right"></dxi-column>
-                        <dxi-column dataField="VolumeUN" caption="Volume Unidade" alignment="right"></dxi-column>
+                        <dxi-column dataField="VolumeUN" caption="MC/CBM" alignment="right"></dxi-column>
                         <dxi-column dataField="DescricaoMercadoria" caption="Desc Merc" [width]="300"
                             cssClass="word-wrap"></dxi-column>
                         <dxi-column dataField="NCMLista" caption="Lista NCM" editCellTemplate="dataNCMCellTemplate"

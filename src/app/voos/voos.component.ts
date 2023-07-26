@@ -5,7 +5,7 @@ import { StatusVoo } from 'app/shared/model/statusvoo';
 import { confirm } from 'devextreme/ui/dialog';
 import { StatusService } from 'app/shared/services/status.service';
 import notify from 'devextreme/ui/notify';
-import { UsuarioInfoResponse, VooClient, VooInsertRequestDto, VooListarInputDto, VooResponseDto, VooUpdateRequestDto } from 'app/shared/proxy/ctaapi';
+import { UsuarioInfoResponse, VooClient, VooInsertRequestDto, VooListarInputDto, VooResponseDto, VooTrechoResponse, VooUpdateRequestDto } from 'app/shared/proxy/ctaapi';
 import { environment } from 'environments/environment';
 import { DxDataGridComponent } from 'devextreme-angular';
 
@@ -82,16 +82,25 @@ export class VoosComponent implements OnInit {
 
     const newData: VooResponseDto = Object.assign(e.oldData, e.newData)
 
+    newData.Trechos = newData.Trechos
+      .filter(x => x.AeroportoDestinoCodigo.trim().length === 3)
+      .map(x => {
+        return {
+          AeroportoDestinoCodigo: x.AeroportoDestinoCodigo.toUpperCase(),
+          DataHoraChegadaEstimada: x.DataHoraChegadaEstimada,
+          DataHoraSaidaEstimada: x.DataHoraSaidaEstimada,
+          Id: x.Id
+        } as VooTrechoResponse
+      });
+
     const updateRequest: VooUpdateRequestDto = {
       VooId: newData.VooId,
+      Numero: newData.Numero,
       DataVoo: newData.DataVoo,
-      UsuarioModificadorId: this.usuarioInfo.UsuarioId,
-      DataHoraSaidaEstimada: newData.DataHoraSaidaEstimada,
       DataHoraSaidaReal: newData.DataHoraSaidaReal,
-      DataHoraChegadaEstimada: newData.DataHoraChegadaEstimada,
-      DataHoraChegadaReal: newData.DataHoraChegadaReal,
+      DataHoraSaidaPrevista: newData.DataHoraSaidaPrevista,
       AeroportoOrigemCodigo: newData.AeroportoOrigemCodigo.toLocaleUpperCase(),
-      AeroportoDestinoCodigo: newData.AeroportoDestinoCodigo.toLocaleUpperCase(),
+      Trechos: newData.Trechos
     };
 
     this.vooClient.atualizarVoo(updateRequest)
@@ -117,22 +126,24 @@ export class VoosComponent implements OnInit {
 
     const newData: VooResponseDto = e.data;
 
+    newData.Trechos = newData.Trechos
+      .filter(x => x.AeroportoDestinoCodigo.trim().length === 3)
+      .map(x => {
+        return {
+          AeroportoDestinoCodigo: x.AeroportoDestinoCodigo.toUpperCase(),
+          DataHoraChegadaEstimada: x.DataHoraChegadaEstimada,
+          DataHoraSaidaEstimada: x.DataHoraSaidaEstimada,
+          Id: x.Id
+        } as VooTrechoResponse
+      });
+      
     const insertRequest: VooInsertRequestDto = {
       Numero: newData.Numero.toUpperCase(),
       DataVoo: newData.DataVoo,
-      UsuarioInsercaoId: +this.usuarioInfo.UsuarioId,
-      DataHoraSaidaEstimada: newData.DataHoraSaidaEstimada,
       DataHoraSaidaReal: newData.DataHoraSaidaReal,
-      DataHoraChegadaEstimada: newData.DataHoraChegadaEstimada,
-      DataHoraChegadaReal: newData.DataHoraChegadaReal,
-      PesoBruto: newData.PesoBruto,
-      PesoBrutoUnidade: newData.PesoBrutoUnidade,
-      Volume: newData.Volume,
-      VolumeUnidade: newData.VolumeUnidade,
-      TotalPacotes: newData.TotalPacotes,
-      TotalPecas: newData.TotalPecas,
+      DataHoraSaidaPrevista: newData.DataHoraSaidaPrevista,
       AeroportoOrigemCodigo: newData.AeroportoOrigemCodigo.toUpperCase(),
-      AeroportoDestinoCodigo: newData.AeroportoDestinoCodigo.toUpperCase()
+      Trechos: newData.Trechos
     };
 
     this.vooClient.inserirVoo(insertRequest)
@@ -241,11 +252,11 @@ export class VoosComponent implements OnInit {
   }
 
   isEditVisible(e) {
-    return !(e.row.data.StatusId == 2);
+    return (e.row.data.SituacaoRFBId === 0 || e.row.data.SituacaoRFBId === 3 || e.row.data.Reenviar);
   }
 
   isViewVisible(e) {
-    return (e.row.data.StatusId == 2);
+    return ((e.row.data.SituacaoRFBId === 1 || e.row.data.SituacaoRFBId === 2 || e.row.data.SituacaoRFBId === 4) && !e.row.data.Reenviar);
   }
 
   onClickCertificado() {
@@ -275,7 +286,7 @@ export class VoosComponent implements OnInit {
     }
     else {
       this.curgridKey = e.row.key;
-      if (e.parentType == "dataRow" && e.row.data.StatusId == 2) {
+      if (e.parentType == "dataRow" && (e.row.data.SituacaoRFBId === 1 || e.row.data.SituacaoRFBId === 2 || e.row.data.SituacaoRFBId === 4) && !e.row.data.Reenviar) {
         this.somenteLeitura = true;
         e.editorOptions.readOnly = true;
         return;
@@ -408,11 +419,15 @@ export class VoosComponent implements OnInit {
   }
 
   addHours(date, hours) {
-    if(!date)
+    if (!date)
       return undefined;
 
     const dateCopy = new Date(date);
     dateCopy.setHours(dateCopy.getHours() + hours);
     return dateCopy;
+  }
+
+  onTrechoChange(e: any, cell) {
+    cell.setValue(e);
   }
 }

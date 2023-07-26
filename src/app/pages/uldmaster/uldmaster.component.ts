@@ -1,7 +1,7 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { AdminLayoutComponent } from 'app/layouts/admin-layout/admin-layout.component';
 import { AWBReference } from 'app/shared/lib';
-import { ListaUldMasterRequest, MasterNumeroUldSumario, UldClient, UldMasterDeleteByIdInput, UldMasterDeleteByTagInput, UldMasterInsertRequest, UldMasterNumeroQuery, UldMasterResponseDto, UldMasterUpdateRequest, UsuarioInfoResponse, VooClient, VooListaResponseDto, VooListarInputDto } from 'app/shared/proxy/ctaapi';
+import { ListaUldMasterRequest, MasterNumeroUldSumario, UldClient, UldMasterDeleteByIdInput, UldMasterDeleteByTagInput, UldMasterInsertRequest, UldMasterNumeroQuery, UldMasterResponseDto, UldMasterUpdateRequest, UsuarioInfoResponse, VooClient, VooListaResponseDto, VooListarInputDto, VooTrechoResponse } from 'app/shared/proxy/ctaapi';
 import { LocalStorageService } from 'app/shared/services/localstorage.service';
 import notify from 'devextreme/ui/notify';
 import { environment } from 'environments/environment';
@@ -27,6 +27,7 @@ export class UldmasterComponent implements OnInit {
   @ViewChild("mainContent", { static: true }) mainContent!: ElementRef<HTMLImageElement>;
 
   curVoo: VooListaResponseDto;
+  curTrecho: VooTrechoResponse = undefined;
   filtroDataVoo: Date;
   uldForm: UldMasterResponseDto;
   isPopupVisible: Boolean = false;
@@ -38,7 +39,8 @@ export class UldmasterComponent implements OnInit {
   plusIcon: any;
   excelIcon: any;
   // Data Sources
-  botoesGBItems: any = [];
+  listaVoos: any = [];
+  listaTrechos: VooTrechoResponse[] = [];
   activeSection: string = 'entry';
   public uldLista: UldMasterNumeroQuery[] = [];
   public summaryList: MasterNumeroUldSumario[] = [];
@@ -91,14 +93,17 @@ export class UldmasterComponent implements OnInit {
 
     this.curVoo = undefined;
     this.uldLista = [];
-    this.botoesGBItems = [];
+    this.listaVoos = [];
+    this.listaTrechos = [];
 
     this.vooClient.listarVoosLista(input)
       .subscribe(res => {
         if (res.result.Sucesso) {
           if (res.result.Dados != null && res.result.Dados.length > 0) {
-            this.botoesGBItems = this.mapearButtonGroup(res.result.Dados);
+            this.mapearButtonGroup(res.result.Dados);
             this.curVoo = res.result.Dados[0];
+            this.listaTrechos = res.result.Dados[0].Trechos;
+            this.curTrecho = this.curVoo.Trechos ? this.curVoo.Trechos[0]: undefined;
             this.refreshGrid();
           }
         }
@@ -111,9 +116,9 @@ export class UldmasterComponent implements OnInit {
   }
 
   async refreshGrid() {
-    if (this.curVoo.VooId == -1) return;
+    if (!this.curTrecho) return;
     this.uldLista = [];
-    this.uldClient.listarUldMasterPorVooId(this.curVoo.VooId)
+    this.uldClient.listarUldMasterPorTrechoId(this.curTrecho.Id)
       .subscribe(res => {
         if (res.result.Sucesso) {
           this.uldLista = res.result.Dados;
@@ -127,20 +132,18 @@ export class UldmasterComponent implements OnInit {
   }
 
   mapearButtonGroup(dados: VooListaResponseDto[]) {
-    let arrayBG: any = [];
-    if (dados == null) return arrayBG;
+    if (dados == null) return;
 
     for (var i in dados) {
       let item = {
         icon: "airplane",
         alignment: "left",
-        text: dados[i].Numero,
-        vooid: dados[i].VooId,
+        text: dados[i].Numero + ' - ' + dados[i].CiaAereaNome,
+        vooId: dados[i].VooId,
         data: dados[i],
       };
-      arrayBG.push(item);
+      this.listaVoos.push(item);
     }
-    return arrayBG;
   }
 
   onDataVooChanged(e) {
@@ -207,22 +210,31 @@ export class UldmasterComponent implements OnInit {
     let insertRequests: UldMasterInsertRequest[] = new Array<UldMasterInsertRequest>();
 
     const insertRequest: UldMasterInsertRequest = {
-      EmpresaId: +this.usuarioInfo.EmpresaId,
       MasterNumero: newData.MasterNumero,
       Peso: +newData.Peso,
       QuantidadePecas: +newData.QuantidadePecas,
       UldCaracteristicaCodigo: item.ULDCaracteristicaCodigo,
       UldId: item.ULDId,
       UldIdPrimario: item.ULDIdPrimario,
-      UsuarioId: +this.usuarioInfo.UsuarioId,
-      VooId: this.curVoo.VooId,
+      TrechoId: this.curTrecho.Id
     }
 
     insertRequests.push(insertRequest);
 
     const res = await this.uldClient.inserirUldMaster(insertRequests)
-    return res.subscribe(() => false, () => true);
-
+    return res
+      .subscribe((res) => {
+        if (res.result.Sucesso) {
+          return false;
+        }
+        else {
+          notify(res.result.Notificacoes[0].Mensagem, 'error', environment.ErrorTimeout);
+          return true;
+        }
+      }, (err) => {
+        notify(err, 'error', environment.ErrorTimeout);
+        return true;
+      });
   }
 
   async onRowUpdating(e) {
@@ -237,9 +249,8 @@ export class UldmasterComponent implements OnInit {
       UldCaracteristicaCodigo: newData.UldCaracteristicaCodigo,
       UldId: newData.UldId,
       UldIdPrimario: newData.UldIdPrimario,
-      UsuarioId: +this.usuarioInfo.UsuarioId,
-      VooId: this.curVoo.VooId,
-      Id: newData.Id,
+      Id: e.key,
+      TrechoId: this.curTrecho.Id
     }
 
     updateRequests.push(updateRequest);
@@ -251,12 +262,12 @@ export class UldmasterComponent implements OnInit {
   async onRowRemoving(e) {
 
     let input: UldMasterDeleteByIdInput = {
-      VooId: this.curVoo.VooId,
+      TrechoId: this.curTrecho.Id,
       ListaIds: [e.key]
     }
     const res = await this.uldClient.excluirUldMaster(input)
     return res.subscribe(() => false, () => true);
-  
+
   }
 
   async onGridRowInserting(e) {
@@ -278,8 +289,16 @@ export class UldmasterComponent implements OnInit {
   }
 
   onItemClick(e) {
-    if (e.itemData.vooid == this.curVoo.VooId) return;
+    if (e.itemData.vooId == this.curVoo.VooId) return;
     this.curVoo = e.itemData.data;
+    this.listaTrechos = e.itemData.data.Trechos;
+    this.curTrecho = e.itemData.data.Trechos[0];
+    this.refreshGrid();
+  }
+
+  onTrechoItemClick(e) {
+    if (e.itemData.Id == this.curTrecho.Id) return;
+    this.curTrecho = e.itemData;
     this.refreshGrid();
   }
 

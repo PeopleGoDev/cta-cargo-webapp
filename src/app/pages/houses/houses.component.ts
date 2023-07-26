@@ -20,6 +20,7 @@ import {
 } from "app/shared/proxy/ctaapi";
 import { LocalStorageService } from "app/shared/services/localstorage.service";
 import { cnpj, cpf } from "cpf-cnpj-validator";
+import { Column } from "devextreme/ui/data_grid";
 import { confirm } from "devextreme/ui/dialog";
 import notify from "devextreme/ui/notify";
 import { environment } from "environments/environment";
@@ -69,6 +70,7 @@ export class HousesComponent implements OnInit, AfterViewInit {
   rfbNonProcessedRows: number[] = [];
   rfbAssociationProcessedRows: number[] = [];
   dataSource: any;
+  showThirdParty: boolean = false;
 
   constructor(
     private houseClient: HouseClient,
@@ -91,7 +93,7 @@ export class HousesComponent implements OnInit, AfterViewInit {
     this.curListaOpcoes = 0;
 
     this.selectFiltro = {
-      width: 220,
+      width: 180,
       value: this.curListaOpcoes,
       dataSource: this.listaOpcoes,
       displayExpr: "Descricao",
@@ -554,6 +556,7 @@ export class HousesComponent implements OnInit, AfterViewInit {
         items: portos,
         minSearchLength: "2",
         searchTimeout: "500",
+        readOnly: this.readOnlyEdition,
         value: e.value,
         onValueChanged: (ev) => {
           e.setValue(ev.value.substring(0, 3));

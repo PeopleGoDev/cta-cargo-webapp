@@ -12,7 +12,8 @@ import { DxDataGridModule ,
   DxValidatorModule,
   DxValidationGroupModule,
   DxTagBoxModule, 
-  DxAutocompleteModule} from 'devextreme-angular';
+  DxAutocompleteModule,
+  DxSwitchModule} from 'devextreme-angular';
 import { PipesModule } from 'app/shared/util/pipes.module';
 import { CertificadoDigitalClient, NcmClient, PortoIATAClient } from 'app/shared/proxy/ctaapi';
 import { NcmSelectorModule } from 'app/shared/components/ncm-selector/ncm-selector.module';
@@ -33,6 +34,7 @@ import { NcmSelectorModule } from 'app/shared/components/ncm-selector/ncm-select
     DxValidationGroupModule,
     DxTagBoxModule,
     DxAutocompleteModule,
+    DxSwitchModule,
     NcmSelectorModule,
     PipesModule
   ],

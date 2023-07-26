@@ -156,9 +156,7 @@ export class ReceitaFederalHouseComponent implements OnInit {
 
   private activateUpload() {
     this.botaoUploadEnabled = this.dataHouse.findIndex(x => 
-      x.SituacaoRFB == 0 || x.SituacaoRFB == 1 || x.SituacaoRFB == 3) > -1;
-    this.botaoAssociacaoUploadEnabled = this.dataHouse.findIndex(x => x.SituacaoRFB ==2 && 
-      (x.SituacaoAssociacaoRFBId == 0 || x.SituacaoAssociacaoRFBId == 1 || x.SituacaoAssociacaoRFBId == 3)) > -1;
+      x.SituacaoRFB == 0 || x.SituacaoRFB == 1 || x.SituacaoRFB == 3 || x.Reenviar) > -1;
   }
 
   async uploadRFB(agenteDeCargaId: number) {

@@ -5,7 +5,8 @@ import { DxButtonModule,
   DxDateBoxModule,
   DxButtonGroupModule,
   DxToolbarModule,
-  DxDataGridModule } from 'devextreme-angular';
+  DxDataGridModule, 
+  DxDropDownButtonModule} from 'devextreme-angular';
 import { ReceitaFederalClient } from 'app/shared/proxy/ctaapi';
 import { ButtonModule } from 'app/@shared/atoms/button/button.module';
 import { PipesModule } from 'app/shared/util/pipes.module';
@@ -19,6 +20,7 @@ import { PipesModule } from 'app/shared/util/pipes.module';
     DxButtonGroupModule,
     DxToolbarModule,
     DxDataGridModule,
+    DxDropDownButtonModule,
     PipesModule,
     ButtonModule
   ],

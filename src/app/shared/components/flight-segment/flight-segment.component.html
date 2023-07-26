@@ -1,0 +1,29 @@
+<div class="flight-segment-component">
+    <div class="flight-segment-field right">Aeroporto de Chegada</div>
+    <div class="flight-segment-field right">Hora de Chegada Estimada</div>
+    <div class="flight-segment-field right">Hora de Saída Estimada</div>
+    <div></div>
+    <ng-container *ngFor="let trecho of value; let idx = index">
+        <div class="flight-segment-field">
+            <dx-text-box [(value)]="trecho.AeroportoDestinoCodigo" [showClearButton]="true" mask="AAA" maxLength="3" [maskRules]="customMaskRules"
+            (onChange)="onTextChange($event)">
+            </dx-text-box>
+        </div>
+        <div class="flight-segment-field">
+            <dx-date-box [(value)]="trecho.DataHoraChegadaEstimada" type="datetime" (onValueChanged)="onTextChange($event)">
+            </dx-date-box>
+        </div>
+        <div class="flight-segment-field">
+            <dx-date-box [(value)]="trecho.DataHoraSaidaEstimada" type="datetime" (onValueChanged)="onTextChange($event)">
+            </dx-date-box>
+        </div>
+        <div class="flight-segment-field right middle"><a class="removeLink" *ngIf="idx !==0" (click)="removeTrecho(idx)">Remove</a></div>
+    </ng-container>
+    <div class="flight-segment-field"></div>
+    <div class="flight-segment-field"></div>
+    <div class="flight-segment-field right">
+        <dx-button stylingMode="contained" text="Adicionar" type="default" [width]="120" (onClick)="click($event)">
+        </dx-button>
+    </div>
+    <div></div>
+</div>

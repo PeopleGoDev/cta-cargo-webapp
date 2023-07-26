@@ -162,7 +162,7 @@ export class ReceitaFederalComponent implements OnInit {
       let item = {
         icon: "airplane",
         alignment: "left",
-        text: dados[i].Numero,
+        text: dados[i].Numero + ' - ' + dados[i].CiaAereaNome,
         vooid: dados[i].VooId
       };
       arrayBG.push(item);

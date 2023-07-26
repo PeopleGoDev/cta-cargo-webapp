@@ -71,3 +71,7 @@
 .error {
     color: red;
 }
+
+::ng-deep .dx-dropdownbutton-action.dx-button .dx-button-content {
+    text-align: left;
+}

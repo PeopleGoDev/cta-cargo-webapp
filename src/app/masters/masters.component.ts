@@ -8,9 +8,10 @@ import { environment } from 'environments/environment';
 import { confirm } from 'devextreme/ui/dialog';
 import { StatusService } from 'app/shared/services/status.service';
 import { StatusVoo } from 'app/shared/model/statusvoo';
-import { AtualizarMasterReenviarRequest, ExcluirMastersByIdRequest, MasterClient, MasterInsertRequestDto, MasterListarRequest, MasterResponseDto, MasterUpdateRequestDto, UsuarioInfoResponse, VooClient, VooListaResponseDto, VooListarInputDto } from 'app/shared/proxy/ctaapi';
+import { AtualizarMasterReenviarRequest, ExcluirMastersByIdRequest, FileParameter, MasterClient, MasterFileResponseDto, MasterInsertRequestDto, MasterListarRequest, MasterResponseDto, MasterUpdateRequestDto, Notificacao, UsuarioInfoResponse, VooClient, VooListaResponseDto, VooListarInputDto } from 'app/shared/proxy/ctaapi';
 import { LocalSituacaoRfb } from 'app/shared/enum/api.enum';
-import { DxDataGridComponent } from 'devextreme-angular';
+import { DxDataGridComponent, DxFileUploaderComponent } from 'devextreme-angular';
+import { CubicUnitCollection, TotalParcialCollection } from 'app/shared/collections/data';
 
 @Component({
   selector: 'app-masters',
@@ -23,6 +24,8 @@ export class MastersComponent implements OnInit {
   @ViewChild("panel1") panel1Element: ElementRef;
   @ViewChild("panel2") panel2Element: ElementRef;
   @ViewChild("panel3") panel3Element: ElementRef;
+  @ViewChild("fileUploader") fileUploader: DxFileUploaderComponent;
+
   curVoo: number = -1;
   curVooNumber: string;
   filtroData: Date;
@@ -30,11 +33,14 @@ export class MastersComponent implements OnInit {
   filtroDataVoo: Date;
   mastersData: MasterResponseDto[] = [];
   vooData: VooListaResponseDto[] = [];
+  importFileData: MasterFileResponseDto[] = [];
+  importFileNotification: Notificacao[] = [];
   portosData: Array<PortoIATAResponseDto>;
   selectComponent: any;
   voosElement = null;
   curgridKey: number = 0;
   curTipoMaster: string = "";
+  curImportFile: number = 0;
   editarSomenteLeitura: boolean = false;
   reeviarVoo: boolean = false;
   // Data Sources
@@ -60,9 +66,15 @@ export class MastersComponent implements OnInit {
   rfbNonProcessedRows: number[] = [];
   buttonNewAction = ['Padrão IATA', 'Padrão NÃO IATA']
   awbPadraoNaoIata: boolean = false;
+  totalParcialData = TotalParcialCollection;
+  cubicData = CubicUnitCollection;
+  editCsneePais: string = '';
+  popupImportVisible: boolean = false;
+  popupImportLogVisible: boolean = false;
+  saveButtonOptions: any;
+  closeButtonOptions: any;
+  errorImportMessage: string;
   // Privados
-
-  private usuarioInfo: UsuarioInfoResponse;
 
   constructor(private localstorageService: LocalStorageService,
     private consolidadoDiretoService: ConsolidadoDiretoService,
@@ -99,6 +111,20 @@ export class MastersComponent implements OnInit {
       "Codigo": "LBS"
     }];
 
+    const that = this;
+
+    this.saveButtonOptions = {
+      icon: 'check',
+      text: 'Importar',
+      onClick: this.onUploadImportFile.bind(this),
+    };
+    this.closeButtonOptions = {
+      text: 'Close',
+      onClick(e) {
+        that.popupImportVisible = false;
+      },
+    };
+
     this.refreshListaVoos = this.refreshListaVoos.bind(this);
     this.permitirEdicao = this.permitirEdicao.bind(this);
     this.isEditVisible = this.isEditVisible.bind(this);
@@ -106,7 +132,11 @@ export class MastersComponent implements OnInit {
     this.onEditSave = this.onEditSave.bind(this);
     this.onEditCancel = this.onEditCancel.bind(this);
     this.validaMasterNumero = this.validaMasterNumero.bind(this);
-
+    this.onCustomValueHandler = this.onCustomValueHandler.bind(this);
+    this.validaCnpj = this.validaCnpj.bind(this);
+    this.onItemFileImportClick = this.onItemFileImportClick.bind(this);
+    this.onOpenPopup = this.onOpenPopup.bind(this);
+    //this.onUploadImportFile = this.onUploadImportFile.bind(this);
     this.consolidadoDiretoData = this.consolidadoDiretoService.Listar();
   }
 
@@ -114,8 +144,8 @@ export class MastersComponent implements OnInit {
     this.filtroData = new Date();
     this.filtroDataFinal = new Date();
     this.filtroDataVoo = new Date();
-    this.usuarioInfo = this.localstorageService.getLocalStore().UsuarioInfo;
     this.refreshListaVoos();
+    this.refreshFileToImport();
   }
 
   onToolbarPreparing(e) {
@@ -173,6 +203,14 @@ export class MastersComponent implements OnInit {
     this.curVoo = e.itemData.vooid;
     this.curVooNumber = e.itemData.VooNumero;
     this.refreshGrid();
+  }
+
+  onItemFileImportClick(e) {
+    if (this.curImportFile === e.itemData.FileImportId)
+      return;
+
+    this.errorImportMessage = undefined;
+    this.curImportFile = e.itemData.FileImportId;
   }
 
   onSearchClick(e) {
@@ -256,6 +294,23 @@ export class MastersComponent implements OnInit {
       })
   }
 
+  async refreshFileToImport() {
+    this.masterClient.listarArquivosImportacao()
+      .subscribe(res => {
+        if (res.result.Sucesso) {
+          this.importFileData = res.result.Dados ?? [];
+        }
+        else {
+          if (res.result.Notificacoes) {
+            notify(res.result.Notificacoes[0].Mensagem, 'error', environment.ErrorTimeout);
+            this.importFileData = [];
+          }
+        }
+      }, err => {
+        notify(err, 'error', environment.ErrorTimeout);
+      })
+  }
+
   addRow(e) {
     this.awbPadraoNaoIata = e.itemData === 'Padrão NÃO IATA';
     this.curTipoMaster = "";
@@ -273,7 +328,6 @@ export class MastersComponent implements OnInit {
 
     const updateRequest: MasterUpdateRequestDto = {
       MasterId: newData.MasterId,
-      UsuarioAlteradorId: this.usuarioInfo.UsuarioId,
       Numero: newData.Numero.toUpperCase(),
       PesoTotalBruto: newData.PesoTotalBruto,
       PesoTotalBrutoUN: newData.PesoTotalBrutoUN.toUpperCase(),
@@ -294,7 +348,7 @@ export class MastersComponent implements OnInit {
       ConsignatarioCidade: newData.ConsignatarioCidade ? newData.ConsignatarioCidade.toUpperCase() : undefined,
       ConsignatarioPaisCodigo: newData.ConsignatarioPaisCodigo.toUpperCase(),
       ConsignatarioSubdivisao: newData.ConsignatarioSubdivisao ? newData.ConsignatarioSubdivisao.toUpperCase() : undefined,
-      ConsignatarioCNPJ: newData.ConsignatarioCNPJ.toUpperCase(),
+      ConsignatarioCNPJ: newData.ConsignatarioCNPJ ? newData.ConsignatarioCNPJ.toUpperCase() : undefined,
       DataEmissaoXML: newData.DataEmissaoXML,
       NCMLista: newData.NCMLista,
       RemetenteNome: newData.RemetenteNome ? newData.RemetenteNome.toUpperCase() : undefined,
@@ -339,7 +393,6 @@ export class MastersComponent implements OnInit {
 
     let insertRequest: MasterInsertRequestDto = {
       VooId: this.curVoo,
-      UsuarioInsercaoId: +this.usuarioInfo.UsuarioId,
       Numero: newData.Numero.toUpperCase(),
       PesoTotalBruto: +newData.PesoTotalBruto,
       PesoTotalBrutoUN: newData.PesoTotalBrutoUN.toUpperCase(),
@@ -360,8 +413,7 @@ export class MastersComponent implements OnInit {
       ConsignatarioCidade: newData.ConsignatarioCidade ? newData.ConsignatarioCidade.toUpperCase() : null,
       ConsignatarioPaisCodigo: newData.ConsignatarioPaisCodigo.toUpperCase(),
       ConsignatarioSubdivisao: newData.ConsignatarioSubdivisao ? newData.ConsignatarioSubdivisao.toUpperCase() : null,
-      ConsignatarioCNPJ: newData.ConsignatarioCNPJ.toUpperCase(),
-      CiaAereaId: +this.usuarioInfo.CompanhiaId,
+      ConsignatarioCNPJ: newData.ConsignatarioCNPJ ? newData.ConsignatarioCNPJ.toUpperCase() : null,
       DataEmissaoXML: newData.DataEmissaoXML,
       NCMLista: newData.NCMLista,
       RemetenteNome: newData.RemetenteNome.toUpperCase(),
@@ -401,13 +453,13 @@ export class MastersComponent implements OnInit {
     });
   }
 
-  onRowDelete(itens: number[]) {
+  async onRowDelete(itens: number[]) {
 
     const input: ExcluirMastersByIdRequest = {
       MasterIds: itens,
     }
 
-    this.masterClient.excluirMaster(input)
+    await this.masterClient.excluirMaster(input)
       .subscribe(res => {
         if (res.result.Sucesso) {
           itens.forEach(x => {
@@ -443,28 +495,29 @@ export class MastersComponent implements OnInit {
     }
 
     if (e.parentType == "dataRow") {
-
       if (e.dataField == "Numero") {
         e.editorOptions.readOnly = true;
         this.awbPadraoNaoIata = e.row.data.IndicadorAwbNaoIata;
+        this.editCsneePais = e.row.data.ConsignatarioPaisCodigo;
         this.curgridKey = e.row.key;
-      }
-
-      switch (e.row.data.SituacaoRFB) {
-        case LocalSituacaoRfb.Received:
-        case LocalSituacaoRfb.ProcessedDeletion:
-        case LocalSituacaoRfb.Processed:
-          if (e.row.data.Reenviar) {
+      } else {
+        switch (e.row.data.SituacaoRFB) {
+          case LocalSituacaoRfb.Received:
+          case LocalSituacaoRfb.ProcessedDeletion:
+          case LocalSituacaoRfb.Processed:
+            if (e.row.data.Reenviar) {
+              this.editarSomenteLeitura = false;
+              e.editorOptions.readOnly = false;
+            } else {
+              this.editarSomenteLeitura = true;
+              e.editorOptions.readOnly = true;
+            }
+            break;
+          default:
             this.editarSomenteLeitura = false;
             e.editorOptions.readOnly = false;
-          } else {
-            this.editarSomenteLeitura = true;
-            e.editorOptions.readOnly = true;
-          }
-          break;
-        default:
+        }
       }
-
     }
 
   }
@@ -525,7 +578,7 @@ export class MastersComponent implements OnInit {
   }
 
   isEditVisible(e) {
-    return !(e.row.data.StatusId == 2);
+    return (e.row.data.SituacaoRFB === 0 || e.row.data.SituacaoRFB === 3 || (e.row.data.SituacaoRFB === 2 && e.row.data.Reenviar));
   }
 
   isCheckStatusAvailable(e) {
@@ -533,7 +586,7 @@ export class MastersComponent implements OnInit {
   }
 
   isViewVisible(e) {
-    return (e.row.data.StatusId == 2);
+    return ((e.row.data.SituacaoRFB === 2 || e.row.data.SituacaoRFB === 1 || e.row.data.SituacaoRFB === 4) && !e.row.data.Reenviar);
   }
 
   permitirEdicao() {
@@ -547,7 +600,7 @@ export class MastersComponent implements OnInit {
       let item = {
         icon: "airplane",
         alignment: "left",
-        text: dados[i].Numero,
+        text: dados[i].Numero + ' - ' + dados[i].CiaAereaNome,
         vooid: dados[i].VooId,
         data: dados[i],
       };
@@ -556,7 +609,9 @@ export class MastersComponent implements OnInit {
     return arrayBG;
   }
 
-  ValidaCnpj(e) {
+  validaCnpj(e) {
+    if (this.editCsneePais.toUpperCase() !== 'BR')
+      return true;
     if (e.value.length >= 2 && e.value.substr(0, 2).toUpperCase() == 'PP') {
       return true;
     }
@@ -586,14 +641,6 @@ export class MastersComponent implements OnInit {
     if (digito == digitoesperado)
       return true;
     return false;
-  }
-
-  OnCustomItemCreatingNCM(e: any) {
-    console.log(e);
-  }
-
-  OnSelectionChangedNCM(e: any) {
-    console.log(e);
   }
 
   onEditSave(e: any) {
@@ -644,6 +691,55 @@ export class MastersComponent implements OnInit {
 
     return false;
 
+  }
+
+  onCustomValueHandler(e, cell) {
+    cell.setValue(e.value);
+    if (cell.column.dataField === 'ConsignatarioPaisCodigo') {
+      this.editCsneePais = e.value;
+    }
+  }
+
+  onOpenPopup() {
+    this.curImportFile = -1;
+    this.fileUploader.instance.reset();
+    this.popupImportVisible = true;
+  }
+
+  onUploadImportFile() {
+
+    if (this.curImportFile < 0) {
+      this.errorImportMessage = "Selecione um template!";
+      return;
+    }
+
+    if (this.fileUploader.value.length == 0) {
+      this.errorImportMessage = "Selecione um arquivo!";
+      return;
+    }
+
+    this.errorImportMessage = undefined;
+    this.popupImportVisible = false;
+    
+    let fileInfo: FileParameter = {
+      fileName: this.fileUploader.value[0].name,
+      data: this.fileUploader.value[0]
+    }
+
+    this.masterClient.uploadImportFile(this.curVoo, this.curImportFile, fileInfo)
+      .subscribe(res => {
+        if(res.result.Sucesso) {
+          this.importFileNotification = res.result.Notificacoes;
+          this.popupImportLogVisible = true;
+        }
+        else {
+          notify(res.result.Notificacoes[0].Mensagem, 'error', environment.ErrorTimeout);
+        }
+      })
+  }
+
+  onFileUploadValueChanged(e: any) {
+    this.errorImportMessage = undefined;
   }
 
 }

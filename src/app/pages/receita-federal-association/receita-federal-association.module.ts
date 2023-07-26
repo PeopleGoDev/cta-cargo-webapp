@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReceitaFederalAssociationComponent } from './receita-federal-association.component';
-import { DxButtonGroupModule, DxButtonModule, DxDataGridModule, DxDateBoxModule, DxPopupModule, DxToolbarModule } from 'devextreme-angular';
+import { DxButtonGroupModule, DxButtonModule, DxDataGridModule, DxDateBoxModule, DxDropDownButtonModule, DxPopupModule, DxToolbarModule } from 'devextreme-angular';
 import { ButtonModule } from '@shared/atoms/button/button.module';
 import { PipesModule } from 'app/shared/util/pipes.module';
 
@@ -15,6 +15,7 @@ import { PipesModule } from 'app/shared/util/pipes.module';
     DxPopupModule,
     DxToolbarModule,
     DxDataGridModule,
+    DxDropDownButtonModule,
     PipesModule,
     ButtonModule
   ]

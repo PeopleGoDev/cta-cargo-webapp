@@ -1845,6 +1845,124 @@ export class MasterClient {
         }
         return _observableOf<SwaggerResponse<StringApiResponse>>(new SwaggerResponse(status, _headers, null as any));
     }
+
+    /**
+     * @return Success
+     */
+    listarArquivosImportacao(): Observable<SwaggerResponse<MasterFileResponseDtoListApiResponse>> {
+        let url_ = this.baseUrl + "/api/v1/Master/ListarArquivosImportacao";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processListarArquivosImportacao(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processListarArquivosImportacao(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<MasterFileResponseDtoListApiResponse>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<MasterFileResponseDtoListApiResponse>>;
+        }));
+    }
+
+    protected processListarArquivosImportacao(response: HttpResponseBase): Observable<SwaggerResponse<MasterFileResponseDtoListApiResponse>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as MasterFileResponseDtoListApiResponse;
+            return _observableOf(new SwaggerResponse(status, _headers, result200));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<MasterFileResponseDtoListApiResponse>>(new SwaggerResponse(status, _headers, null as any));
+    }
+
+    /**
+     * @param vooId (optional) 
+     * @param fileImportId (optional) 
+     * @param file (optional) 
+     * @return Success
+     */
+    uploadImportFile(vooId: number | undefined, fileImportId: number | undefined, file: FileParameter | undefined): Observable<SwaggerResponse<MasterResponseDtoListApiResponse>> {
+        let url_ = this.baseUrl + "/api/v1/Master/UploadImportFile";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = new FormData();
+        if (vooId === null || vooId === undefined)
+            throw new Error("The parameter 'vooId' cannot be null.");
+        else
+            content_.append("VooId", vooId.toString());
+        if (fileImportId === null || fileImportId === undefined)
+            throw new Error("The parameter 'fileImportId' cannot be null.");
+        else
+            content_.append("FileImportId", fileImportId.toString());
+        if (file === null || file === undefined)
+            throw new Error("The parameter 'file' cannot be null.");
+        else
+            content_.append("file", file.data, file.fileName ? file.fileName : "file");
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUploadImportFile(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUploadImportFile(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<MasterResponseDtoListApiResponse>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<MasterResponseDtoListApiResponse>>;
+        }));
+    }
+
+    protected processUploadImportFile(response: HttpResponseBase): Observable<SwaggerResponse<MasterResponseDtoListApiResponse>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as MasterResponseDtoListApiResponse;
+            return _observableOf(new SwaggerResponse(status, _headers, result200));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<MasterResponseDtoListApiResponse>>(new SwaggerResponse(status, _headers, null as any));
+    }
 }
 
 @Injectable()
@@ -3047,6 +3165,61 @@ export class UldClient {
     }
 
     protected processListarUldMasterPorVooId(response: HttpResponseBase): Observable<SwaggerResponse<UldMasterNumeroQueryIEnumerableApiResponse>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as UldMasterNumeroQueryIEnumerableApiResponse;
+            return _observableOf(new SwaggerResponse(status, _headers, result200));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<UldMasterNumeroQueryIEnumerableApiResponse>>(new SwaggerResponse(status, _headers, null as any));
+    }
+
+    /**
+     * @param trechoId (optional) 
+     * @return Success
+     */
+    listarUldMasterPorTrechoId(trechoId: number | undefined): Observable<SwaggerResponse<UldMasterNumeroQueryIEnumerableApiResponse>> {
+        let url_ = this.baseUrl + "/api/v1/Uld/ListarUldMasterPorTrechoId?";
+        if (trechoId === null)
+            throw new Error("The parameter 'trechoId' cannot be null.");
+        else if (trechoId !== undefined)
+            url_ += "trechoId=" + encodeURIComponent("" + trechoId) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processListarUldMasterPorTrechoId(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processListarUldMasterPorTrechoId(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<UldMasterNumeroQueryIEnumerableApiResponse>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<UldMasterNumeroQueryIEnumerableApiResponse>>;
+        }));
+    }
+
+    protected processListarUldMasterPorTrechoId(response: HttpResponseBase): Observable<SwaggerResponse<UldMasterNumeroQueryIEnumerableApiResponse>> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -4285,6 +4458,61 @@ export class VooClient {
         }
         return _observableOf<SwaggerResponse<VooResponseDtoApiResponse>>(new SwaggerResponse(status, _headers, null as any));
     }
+
+    /**
+     * @param vooId (optional) 
+     * @return Success
+     */
+    listarVooTrechos(vooId: number | undefined): Observable<SwaggerResponse<VooTrechoResponseIEnumerableApiResponse>> {
+        let url_ = this.baseUrl + "/api/v1/Voo/ListarVooTrechos?";
+        if (vooId === null)
+            throw new Error("The parameter 'vooId' cannot be null.");
+        else if (vooId !== undefined)
+            url_ += "vooId=" + encodeURIComponent("" + vooId) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processListarVooTrechos(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processListarVooTrechos(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<VooTrechoResponseIEnumerableApiResponse>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<VooTrechoResponseIEnumerableApiResponse>>;
+        }));
+    }
+
+    protected processListarVooTrechos(response: HttpResponseBase): Observable<SwaggerResponse<VooTrechoResponseIEnumerableApiResponse>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as VooTrechoResponseIEnumerableApiResponse;
+            return _observableOf(new SwaggerResponse(status, _headers, result200));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<VooTrechoResponseIEnumerableApiResponse>>(new SwaggerResponse(status, _headers, null as any));
+    }
 }
 
 export interface AgenteDeCargaInsertRequest {
@@ -4606,6 +4834,17 @@ export interface MasterExclusaoRFBInput {
     MasterId?: number;
 }
 
+export interface MasterFileResponseDto {
+    FileImportId?: number;
+    Description?: string | undefined;
+}
+
+export interface MasterFileResponseDtoListApiResponse {
+    Sucesso?: boolean;
+    Dados?: MasterFileResponseDto[] | undefined;
+    Notificacoes?: Notificacao[] | undefined;
+}
+
 export interface MasterHouseAssociationHouseItemResponse {
     Number?: string | undefined;
     OriginLocation?: string | undefined;
@@ -4687,9 +4926,10 @@ export interface MasterInsertRequestDto {
     NaturezaCarga?: string | undefined;
     Volume?: number | undefined;
     VolumeUN?: string | undefined;
+    AssinaturaTransportadorNome?: string | undefined;
+    AssinaturaTransportadorLocal?: string | undefined;
+    AssinaturaTransportadorData?: Date | undefined;
     VooId?: number;
-    UsuarioInsercaoId?: number;
-    CiaAereaId?: number;
     DataVoo?: Date;
 }
 
@@ -4781,6 +5021,9 @@ export interface MasterResponseDto {
     NaturezaCarga?: string | undefined;
     Volume?: number | undefined;
     VolumeUN?: string | undefined;
+    AssinaturaTransportadorNome?: string | undefined;
+    AssinaturaTransportadorLocal?: string | undefined;
+    AssinaturaTransportadorData?: Date | undefined;
     MasterId?: number;
     StatusId?: number;
     SituacaoRFB?: number;
@@ -4802,6 +5045,12 @@ export interface MasterResponseDtoApiResponse {
 }
 
 export interface MasterResponseDtoIEnumerableApiResponse {
+    Sucesso?: boolean;
+    Dados?: MasterResponseDto[] | undefined;
+    Notificacoes?: Notificacao[] | undefined;
+}
+
+export interface MasterResponseDtoListApiResponse {
     Sucesso?: boolean;
     Dados?: MasterResponseDto[] | undefined;
     Notificacoes?: Notificacao[] | undefined;
@@ -4847,8 +5096,10 @@ export interface MasterUpdateRequestDto {
     NaturezaCarga?: string | undefined;
     Volume?: number | undefined;
     VolumeUN?: string | undefined;
+    AssinaturaTransportadorNome?: string | undefined;
+    AssinaturaTransportadorLocal?: string | undefined;
+    AssinaturaTransportadorData?: Date | undefined;
     MasterId?: number;
-    UsuarioAlteradorId?: number;
     DataVoo?: Date;
 }
 
@@ -4875,6 +5126,7 @@ export interface NCM {
     Descricao: string;
     DescricaoConcatenada: string;
     Seleciona?: boolean;
+    CodigoNumero?: string | undefined;
 }
 
 export interface NaturezaCargaInsertRequestDto {
@@ -4996,7 +5248,7 @@ export interface SubmeterRFBMasterHouseRequest {
 }
 
 export interface UldMasterDeleteByIdInput {
-    VooId?: number;
+    TrechoId?: number;
     ListaIds?: number[] | undefined;
 }
 
@@ -5014,9 +5266,7 @@ export interface UldMasterInsertRequest {
     UldIdPrimario?: string | undefined;
     QuantidadePecas?: number;
     Peso?: number;
-    UsuarioId?: number;
-    VooId?: number;
-    EmpresaId?: number;
+    TrechoId?: number;
 }
 
 export interface UldMasterNumeroQuery {
@@ -5087,8 +5337,7 @@ export interface UldMasterUpdateRequest {
     QuantidadePecas?: number;
     Peso?: number;
     Id?: number;
-    UsuarioId?: number;
-    VooId?: number;
+    TrechoId?: number;
 }
 
 export interface UploadCertificadoResponseDto {
@@ -5199,27 +5448,25 @@ export interface UsuarioUpdateRequest {
 export interface VooInsertRequestDto {
     Numero?: string | undefined;
     DataVoo?: Date;
-    DataHoraSaidaEstimada?: Date | undefined;
     DataHoraSaidaReal?: Date | undefined;
-    DataHoraChegadaEstimada?: Date | undefined;
-    DataHoraChegadaReal?: Date | undefined;
-    PortoOrigemId?: number;
-    PortoDestinoId?: number;
-    PesoBruto?: number | undefined;
-    PesoBrutoUnidade?: string | undefined;
-    Volume?: number | undefined;
-    VolumeUnidade?: string | undefined;
-    TotalPacotes?: number | undefined;
-    TotalPecas?: number | undefined;
-    UsuarioInsercaoId?: number;
+    DataHoraSaidaPrevista?: Date | undefined;
     AeroportoOrigemCodigo?: string | undefined;
+    Trechos?: VooInsertTrechoRequest[] | undefined;
+}
+
+export interface VooInsertTrechoRequest {
     AeroportoDestinoCodigo?: string | undefined;
+    DataHoraChegadaEstimada?: Date | undefined;
+    DataHoraSaidaEstimada?: Date | undefined;
 }
 
 export interface VooListaResponseDto {
     VooId?: number;
     Numero?: string | undefined;
     SituacaoVoo?: RecordStatus;
+    CiaAereaNome?: string | undefined;
+    CertificadoValidade?: Date | undefined;
+    Trechos?: VooTrechoResponse[] | undefined;
 }
 
 export interface VooListaResponseDtoIEnumerableApiResponse {
@@ -5238,16 +5485,9 @@ export interface VooResponseDto {
     VooId?: number;
     Numero?: string | undefined;
     DataVoo?: Date;
-    DataHoraSaidaEstimada?: Date | undefined;
     DataHoraSaidaReal?: Date | undefined;
+    DataHoraSaidaPrevista?: Date | undefined;
     DataHoraChegadaEstimada?: Date | undefined;
-    DataHoraChegadaReal?: Date | undefined;
-    PesoBruto?: number | undefined;
-    PesoBrutoUnidade?: string | undefined;
-    Volume?: number | undefined;
-    VolumeUnidade?: string | undefined;
-    TotalPacotes?: number | undefined;
-    TotalPecas?: number | undefined;
     StatusId?: number;
     SituacaoRFBId?: number;
     ProtocoloRFB?: string | undefined;
@@ -5259,6 +5499,7 @@ export interface VooResponseDto {
     AeroportoOrigemCodigo?: string | undefined;
     AeroportoDestinoCodigo?: string | undefined;
     Reenviar?: boolean;
+    Trechos?: VooTrechoResponse[] | undefined;
 }
 
 export interface VooResponseDtoApiResponse {
@@ -5273,16 +5514,34 @@ export interface VooResponseDtoIEnumerableApiResponse {
     Notificacoes?: Notificacao[] | undefined;
 }
 
+export interface VooTrechoResponse {
+    Id?: number;
+    AeroportoDestinoCodigo?: string | undefined;
+    DataHoraChegadaEstimada?: Date | undefined;
+    DataHoraSaidaEstimada?: Date | undefined;
+}
+
+export interface VooTrechoResponseIEnumerableApiResponse {
+    Sucesso?: boolean;
+    Dados?: VooTrechoResponse[] | undefined;
+    Notificacoes?: Notificacao[] | undefined;
+}
+
 export interface VooUpdateRequestDto {
     VooId?: number;
-    DataVoo?: Date;
-    DataHoraSaidaEstimada?: Date | undefined;
+    Numero?: string | undefined;
+    DataVoo?: Date | undefined;
     DataHoraSaidaReal?: Date | undefined;
-    DataHoraChegadaEstimada?: Date | undefined;
-    DataHoraChegadaReal?: Date | undefined;
-    UsuarioModificadorId?: number;
+    DataHoraSaidaPrevista?: Date | undefined;
     AeroportoOrigemCodigo?: string | undefined;
+    Trechos?: VooUpdateTrechoRequest[] | undefined;
+}
+
+export interface VooUpdateTrechoRequest {
+    Id?: number | undefined;
     AeroportoDestinoCodigo?: string | undefined;
+    DataHoraChegadaEstimada?: Date | undefined;
+    DataHoraSaidaEstimada?: Date | undefined;
 }
 
 export interface VooUploadInput {
@@ -5293,16 +5552,9 @@ export interface VooUploadResponse {
     VooId?: number;
     Numero?: string | undefined;
     DataVoo?: Date;
-    DataHoraSaidaEstimada?: Date | undefined;
     DataHoraSaidaReal?: Date | undefined;
+    DataHoraSaidaPrevista?: Date | undefined;
     DataHoraChegadaEstimada?: Date | undefined;
-    DataHoraChegadaReal?: Date | undefined;
-    PesoBruto?: number | undefined;
-    PesoBrutoUnidade?: string | undefined;
-    Volume?: number | undefined;
-    VolumeUnidade?: string | undefined;
-    TotalPacotes?: number | undefined;
-    TotalPecas?: number | undefined;
     StatusId?: number;
     SituacaoRFBId?: number;
     ProtocoloRFB?: string | undefined;
@@ -5314,6 +5566,7 @@ export interface VooUploadResponse {
     AeroportoOrigemCodigo?: string | undefined;
     AeroportoDestinoCodigo?: string | undefined;
     Reenviar?: boolean;
+    Trechos?: VooTrechoResponse[] | undefined;
     ULDs?: UldMasterNumeroQuery[] | undefined;
 }
 

@@ -8,7 +8,7 @@ import { MasterDetailComponent } from 'app/masters/components/master-detail/mast
 import { SelectComponent } from '@shared/atoms/select/select.component';
 import { TitleComponent } from './components/title/title.component';
 import { NcmSelectorModule } from './components/ncm-selector/ncm-selector.module';
-import { NcmSelectorComponent } from './components/ncm-selector/ncm-selector.component';
+import { FlightSegmentModule } from './components/flight-segment/flight-segment.module';
 
 @NgModule({
   declarations: [InputComponent, SelectComponent, MasterDetailComponent, TitleComponent],
@@ -17,7 +17,8 @@ import { NcmSelectorComponent } from './components/ncm-selector/ncm-selector.com
     ButtonModule,
     FormsModule,
     TextMaskModule,
-    NcmSelectorModule
+    NcmSelectorModule,
+    FlightSegmentModule
   ], 
   exports: [InputComponent, SelectComponent, MasterDetailComponent, TitleComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]

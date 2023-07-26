@@ -17,7 +17,7 @@
                     </dxi-item>
                     <dxi-item location="before">
                         <div *dxTemplate>
-                            <div id="panel1" #panel1 style="display: table; vertical-align: middle;">
+                            <div id="panel1" #panel1 style="display: flex; align-items: center;">
                                 <div style="display: table-cell">Data&nbsp;</div>
                                 <div style="display: table-cell">
                                     <dx-date-box [value]="filtroDataProcessamento" type="date" width="115"
@@ -28,7 +28,7 @@
                     </dxi-item>
                     <dxi-item location="before">
                         <div *dxTemplate>
-                            <div id="panel2" #panel2 style="display: table; vertical-align: middle; display: none;">
+                            <div id="panel2" #panel2 style="display: flex; align-items: center; display: none;">
                                 <dx-validation-group id="consultaMaster">
                                     <div style="display: table-cell">Número &nbsp;</div>
                                     <div style="display: table-cell">
@@ -148,6 +148,27 @@
                                     <dxi-validation-rule type="required"></dxi-validation-rule>
                                 </dxi-item>
                             </dxi-item>
+
+                            <!-- <dxi-item itemType="group"
+                                caption="Agente de Carga Internacional" [colCount]="3" [colSpan]="3">
+                                <dxi-item dataField="AgenteNome"
+                                    [editorOptions]="{ maxLength: 60, disabled: !showThirdParty  }">
+                                    <dxi-validation-rule type="required"></dxi-validation-rule>
+                                </dxi-item>
+                                <dxi-item dataField="AgenteEndereco"
+                                    [editorOptions]="{ maxLength: 60, disabled: !showThirdParty  }">
+                                </dxi-item>
+                                <dxi-item dataField="AgenteCidade"
+                                    [editorOptions]="{ maxLength: 60, disabled: !showThirdParty  }">
+                                </dxi-item>
+                                <dxi-item dataField="AgentePostal"
+                                    [editorOptions]="{ maxLength: 15, disabled: !showThirdParty  }">
+                                </dxi-item>
+                                <dxi-item dataField="AgentePaisCodigo"
+                                    [editorOptions]="{ maxLength: 2, disabled: !showThirdParty  }">
+                                    <dxi-validation-rule type="required"></dxi-validation-rule>
+                                </dxi-item>
+                            </dxi-item> -->
 
                             <dxi-item itemType="group" caption="Descrição/Peso/Origem/Destino" [colCount]="4"
                                 [colSpan]="3">
@@ -313,7 +334,7 @@
                     <dxo-export [enabled]="permitirAdicao"></dxo-export>
                     <div *dxTemplate="let cell of 'dataNCMCellTemplate'">
                         <app-ncm-selector [(value)]="cell.value" [readOnly]="readOnlyEdition"
-                        (onItemSelected)="onNcmValueChanged($event, cell)"></app-ncm-selector>
+                            (onItemSelected)="onNcmValueChanged($event, cell)"></app-ncm-selector>
                     </div>
                 </dx-data-grid>
             </div>

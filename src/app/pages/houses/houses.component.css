@@ -1,13 +1,31 @@
-::ng-deep .dx-data-row .word-wrap, .word-wrap {
+::ng-deep .dx-data-row .word-wrap,
+.word-wrap {
     word-wrap: break-word;
     white-space: normal !important;
 }
 
-.text-style{
+.text-style {
     white-space: pre-wrap
 }
 
 .autocomplete-item {
     display: grid;
     grid-template-columns: 1fr 5fr;
+}
+
+.third-party-on {
+    visibility: visible;
+    /* display: block; */
+}
+
+.third-party-off {
+    visibility: hidden;
+    /* display: none; */
+}
+
+::ng-deep .dx-switch-on-value .dx-switch-handle:before {
+    background-color: blue!important;
+}
+::ng-deep .dx-switch-handle:before {
+    background-color: #ddd!important;
 }

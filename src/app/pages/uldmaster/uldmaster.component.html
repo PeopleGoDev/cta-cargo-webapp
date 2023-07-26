@@ -7,18 +7,27 @@
                 <dx-toolbar>
                     <dxi-item location="before">
                         <div *dxTemplate>
-                            <div id="panel1" style="display: table; vertical-align: middle;">
+                            <div id="panel1" style="display: flex; align-items: center;">
                                 <div style="display: table-cell">Data do Voo&nbsp;</div>
                                 <div style="display: table-cell">
                                     <dx-date-box [value]="filtroDataVoo" type="date" width="115"
                                         (onValueChanged)="onDataVooChanged($event)"></dx-date-box>
                                 </div>
-                                <div style="display: table-cell">&nbsp;</div>
+                                <div style="display: table-cell; width: 10px;">&nbsp;</div>
                                 <div style="display: table-cell">
-                                    <dx-button-group [items]="botoesGBItems" accessKey="vooid" keyExpr="vooid"
-                                        [selectedItemKeys]="[curVoo]" (onItemClick)="onItemClick($event)"
-                                        noDataText="Insira uma ULD ao Voo selecionado!">
-                                    </dx-button-group>
+                                    <dx-drop-down-button [splitButton]="true" [useSelectMode]="false"
+                                        text="Selecione o Voo" [icon]="icon" [items]="listaVoos"
+                                        [selectedItemKey]="curVoo?.VooId" (onItemClick)="onItemClick($event)"
+                                        displayExpr="text" keyExpr="vooId" [disabled]="!listaVoos || listaVoos.length === 0"
+                                        [useSelectMode]="true" width="285px"></dx-drop-down-button>
+                                </div>
+                                <div style="display: table-cell; width: 10px;">&nbsp;</div>
+                                <div style="display: table-cell">
+                                    <dx-drop-down-button [splitButton]="true" [useSelectMode]="false"
+                                        text="Selecione o Voo" [items]="listaTrechos"
+                                        [selectedItemKey]="curTrecho?.Id" (onItemClick)="onTrechoItemClick($event)"
+                                        displayExpr="AeroportoDestinoCodigo" keyExpr="Id" [disabled]="!listaTrechos || listaTrechos.length === 0"
+                                        [useSelectMode]="true" width="85px"></dx-drop-down-button>
                                 </div>
                             </div>
                         </div>

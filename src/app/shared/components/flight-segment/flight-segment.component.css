@@ -1,0 +1,28 @@
+.flight-segment-component {
+    width: 100%;
+    display: grid;
+    grid-template-columns: auto auto auto 70px;
+}
+
+.flight-segment-field {
+    width: 100%;
+    display: block;
+    padding: 8px;
+}
+
+.left {
+    text-align: left;
+}
+
+.right {
+    text-align: right;
+}
+
+.middle {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.removeLink:hover {
+    cursor: pointer;
+}

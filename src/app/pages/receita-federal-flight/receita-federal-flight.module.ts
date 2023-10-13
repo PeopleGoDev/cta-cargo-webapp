@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReceitaFederalComponent } from './receita-federal.component';
+import { ReceitaFederalFlightComponent } from './receita-federal-flight.component';
 import { DxButtonModule,
   DxDateBoxModule,
   DxButtonGroupModule,
@@ -12,7 +12,7 @@ import { ButtonModule } from 'app/@shared/atoms/button/button.module';
 import { PipesModule } from 'app/shared/util/pipes.module';
 
 @NgModule({
-  declarations: [ReceitaFederalComponent],
+  declarations: [ReceitaFederalFlightComponent],
   imports: [
     CommonModule,
     DxButtonModule,
@@ -24,8 +24,8 @@ import { PipesModule } from 'app/shared/util/pipes.module';
     PipesModule,
     ButtonModule
   ],
-  exports: [ ReceitaFederalComponent ],
+  exports: [ReceitaFederalFlightComponent],
   providers: [ReceitaFederalClient]
 })
 
-export class ReceitaFederalModule { }
+export class ReceitaFederalFlightModule { }

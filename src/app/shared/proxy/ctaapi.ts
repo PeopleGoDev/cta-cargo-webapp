@@ -2250,6 +2250,116 @@ export class NaturezaCargaClient {
         }
         return _observableOf<SwaggerResponse<NaturezaCargaResponseDtoApiResponse>>(new SwaggerResponse(status, _headers, null as any));
     }
+
+    /**
+     * @param q (optional) 
+     * @return Success
+     */
+    search(q: string | undefined): Observable<SwaggerResponse<NaturezaCarga[]>> {
+        let url_ = this.baseUrl + "/api/v1/NaturezaCarga/search?";
+        if (q === null)
+            throw new Error("The parameter 'q' cannot be null.");
+        else if (q !== undefined)
+            url_ += "q=" + encodeURIComponent("" + q) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processSearch(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processSearch(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<NaturezaCarga[]>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<NaturezaCarga[]>>;
+        }));
+    }
+
+    protected processSearch(response: HttpResponseBase): Observable<SwaggerResponse<NaturezaCarga[]>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as NaturezaCarga[];
+            return _observableOf(new SwaggerResponse(status, _headers, result200));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<NaturezaCarga[]>>(new SwaggerResponse(status, _headers, null as any));
+    }
+
+    /**
+     * @param body (optional) 
+     * @return Success
+     */
+    searchcodes(body: string[] | undefined): Observable<SwaggerResponse<NaturezaCarga[]>> {
+        let url_ = this.baseUrl + "/api/v1/NaturezaCarga/searchcodes";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processSearchcodes(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processSearchcodes(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<NaturezaCarga[]>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<NaturezaCarga[]>>;
+        }));
+    }
+
+    protected processSearchcodes(response: HttpResponseBase): Observable<SwaggerResponse<NaturezaCarga[]>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as NaturezaCarga[];
+            return _observableOf(new SwaggerResponse(status, _headers, result200));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<NaturezaCarga[]>>(new SwaggerResponse(status, _headers, null as any));
+    }
 }
 
 @Injectable()
@@ -2389,7 +2499,7 @@ export class PortoIATAClient {
      * @param portoIATAId (optional) 
      * @return Success
      */
-    obterPortoIATAPorId(portoIATAId: number | undefined): Observable<SwaggerResponse<PortoIATAResponseDtoApiResponse>> {
+    obterPortoIATAPorId(portoIATAId: number | undefined): Observable<SwaggerResponse<PortoIataResponseDtoApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/PortoIATA/ObterPortoIATAPorId?";
         if (portoIATAId === null)
             throw new Error("The parameter 'portoIATAId' cannot be null.");
@@ -2412,14 +2522,14 @@ export class PortoIATAClient {
                 try {
                     return this.processObterPortoIATAPorId(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<SwaggerResponse<PortoIATAResponseDtoApiResponse>>;
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<PortoIataResponseDtoApiResponse>>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<SwaggerResponse<PortoIATAResponseDtoApiResponse>>;
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<PortoIataResponseDtoApiResponse>>;
         }));
     }
 
-    protected processObterPortoIATAPorId(response: HttpResponseBase): Observable<SwaggerResponse<PortoIATAResponseDtoApiResponse>> {
+    protected processObterPortoIATAPorId(response: HttpResponseBase): Observable<SwaggerResponse<PortoIataResponseDtoApiResponse>> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -2429,7 +2539,7 @@ export class PortoIATAClient {
         if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             let result200: any = null;
-            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as PortoIATAResponseDtoApiResponse;
+            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as PortoIataResponseDtoApiResponse;
             return _observableOf(new SwaggerResponse(status, _headers, result200));
             }));
         } else if (status !== 200 && status !== 204) {
@@ -2437,19 +2547,14 @@ export class PortoIATAClient {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<SwaggerResponse<PortoIATAResponseDtoApiResponse>>(new SwaggerResponse(status, _headers, null as any));
+        return _observableOf<SwaggerResponse<PortoIataResponseDtoApiResponse>>(new SwaggerResponse(status, _headers, null as any));
     }
 
     /**
-     * @param empresaId (optional) 
      * @return Success
      */
-    listarPortosIATA(empresaId: number | undefined): Observable<SwaggerResponse<PortoIATAResponseDtoIEnumerableApiResponse>> {
-        let url_ = this.baseUrl + "/api/v1/PortoIATA/ListarPortosIATA?";
-        if (empresaId === null)
-            throw new Error("The parameter 'empresaId' cannot be null.");
-        else if (empresaId !== undefined)
-            url_ += "empresaId=" + encodeURIComponent("" + empresaId) + "&";
+    listarPortosIATA(): Observable<SwaggerResponse<PortoIataResponseDtoIEnumerableApiResponse>> {
+        let url_ = this.baseUrl + "/api/v1/PortoIATA/ListarPortosIATA";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
@@ -2467,14 +2572,14 @@ export class PortoIATAClient {
                 try {
                     return this.processListarPortosIATA(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<SwaggerResponse<PortoIATAResponseDtoIEnumerableApiResponse>>;
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<PortoIataResponseDtoIEnumerableApiResponse>>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<SwaggerResponse<PortoIATAResponseDtoIEnumerableApiResponse>>;
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<PortoIataResponseDtoIEnumerableApiResponse>>;
         }));
     }
 
-    protected processListarPortosIATA(response: HttpResponseBase): Observable<SwaggerResponse<PortoIATAResponseDtoIEnumerableApiResponse>> {
+    protected processListarPortosIATA(response: HttpResponseBase): Observable<SwaggerResponse<PortoIataResponseDtoIEnumerableApiResponse>> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -2484,7 +2589,7 @@ export class PortoIATAClient {
         if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             let result200: any = null;
-            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as PortoIATAResponseDtoIEnumerableApiResponse;
+            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as PortoIataResponseDtoIEnumerableApiResponse;
             return _observableOf(new SwaggerResponse(status, _headers, result200));
             }));
         } else if (status !== 200 && status !== 204) {
@@ -2492,14 +2597,14 @@ export class PortoIATAClient {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<SwaggerResponse<PortoIATAResponseDtoIEnumerableApiResponse>>(new SwaggerResponse(status, _headers, null as any));
+        return _observableOf<SwaggerResponse<PortoIataResponseDtoIEnumerableApiResponse>>(new SwaggerResponse(status, _headers, null as any));
     }
 
     /**
      * @param body (optional) 
      * @return Success
      */
-    inserirPortoIATA(body: PortoIATAInsertRequestDto | undefined): Observable<SwaggerResponse<PortoIATAResponseDtoApiResponse>> {
+    inserirPortoIATA(body: PortoIataInsertRequestDto | undefined): Observable<SwaggerResponse<PortoIataResponseDtoApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/PortoIATA/InserirPortoIATA";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -2522,14 +2627,14 @@ export class PortoIATAClient {
                 try {
                     return this.processInserirPortoIATA(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<SwaggerResponse<PortoIATAResponseDtoApiResponse>>;
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<PortoIataResponseDtoApiResponse>>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<SwaggerResponse<PortoIATAResponseDtoApiResponse>>;
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<PortoIataResponseDtoApiResponse>>;
         }));
     }
 
-    protected processInserirPortoIATA(response: HttpResponseBase): Observable<SwaggerResponse<PortoIATAResponseDtoApiResponse>> {
+    protected processInserirPortoIATA(response: HttpResponseBase): Observable<SwaggerResponse<PortoIataResponseDtoApiResponse>> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -2539,7 +2644,7 @@ export class PortoIATAClient {
         if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             let result200: any = null;
-            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as PortoIATAResponseDtoApiResponse;
+            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as PortoIataResponseDtoApiResponse;
             return _observableOf(new SwaggerResponse(status, _headers, result200));
             }));
         } else if (status !== 200 && status !== 204) {
@@ -2547,14 +2652,14 @@ export class PortoIATAClient {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<SwaggerResponse<PortoIATAResponseDtoApiResponse>>(new SwaggerResponse(status, _headers, null as any));
+        return _observableOf<SwaggerResponse<PortoIataResponseDtoApiResponse>>(new SwaggerResponse(status, _headers, null as any));
     }
 
     /**
      * @param body (optional) 
      * @return Success
      */
-    atualizarPortoIATA(body: PortoIATAUpdateRequestDto | undefined): Observable<SwaggerResponse<PortoIATAResponseDtoApiResponse>> {
+    atualizarPortoIATA(body: PortoIataUpdateRequestDto | undefined): Observable<SwaggerResponse<PortoIataResponseDtoApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/PortoIATA/AtualizarPortoIATA";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -2577,14 +2682,14 @@ export class PortoIATAClient {
                 try {
                     return this.processAtualizarPortoIATA(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<SwaggerResponse<PortoIATAResponseDtoApiResponse>>;
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<PortoIataResponseDtoApiResponse>>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<SwaggerResponse<PortoIATAResponseDtoApiResponse>>;
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<PortoIataResponseDtoApiResponse>>;
         }));
     }
 
-    protected processAtualizarPortoIATA(response: HttpResponseBase): Observable<SwaggerResponse<PortoIATAResponseDtoApiResponse>> {
+    protected processAtualizarPortoIATA(response: HttpResponseBase): Observable<SwaggerResponse<PortoIataResponseDtoApiResponse>> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -2594,7 +2699,7 @@ export class PortoIATAClient {
         if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             let result200: any = null;
-            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as PortoIATAResponseDtoApiResponse;
+            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as PortoIataResponseDtoApiResponse;
             return _observableOf(new SwaggerResponse(status, _headers, result200));
             }));
         } else if (status !== 200 && status !== 204) {
@@ -2602,14 +2707,14 @@ export class PortoIATAClient {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<SwaggerResponse<PortoIATAResponseDtoApiResponse>>(new SwaggerResponse(status, _headers, null as any));
+        return _observableOf<SwaggerResponse<PortoIataResponseDtoApiResponse>>(new SwaggerResponse(status, _headers, null as any));
     }
 
     /**
      * @param portoIATAId (optional) 
      * @return Success
      */
-    excluirPortoIATA(portoIATAId: number | undefined): Observable<SwaggerResponse<PortoIATAResponseDtoApiResponse>> {
+    excluirPortoIATA(portoIATAId: number | undefined): Observable<SwaggerResponse<PortoIataResponseDtoApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/PortoIATA/ExcluirPortoIATA?";
         if (portoIATAId === null)
             throw new Error("The parameter 'portoIATAId' cannot be null.");
@@ -2632,14 +2737,14 @@ export class PortoIATAClient {
                 try {
                     return this.processExcluirPortoIATA(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<SwaggerResponse<PortoIATAResponseDtoApiResponse>>;
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<PortoIataResponseDtoApiResponse>>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<SwaggerResponse<PortoIATAResponseDtoApiResponse>>;
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<PortoIataResponseDtoApiResponse>>;
         }));
     }
 
-    protected processExcluirPortoIATA(response: HttpResponseBase): Observable<SwaggerResponse<PortoIATAResponseDtoApiResponse>> {
+    protected processExcluirPortoIATA(response: HttpResponseBase): Observable<SwaggerResponse<PortoIataResponseDtoApiResponse>> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -2649,7 +2754,7 @@ export class PortoIATAClient {
         if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             let result200: any = null;
-            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as PortoIATAResponseDtoApiResponse;
+            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as PortoIataResponseDtoApiResponse;
             return _observableOf(new SwaggerResponse(status, _headers, result200));
             }));
         } else if (status !== 200 && status !== 204) {
@@ -2657,7 +2762,7 @@ export class PortoIATAClient {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<SwaggerResponse<PortoIATAResponseDtoApiResponse>>(new SwaggerResponse(status, _headers, null as any));
+        return _observableOf<SwaggerResponse<PortoIataResponseDtoApiResponse>>(new SwaggerResponse(status, _headers, null as any));
     }
 }
 
@@ -2676,7 +2781,7 @@ export class ReceitaFederalClient {
      * @param body (optional) 
      * @return Success
      */
-    submeterVooCompleto(body: VooUploadInput | undefined): Observable<SwaggerResponse<StringApiResponse>> {
+    submeterVooCompleto(body: FlightUploadRequest | undefined): Observable<SwaggerResponse<StringApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/ReceitaFederal/SubmeterVooCompleto";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -2731,7 +2836,7 @@ export class ReceitaFederalClient {
      * @param body (optional) 
      * @return Success
      */
-    submeterMasterVooCompleto(body: VooUploadInput | undefined): Observable<SwaggerResponse<StringApiResponse>> {
+    submeterMasterVooCompleto(body: FlightUploadRequest | undefined): Observable<SwaggerResponse<FileUploadResponseIEnumerableApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/ReceitaFederal/SubmeterMasterVooCompleto";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -2754,14 +2859,14 @@ export class ReceitaFederalClient {
                 try {
                     return this.processSubmeterMasterVooCompleto(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<SwaggerResponse<StringApiResponse>>;
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<FileUploadResponseIEnumerableApiResponse>>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<SwaggerResponse<StringApiResponse>>;
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<FileUploadResponseIEnumerableApiResponse>>;
         }));
     }
 
-    protected processSubmeterMasterVooCompleto(response: HttpResponseBase): Observable<SwaggerResponse<StringApiResponse>> {
+    protected processSubmeterMasterVooCompleto(response: HttpResponseBase): Observable<SwaggerResponse<FileUploadResponseIEnumerableApiResponse>> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -2771,7 +2876,7 @@ export class ReceitaFederalClient {
         if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             let result200: any = null;
-            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as StringApiResponse;
+            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as FileUploadResponseIEnumerableApiResponse;
             return _observableOf(new SwaggerResponse(status, _headers, result200));
             }));
         } else if (status !== 200 && status !== 204) {
@@ -2779,14 +2884,69 @@ export class ReceitaFederalClient {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<SwaggerResponse<StringApiResponse>>(new SwaggerResponse(status, _headers, null as any));
+        return _observableOf<SwaggerResponse<FileUploadResponseIEnumerableApiResponse>>(new SwaggerResponse(status, _headers, null as any));
     }
 
     /**
      * @param body (optional) 
      * @return Success
      */
-    verificarProtocoloVoo(body: VooUploadInput | undefined): Observable<SwaggerResponse<StringApiResponse>> {
+    submeterMasterSelecionado(body: FlightUploadRequest | undefined): Observable<SwaggerResponse<FileUploadResponseIEnumerableApiResponse>> {
+        let url_ = this.baseUrl + "/api/v1/ReceitaFederal/SubmeterMasterSelecionado";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processSubmeterMasterSelecionado(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processSubmeterMasterSelecionado(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<FileUploadResponseIEnumerableApiResponse>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<FileUploadResponseIEnumerableApiResponse>>;
+        }));
+    }
+
+    protected processSubmeterMasterSelecionado(response: HttpResponseBase): Observable<SwaggerResponse<FileUploadResponseIEnumerableApiResponse>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as FileUploadResponseIEnumerableApiResponse;
+            return _observableOf(new SwaggerResponse(status, _headers, result200));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<FileUploadResponseIEnumerableApiResponse>>(new SwaggerResponse(status, _headers, null as any));
+    }
+
+    /**
+     * @param body (optional) 
+     * @return Success
+     */
+    verificarProtocoloVoo(body: FlightUploadRequest | undefined): Observable<SwaggerResponse<StringApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/ReceitaFederal/VerificarProtocoloVoo";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -2841,7 +3001,7 @@ export class ReceitaFederalClient {
      * @param body (optional) 
      * @return Success
      */
-    submeterMasterExclusion(body: MasterExclusaoRFBInput | undefined): Observable<SwaggerResponse<StringApiResponse>> {
+    submeterMasterExclusion(body: MasterExclusaoRFBInput | undefined): Observable<SwaggerResponse<FileUploadResponseIEnumerableApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/ReceitaFederal/SubmeterMasterExclusion";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -2864,14 +3024,14 @@ export class ReceitaFederalClient {
                 try {
                     return this.processSubmeterMasterExclusion(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<SwaggerResponse<StringApiResponse>>;
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<FileUploadResponseIEnumerableApiResponse>>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<SwaggerResponse<StringApiResponse>>;
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<FileUploadResponseIEnumerableApiResponse>>;
         }));
     }
 
-    protected processSubmeterMasterExclusion(response: HttpResponseBase): Observable<SwaggerResponse<StringApiResponse>> {
+    protected processSubmeterMasterExclusion(response: HttpResponseBase): Observable<SwaggerResponse<FileUploadResponseIEnumerableApiResponse>> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -2881,7 +3041,7 @@ export class ReceitaFederalClient {
         if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             let result200: any = null;
-            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as StringApiResponse;
+            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as FileUploadResponseIEnumerableApiResponse;
             return _observableOf(new SwaggerResponse(status, _headers, result200));
             }));
         } else if (status !== 200 && status !== 204) {
@@ -2889,7 +3049,7 @@ export class ReceitaFederalClient {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<SwaggerResponse<StringApiResponse>>(new SwaggerResponse(status, _headers, null as any));
+        return _observableOf<SwaggerResponse<FileUploadResponseIEnumerableApiResponse>>(new SwaggerResponse(status, _headers, null as any));
     }
 
     /**
@@ -3006,6 +3166,128 @@ export class ReceitaFederalClient {
             }));
         }
         return _observableOf<SwaggerResponse<StringApiResponse>>(new SwaggerResponse(status, _headers, null as any));
+    }
+
+    /**
+     * @param associationId (optional) 
+     * @return Success
+     */
+    cancelarAssociacaoHouseMaster(associationId: number | undefined): Observable<SwaggerResponse<StringApiResponse>> {
+        let url_ = this.baseUrl + "/api/v1/ReceitaFederal/CancelarAssociacaoHouseMaster?";
+        if (associationId === null)
+            throw new Error("The parameter 'associationId' cannot be null.");
+        else if (associationId !== undefined)
+            url_ += "associationId=" + encodeURIComponent("" + associationId) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCancelarAssociacaoHouseMaster(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCancelarAssociacaoHouseMaster(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<StringApiResponse>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<StringApiResponse>>;
+        }));
+    }
+
+    protected processCancelarAssociacaoHouseMaster(response: HttpResponseBase): Observable<SwaggerResponse<StringApiResponse>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as StringApiResponse;
+            return _observableOf(new SwaggerResponse(status, _headers, result200));
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result404: any = null;
+            result404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as ProblemDetails;
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<StringApiResponse>>(new SwaggerResponse(status, _headers, null as any));
+    }
+
+    /**
+     * @param houseId (optional) 
+     * @return Success
+     */
+    cancelarHouse(houseId: number | undefined): Observable<SwaggerResponse<HouseResponseDtoApiResponse>> {
+        let url_ = this.baseUrl + "/api/v1/ReceitaFederal/CancelarHouse?";
+        if (houseId === null)
+            throw new Error("The parameter 'houseId' cannot be null.");
+        else if (houseId !== undefined)
+            url_ += "houseId=" + encodeURIComponent("" + houseId) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCancelarHouse(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCancelarHouse(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<HouseResponseDtoApiResponse>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<HouseResponseDtoApiResponse>>;
+        }));
+    }
+
+    protected processCancelarHouse(response: HttpResponseBase): Observable<SwaggerResponse<HouseResponseDtoApiResponse>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as HouseResponseDtoApiResponse;
+            return _observableOf(new SwaggerResponse(status, _headers, result200));
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result404: any = null;
+            result404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as ProblemDetails;
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<HouseResponseDtoApiResponse>>(new SwaggerResponse(status, _headers, null as any));
     }
 }
 
@@ -4513,6 +4795,61 @@ export class VooClient {
         }
         return _observableOf<SwaggerResponse<VooTrechoResponseIEnumerableApiResponse>>(new SwaggerResponse(status, _headers, null as any));
     }
+
+    /**
+     * @param body (optional) 
+     * @return Success
+     */
+    clonesegmentforflight(body: CloneFlightForDeparturingRequest | undefined): Observable<SwaggerResponse<VooResponseDtoApiResponse>> {
+        let url_ = this.baseUrl + "/api/v1/Voo/clonesegmentforflight";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processClonesegmentforflight(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processClonesegmentforflight(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<VooResponseDtoApiResponse>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<VooResponseDtoApiResponse>>;
+        }));
+    }
+
+    protected processClonesegmentforflight(response: HttpResponseBase): Observable<SwaggerResponse<VooResponseDtoApiResponse>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as VooResponseDtoApiResponse;
+            return _observableOf(new SwaggerResponse(status, _headers, result200));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<VooResponseDtoApiResponse>>(new SwaggerResponse(status, _headers, null as any));
+    }
 }
 
 export interface AgenteDeCargaInsertRequest {
@@ -4666,6 +5003,28 @@ export interface CiaAreaListaSimplesResponseIEnumerableApiResponse {
     Notificacoes?: Notificacao[] | undefined;
 }
 
+export interface CloneFlightForDeparturingRequest {
+    FlightId?: number;
+    SegmentId?: number;
+    FlightNumber?: string | undefined;
+}
+
+export interface Empresa {
+    Id: number;
+    RazaoSocial: string;
+    Contato: string;
+    Telefone: string;
+    EMail: string;
+    CEP: string;
+    Endereco: string;
+    Complemento?: string | undefined;
+    Cidade: string;
+    UF: string;
+    Pais: string;
+    DataExclusao?: Date | undefined;
+    LogoUrl?: string | undefined;
+}
+
 export interface ExcluirMastersByIdRequest {
     MasterIds?: number[] | undefined;
 }
@@ -4673,6 +5032,27 @@ export interface ExcluirMastersByIdRequest {
 export enum FileDestinationMap {
     _0 = 0,
     _1 = 1,
+}
+
+export interface FileUploadResponse {
+    Id?: number;
+    Protocol?: string | undefined;
+    ErrorCode?: string | undefined;
+    Message?: string | undefined;
+    Status?: string | undefined;
+}
+
+export interface FileUploadResponseIEnumerableApiResponse {
+    Sucesso?: boolean;
+    Dados?: FileUploadResponse[] | undefined;
+    Notificacoes?: Notificacao[] | undefined;
+}
+
+export interface FlightUploadRequest {
+    FlightId?: number | undefined;
+    ItineraryId?: number | undefined;
+    DepartureTime?: Date | undefined;
+    idList?: number[] | undefined;
 }
 
 export interface HouseInsertRequestDto {
@@ -4708,6 +5088,8 @@ export interface HouseInsertRequestDto {
     RemetenteCidade?: string | undefined;
     RemetentePaisCodigo?: string | undefined;
     AgenteDeCargaNumero?: string | undefined;
+    RFBCancelationStatus?: number;
+    RFBCancelationProtocol?: string | undefined;
     DataProcessamento?: Date;
 }
 
@@ -4756,6 +5138,8 @@ export interface HouseResponseDto {
     RemetenteCidade?: string | undefined;
     RemetentePaisCodigo?: string | undefined;
     AgenteDeCargaNumero?: string | undefined;
+    RFBCancelationStatus?: number;
+    RFBCancelationProtocol?: string | undefined;
     HouseId?: number;
     StatusId?: number;
     SituacaoRFB?: number;
@@ -4817,6 +5201,8 @@ export interface HouseUpdateRequestDto {
     RemetenteCidade?: string | undefined;
     RemetentePaisCodigo?: string | undefined;
     AgenteDeCargaNumero?: string | undefined;
+    RFBCancelationStatus?: number;
+    RFBCancelationProtocol?: string | undefined;
     HouseId?: number;
 }
 
@@ -4846,6 +5232,7 @@ export interface MasterFileResponseDtoListApiResponse {
 }
 
 export interface MasterHouseAssociationHouseItemResponse {
+    Id?: number;
     Number?: string | undefined;
     OriginLocation?: string | undefined;
     DestinationLocation?: string | undefined;
@@ -4865,6 +5252,7 @@ export interface MasterHouseAssociationHouseItemResponse {
 }
 
 export interface MasterHouseAssociationSummaryUploadResponse {
+    Id?: number;
     OriginLocation?: string | undefined;
     DestinationLocation?: string | undefined;
     TotalWeight?: number;
@@ -4874,6 +5262,10 @@ export interface MasterHouseAssociationSummaryUploadResponse {
     TotalPieceQuantity?: number;
     IssueDate?: Date;
     DocumentId?: string | undefined;
+    RFBCreationStatus?: number;
+    RFBCreationProtocol?: string | undefined;
+    RFBCancelationStatus?: number;
+    RFBCancelationProtocol?: string | undefined;
 }
 
 export interface MasterHouseAssociationUploadResponse {
@@ -4923,7 +5315,7 @@ export interface MasterInsertRequestDto {
     NCMLista?: string[] | undefined;
     ConsolidadoDireto?: string | undefined;
     TotalParcial?: string | undefined;
-    NaturezaCarga?: string | undefined;
+    NaturezaCarga?: string[] | undefined;
     Volume?: number | undefined;
     VolumeUN?: string | undefined;
     AssinaturaTransportadorNome?: string | undefined;
@@ -5018,7 +5410,7 @@ export interface MasterResponseDto {
     NCMLista?: string[] | undefined;
     ConsolidadoDireto?: string | undefined;
     TotalParcial?: string | undefined;
-    NaturezaCarga?: string | undefined;
+    NaturezaCarga?: string[] | undefined;
     Volume?: number | undefined;
     VolumeUN?: string | undefined;
     AssinaturaTransportadorNome?: string | undefined;
@@ -5093,7 +5485,7 @@ export interface MasterUpdateRequestDto {
     NCMLista?: string[] | undefined;
     ConsolidadoDireto?: string | undefined;
     TotalParcial?: string | undefined;
-    NaturezaCarga?: string | undefined;
+    NaturezaCarga?: string[] | undefined;
     Volume?: number | undefined;
     VolumeUN?: string | undefined;
     AssinaturaTransportadorNome?: string | undefined;
@@ -5127,6 +5519,23 @@ export interface NCM {
     DescricaoConcatenada: string;
     Seleciona?: boolean;
     CodigoNumero?: string | undefined;
+}
+
+export interface NaturezaCarga {
+    EmpresaId?: number;
+    Empresa?: Empresa;
+    CriadoPeloId?: number;
+    UsuarioCriacaoInfo?: Usuario;
+    CreatedDateTimeUtc?: Date;
+    ModificadoPeloId?: number | undefined;
+    UsuarioModificacaoInfo?: Usuario;
+    ModifiedDateTimeUtc?: Date | undefined;
+    SubmetidoPeloId?: number | undefined;
+    UsuarioSubmetidoInfo?: Usuario;
+    Id: number;
+    Codigo: string;
+    Descricao: string;
+    DataExclusao?: Date | undefined;
 }
 
 export interface NaturezaCargaInsertRequestDto {
@@ -5165,35 +5574,35 @@ export interface Notificacao {
     Mensagem?: string | undefined;
 }
 
-export interface PortoIATAInsertRequestDto {
+export interface PortoIataInsertRequestDto {
     Codigo?: string | undefined;
     Nome?: string | undefined;
-    UsuarioInsercaoId?: number;
-    EmpresaId?: number;
+    CountryCode?: string | undefined;
 }
 
-export interface PortoIATAResponseDto {
+export interface PortoIataResponseDto {
     PortoId?: number;
     Codigo?: string | undefined;
     Nome?: string | undefined;
+    CountryCode?: string | undefined;
 }
 
-export interface PortoIATAResponseDtoApiResponse {
+export interface PortoIataResponseDtoApiResponse {
     Sucesso?: boolean;
-    Dados?: PortoIATAResponseDto;
+    Dados?: PortoIataResponseDto;
     Notificacoes?: Notificacao[] | undefined;
 }
 
-export interface PortoIATAResponseDtoIEnumerableApiResponse {
+export interface PortoIataResponseDtoIEnumerableApiResponse {
     Sucesso?: boolean;
-    Dados?: PortoIATAResponseDto[] | undefined;
+    Dados?: PortoIataResponseDto[] | undefined;
     Notificacoes?: Notificacao[] | undefined;
 }
 
-export interface PortoIATAUpdateRequestDto {
-    PortoIATAId?: number;
+export interface PortoIataUpdateRequestDto {
+    PortoIataId?: number;
     Nome?: string | undefined;
-    UsuarioModificadorId?: number;
+    CountryCode?: string | undefined;
 }
 
 export interface ProblemDetails {
@@ -5266,6 +5675,12 @@ export interface UldMasterInsertRequest {
     UldIdPrimario?: string | undefined;
     QuantidadePecas?: number;
     Peso?: number;
+    PesoUN?: string | undefined;
+    Transferencia?: boolean;
+    TipoDivisao?: string | undefined;
+    AeroportoOrigem?: string | undefined;
+    AeroportoDestino?: string | undefined;
+    DescricaoMercadoria?: string | undefined;
     TrechoId?: number;
 }
 
@@ -5278,7 +5693,7 @@ export interface UldMasterNumeroQuery {
 }
 
 export interface UldMasterNumeroQueryChildren {
-    MasterId?: number;
+    MasterId?: number | undefined;
     MasterNumero?: string | undefined;
     UldId?: string | undefined;
     UldCaracteristicaCodigo?: string | undefined;
@@ -5290,6 +5705,10 @@ export interface UldMasterNumeroQueryChildren {
     UsuarioCriacao?: string | undefined;
     DataCricao?: Date;
     TotalParcial?: string | undefined;
+    Transferencia?: boolean;
+    AeroportoOrigem?: string | undefined;
+    AeroportoDestino?: string | undefined;
+    DescricaoMercadoria?: string | undefined;
 }
 
 export interface UldMasterNumeroQueryIEnumerableApiResponse {
@@ -5305,6 +5724,12 @@ export interface UldMasterResponseDto {
     UldIdPrimario?: string | undefined;
     QuantidadePecas?: number;
     Peso?: number;
+    PesoUN?: string | undefined;
+    Transferencia?: boolean;
+    TipoDivisao?: string | undefined;
+    AeroportoOrigem?: string | undefined;
+    AeroportoDestino?: string | undefined;
+    DescricaoMercadoria?: string | undefined;
     Id?: number;
     MasterId?: number;
     UsuarioCriacao?: string | undefined;
@@ -5336,6 +5761,12 @@ export interface UldMasterUpdateRequest {
     UldIdPrimario?: string | undefined;
     QuantidadePecas?: number;
     Peso?: number;
+    PesoUN?: string | undefined;
+    Transferencia?: boolean;
+    TipoDivisao?: string | undefined;
+    AeroportoOrigem?: string | undefined;
+    AeroportoDestino?: string | undefined;
+    DescricaoMercadoria?: string | undefined;
     Id?: number;
     TrechoId?: number;
 }
@@ -5349,6 +5780,39 @@ export interface UploadCertificadoResponseDtoApiResponse {
     Sucesso?: boolean;
     Dados?: UploadCertificadoResponseDto;
     Notificacoes?: Notificacao[] | undefined;
+}
+
+export enum UserProfileType {
+    _0 = 0,
+    _1 = 1,
+    _2 = 2,
+}
+
+export interface Usuario {
+    Id: number;
+    EmpresaId?: number;
+    Empresa?: Empresa;
+    EMail: string;
+    Senha: string;
+    Nome: string;
+    Sobrenome: string;
+    CiaAereaId?: number | undefined;
+    CiaAereaNome?: string | undefined;
+    AlteraCia?: boolean;
+    AcessaUsuarios: boolean;
+    AcessaClientes: boolean;
+    AcessaCiasAereas: boolean;
+    Bloqueado: boolean;
+    CriadoPeloId?: number;
+    CreatedDateTimeUtc: Date;
+    ModificadoPeloId?: number | undefined;
+    ModifiedDateTimeUtc?: Date | undefined;
+    DataExclusao?: Date | undefined;
+    UsuarioSistema?: boolean;
+    AlterarSenha?: boolean;
+    DataReset?: Date | undefined;
+    CertificadoId?: number | undefined;
+    Perfil?: UserProfileType;
 }
 
 export interface UsuarioInfoResponse {
@@ -5367,6 +5831,7 @@ export interface UsuarioInfoResponse {
     AcessoCompanhias?: boolean;
     DataAlteracao?: Date;
     UrlFoto?: string | undefined;
+    UserProfile?: string | undefined;
 }
 
 export interface UsuarioInsertRequest {
@@ -5447,6 +5912,7 @@ export interface UsuarioUpdateRequest {
 
 export interface VooInsertRequestDto {
     Numero?: string | undefined;
+    PrefixoAeronave?: string | undefined;
     DataVoo?: Date;
     DataHoraSaidaReal?: Date | undefined;
     DataHoraSaidaPrevista?: Date | undefined;
@@ -5499,6 +5965,9 @@ export interface VooResponseDto {
     AeroportoOrigemCodigo?: string | undefined;
     AeroportoDestinoCodigo?: string | undefined;
     Reenviar?: boolean;
+    ParentFlightNumber?: string | undefined;
+    CountryOrigin?: string | undefined;
+    PrefixoAeronave?: string | undefined;
     Trechos?: VooTrechoResponse[] | undefined;
 }
 
@@ -5519,6 +5988,8 @@ export interface VooTrechoResponse {
     AeroportoDestinoCodigo?: string | undefined;
     DataHoraChegadaEstimada?: Date | undefined;
     DataHoraSaidaEstimada?: Date | undefined;
+    PaisDestinoCodigo?: string | undefined;
+    ULDs?: UldMasterNumeroQuery[] | undefined;
 }
 
 export interface VooTrechoResponseIEnumerableApiResponse {
@@ -5530,6 +6001,7 @@ export interface VooTrechoResponseIEnumerableApiResponse {
 export interface VooUpdateRequestDto {
     VooId?: number;
     Numero?: string | undefined;
+    PrefixoAeronave?: string | undefined;
     DataVoo?: Date | undefined;
     DataHoraSaidaReal?: Date | undefined;
     DataHoraSaidaPrevista?: Date | undefined;
@@ -5542,10 +6014,6 @@ export interface VooUpdateTrechoRequest {
     AeroportoDestinoCodigo?: string | undefined;
     DataHoraChegadaEstimada?: Date | undefined;
     DataHoraSaidaEstimada?: Date | undefined;
-}
-
-export interface VooUploadInput {
-    VooId?: number;
 }
 
 export interface VooUploadResponse {
@@ -5566,8 +6034,10 @@ export interface VooUploadResponse {
     AeroportoOrigemCodigo?: string | undefined;
     AeroportoDestinoCodigo?: string | undefined;
     Reenviar?: boolean;
+    ParentFlightNumber?: string | undefined;
+    CountryOrigin?: string | undefined;
+    PrefixoAeronave?: string | undefined;
     Trechos?: VooTrechoResponse[] | undefined;
-    ULDs?: UldMasterNumeroQuery[] | undefined;
 }
 
 export interface VooUploadResponseApiResponse {

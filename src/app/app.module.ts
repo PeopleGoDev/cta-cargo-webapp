@@ -25,7 +25,6 @@ import { registerLocaleData } from '@angular/common';
 import ptBr from '@angular/common/locales/pt';
 import { locale, loadMessages } from 'devextreme/localization';
 import config from 'devextreme/core/config';
-import { ReceitaFederalModule } from './pages/receita-federal/receita-federal.module';
 import { UldmasterModule } from './pages/uldmaster/uldmaster.module';
 import { PortoIataModule } from './porto-iata/porto-iata.module';
 import { NaturezaCargaModule } from './natureza-carga/natureza-carga.module';
@@ -38,6 +37,7 @@ import { SharedModule } from './shared/shared.module';
 import { ConsultaModule } from './consulta/consulta.module';
 import { ReceitaFederalMasterModule } from './pages/receita-federal-master/receita-federal-master.module';
 import { ReceitaFederalAssociationModule } from './pages/receita-federal-association/receita-federal-association.module';
+import { ReceitaFederalFlightModule } from './pages/receita-federal-flight/receita-federal-flight.module';
 
 let messagesptBR = require('devextreme/localization/messages/pt.json');
 loadMessages(messagesptBR);
@@ -69,7 +69,7 @@ config({
     ConsultaModule,
     UldmasterModule,
     HousesModule,
-    ReceitaFederalModule,
+    ReceitaFederalFlightModule,
     ReceitaFederalHouseModule,
     ReceitaFederalMasterModule,
     ReceitaFederalAssociationModule,

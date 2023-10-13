@@ -63,13 +63,13 @@
         <div class="row">
             <div class="col-md-12">
                 <dx-data-grid id="gridHouses" #dataGrid [dataSource]="housesData" keyExpr="HouseId"
-                    [hoverStateEnabled]="true" [showBorders]="true" [columnAutoWidth]="true"
+                    [repaintChangesOnly]="true" [hoverStateEnabled]="true" [showBorders]="true" [columnAutoWidth]="true"
                     (onToolbarPreparing)="onToolbarPreparing($event)" (onRowUpdating)="onRowUpdating($event)"
                     [(selectedRowKeys)]="selectedRows" (onSelectionChanged)="selectionChangedHandler()"
                     (onRowInserting)="onRowInserting($event)" (onEditorPreparing)="onEditorPreparing($event)">
                     <dxo-filter-row [visible]="true"></dxo-filter-row>
                     <dxo-header-filter [visible]="true"></dxo-header-filter>
-                    <dxo-selection mode="multiple" showCheckBoxesMode="none"></dxo-selection>
+                    <dxo-selection mode="single" showCheckBoxesMode="none"></dxo-selection>
                     <dxo-load-panel [enabled]="false"></dxo-load-panel>
                     <dxo-paging [pageSize]="9"></dxo-paging>
                     <dxo-pager [showPageSizeSelector]="false" [infoText]="'Página {0} de {1} ({2} itens)'"
@@ -86,13 +86,6 @@
                             <dxi-toolbar-item widget="dxButton" location="after" toolbar="bottom" [options]="{
                                 text: 'Cancelar',
                                 onClick: onEditCancel 
-                            }">
-                            </dxi-toolbar-item>
-                            <dxi-toolbar-item *ngIf="curgridKey > 0" widget="dxButton" location="before"
-                                toolbar="bottom" [options]="{
-                                text: 'Excluir',
-                                type: 'danger',
-                                onClick: onEditDelete
                             }">
                             </dxi-toolbar-item>
                         </dxo-popup>
@@ -114,14 +107,14 @@
                             </dxi-item>
 
                             <dxi-item itemType="group" caption="Remetente" [colCount]="3" [colSpan]="3">
-                                <dxi-item dataField="RemetenteNome" [editorOptions]="{ maxLength: 60 }">
+                                <dxi-item dataField="RemetenteNome" [editorOptions]="{ maxLength: 70 }">
                                     <dxi-validation-rule type="required"></dxi-validation-rule>
                                 </dxi-item>
-                                <dxi-item dataField="RemetenteEndereco" [editorOptions]="{ maxLength: 60 }">
+                                <dxi-item dataField="RemetenteEndereco" [editorOptions]="{ maxLength: 70 }">
                                 </dxi-item>
-                                <dxi-item dataField="RemetenteCidade" [editorOptions]="{ maxLength: 60 }">
+                                <dxi-item dataField="RemetenteCidade" [editorOptions]="{ maxLength: 70 }">
                                 </dxi-item>
-                                <dxi-item dataField="RemetentePostal" [editorOptions]="{ maxLength: 15 }">
+                                <dxi-item dataField="RemetentePostal" [editorOptions]="{ maxLength: 35 }">
                                 </dxi-item>
                                 <dxi-item dataField="RemetentePaisCodigo" [editorOptions]="{ maxLength: 2 }">
                                     <dxi-validation-rule type="required"></dxi-validation-rule>
@@ -130,19 +123,18 @@
 
                             <dxi-item itemType="group" caption="Destinatário" [colCount]="3" [colSpan]="3">
                                 <dxi-item dataField="ConsignatarioCNPJ" [editorOptions]="{ maxLength: 14 }">
-                                    <dxi-validation-rule type="required"></dxi-validation-rule>
-                                    <dxi-validation-rule type="custom" [validationCallback]="ValidaCnpj"
+                                    <dxi-validation-rule type="custom" [validationCallback]="validaCnpj"
                                         message="CNPJ/CPF/Passporte invalido!">
                                     </dxi-validation-rule>
                                 </dxi-item>
-                                <dxi-item dataField="ConsignatarioNome" [editorOptions]="{ maxLength: 60 }">
+                                <dxi-item dataField="ConsignatarioNome" [editorOptions]="{ maxLength: 70 }">
                                     <dxi-validation-rule type="required"></dxi-validation-rule>
                                 </dxi-item>
-                                <dxi-item dataField="ConsignatarioEndereco" [editorOptions]="{ maxLength: 60 }">
+                                <dxi-item dataField="ConsignatarioEndereco" [editorOptions]="{ maxLength: 70 }">
                                 </dxi-item>
-                                <dxi-item dataField="ConsignatarioCidade" [editorOptions]="{ maxLength: 60 }">
+                                <dxi-item dataField="ConsignatarioCidade" [editorOptions]="{ maxLength: 70 }">
                                 </dxi-item>
-                                <dxi-item dataField="ConsignatarioPostal" [editorOptions]="{ maxLength: 15 }">
+                                <dxi-item dataField="ConsignatarioPostal" [editorOptions]="{ maxLength: 35 }">
                                 </dxi-item>
                                 <dxi-item dataField="ConsignatarioPaisCodigo" [editorOptions]="{ maxLength: 2 }">
                                     <dxi-validation-rule type="required"></dxi-validation-rule>
@@ -174,7 +166,6 @@
                                 [colSpan]="3">
                                 <dxi-item itemType="group">
                                     <dxi-item dataField="NCMLista">
-                                        <dxi-validation-rule type="required"></dxi-validation-rule>
                                     </dxi-item>
                                 </dxi-item>
                                 <dxi-item itemType="group">
@@ -229,9 +220,11 @@
                             <dxi-item itemType="group" caption="Outras Informações" [colCount]="1" [colSpan]="1">
                                 <dxi-item dataField="DataEmissaoXML">
                                     <dxi-validation-rule type="required"></dxi-validation-rule>
+                                    <dxi-validation-rule type="custom" [validationCallback]="validaDataEmissao"
+                                        message="Data/Hora inserida maior do que a atual">
+                                    </dxi-validation-rule>
                                 </dxi-item>
                                 <dxi-item dataField="CodigoRecintoAduaneiro" [editorOptions]="{ maxLength: 7 }">
-                                    <dxi-validation-rule type="required"></dxi-validation-rule>
                                 </dxi-item>
                             </dxi-item>
 
@@ -241,8 +234,8 @@
                     <dxi-column type="buttons" width="50" caption="Editar">
                         <dxi-button name="edit" hint="Editar" icon="edit" [visible]="isEditVisible"></dxi-button>
                         <dxi-button name="edit" hint="Visualizar" icon="find" [visible]="isViewVisible"></dxi-button>
-                        <dxi-button name="verificarStatus" hint="Verificar Status da Carga RFB" icon="refresh"
-                            [onClick]="onClickVerificarStatus" [visible]="isCheckStatusAvailable"></dxi-button>
+                        <dxi-button name="edit" hint="Submetido/Processamnto Pendente" icon="refresh"
+                         [visible]="isCheckStatusAvailable"></dxi-button>
                     </dxi-column>
                     <dxi-column dataField="HouseId" caption="Id" [visible]="false"></dxi-column>
                     <dxi-column dataField="Numero" caption="Número" [width]="150"></dxi-column>
@@ -356,16 +349,16 @@
                             <dx-button stylingMode="contained" icon="edit" text="Liberar Edição" type="normal"
                                 hint="Liberar House para Edição"
                                 [disabled]="rfbProcessedRows.length == 0 || rfbProcessedRows.length != selectedRows.length"
-                                (click)="releaseMasterEdition($event)">
+                                (click)="releaseHouseEdition($event)">
                             </dx-button>
                         </div>
                     </dxi-item>
                     <dxi-item location="before">
                         <div *dxTemplate>
-                            <dx-button stylingMode="contained" icon="edit" text="Alterar Associação Master"
-                                type="normal" hint="Alterar Associação Master"
-                                [disabled]="rfbAssociationProcessedRows.length == 0 || rfbAssociationProcessedRows.length != selectedRows.length"
-                                (click)="releaseMasterEdition($event)">
+                            <dx-button stylingMode="contained" icon="remove" text="Submeter/Verificar Exclusão do House"
+                                type="normal" hint="Excluir RFB"
+                                [disabled]="rfbSubmitExclusionRows.length === 0 || rfbSubmitExclusionRows.length != selectedRows.length"
+                                (click)="onSubmitExclusion($event)">
                             </dx-button>
                         </div>
                     </dxi-item>

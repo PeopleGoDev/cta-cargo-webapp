@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { FlightSegmentComponent } from './flight-segment.component';
 import { DxAutocompleteModule, DxButtonModule, DxDateBoxModule, DxTextBoxModule } from 'devextreme-angular';
 
@@ -11,7 +11,7 @@ import { DxAutocompleteModule, DxButtonModule, DxDateBoxModule, DxTextBoxModule 
     DxDateBoxModule,
     DxButtonModule,
     DxTextBoxModule
-  ],
+  ], providers: [DatePipe],
   exports: [FlightSegmentComponent]
 })
 export class FlightSegmentModule { }

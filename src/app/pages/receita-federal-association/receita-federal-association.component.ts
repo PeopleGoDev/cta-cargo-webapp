@@ -109,7 +109,10 @@ export class ReceitaFederalAssociationComponent implements OnInit {
         disabled: this.checkDisable(item.Houses),
         Number: item.Number,
         Summary: this.calcSummary(item.Houses),
-        Houses: item.Houses
+        Houses: item.Houses,
+        Id: item.Summary?.Id,
+        RFBCreationStatus: item.Summary?.RFBCreationStatus,
+        RFBCancelationStatus: item.Summary?.RFBCancelationStatus,
       }
     });
   }
@@ -248,5 +251,37 @@ export class ReceitaFederalAssociationComponent implements OnInit {
 
   private checkChecked(houses: MasterHouseAssociationHouseItemResponse[]): boolean {
     return houses.filter(x => x.AssociationStatusId == 1 || x.AssociationStatusId == 2).length == houses.length;
+  }
+
+  removeAssociationHandle(item) {
+    let result = confirm("<i>Uma operação de exclusão será aceito até a primeira<br/> chegada da viagem no Brasil e caso esteja vinculada a<br/> um documento de saída.<br/><br/> Deseja continuar ?</i>", "Atenção!");
+    result.then((dialogResult) => {
+      if (dialogResult) {
+        this.removeAssociation(item);
+      }
+    });
+  }
+
+  verifyAssociationHandle(item) {
+    let result = confirm("<i>Deseja continuar ?</i>", "Atenção!");
+    result.then((dialogResult) => {
+      if (dialogResult) {
+        this.removeAssociation(item);
+      }
+    });
+  }
+
+  removeAssociation(item) {
+    this.receitaFederalClient.cancelarAssociacaoHouseMaster(item.Id)
+    .subscribe(res => {
+      if(res.result.Sucesso) {
+        notify("Exclusão de associação submetida com sucesso!", 'success', environment.ErrorTimeout);
+      }
+      else {
+        notify(res.result.Notificacoes[0].Mensagem, 'error', environment.ErrorTimeout);
+      }
+    }, err => {
+      notify(err, 'error', environment.ErrorTimeout)
+    });
   }
 }

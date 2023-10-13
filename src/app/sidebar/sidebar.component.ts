@@ -12,15 +12,6 @@ declare interface RouteInfo {
     location: string;
 }
 export const ROUTES: RouteInfo[] = [
-    { path: 'painel', title: 'Painel de Controle',  icon: 'pe-7s-graph', class: '', location: 'sidebar' },
-    { path: 'voos', title: 'Manifestar Voos',  icon: 'pe-7s-plane', class: '', location: 'sidebar' },
-    { path: 'masters', title: 'Manifestar Master',  icon: 'pe-7s-folder', class: '', location: 'sidebar' },
-    { path: 'uldtag', title: 'ULD Tag',  icon: 'pe-7s-plugin', class: '', location: 'sidebar' },
-    { path: 'houses', title: 'Manifestar House',  icon: 'pe-7s-box2', class: '', location: 'sidebar' },
-    { path: 'receita-federal', title: 'Submeter Voo RFB',  icon: 'pe-7s-cloud-upload', class: '', location: 'sidebar' },
-    { path: 'receita-federal-master', title: 'Submeter Master RFB',  icon: 'pe-7s-cloud-upload', class: '', location: 'sidebar' },
-    { path: 'receita-federal-house', title: 'Submeter House RFB',  icon: 'pe-7s-cloud-upload', class: '', location: 'sidebar' },
-    { path: 'receita-federal-association', title: 'Submeter Associação House RFB',  icon: 'pe-7s-cloud-upload', class: '', location: 'sidebar' },
     { path: 'ciasaerea', title: 'Companhias Aéreas',  icon: 'pe-7s-folder', class: '', location: 'menuadmin' },
     { path: 'usuarios', title: 'Usuários',  icon: 'pe-7s-folder', class: '', location: 'menuadmin' },
     { path: 'porto-iata', title: 'Portos',  icon: 'pe-7s-folder', class: '', location: 'menuadmin' },
@@ -28,7 +19,8 @@ export const ROUTES: RouteInfo[] = [
 
 @Component({
   selector: 'app-sidebar',
-  templateUrl: './sidebar.component.html'
+  templateUrl: './sidebar.component.html',
+  styleUrls: ['./sidebar.component.css']
 })
 
 export class SidebarComponent implements OnInit {
@@ -37,7 +29,32 @@ export class SidebarComponent implements OnInit {
   imageUrl: string = '/assets/img/flying plane_1567082.png';
 
   constructor(private localstorage: LocalStorageService,
-    private router: Router) { }
+    private router: Router) {
+      const userInfo = localstorage.getLocalStore(); 
+
+      ROUTES.splice(0, ROUTES.length);
+      ROUTES.push({ path: 'painel', title: 'Painel de Controle',  icon: 'pe-7s-graph', class: '', location: 'sidebar' });
+
+      if(userInfo?.UsuarioInfo?.UserProfile === "AirCargo" || userInfo?.UsuarioInfo?.UserProfile === "Both") {
+        ROUTES.push({ path: 'voos', title: 'Manifestar Voos',  icon: 'pe-7s-plane', class: '', location: 'sidebar' });
+        ROUTES.push({ path: 'masters', title: 'Manifestar Master',  icon: 'pe-7s-folder', class: '', location: 'sidebar' });
+        ROUTES.push({ path: 'uldtag', title: 'ULD Tag',  icon: 'pe-7s-plugin', class: '', location: 'sidebar' });
+      }
+
+      if(userInfo?.UsuarioInfo?.UserProfile === "FreightFowarder" || userInfo?.UsuarioInfo?.UserProfile === "Both") {
+        ROUTES.push({ path: 'houses', title: 'Manifestar House',  icon: 'pe-7s-box2', class: '', location: 'sidebar' });
+      }
+
+      if(userInfo?.UsuarioInfo?.UserProfile === "AirCargo" || userInfo?.UsuarioInfo?.UserProfile === "Both") {
+        ROUTES.push({ path: 'receita-federal', title: 'Submeter Voo RFB',  icon: 'pe-7s-cloud-upload', class: '', location: 'sidebar' });
+        ROUTES.push({ path: 'receita-federal-master', title: 'Submeter Master RFB',  icon: 'pe-7s-cloud-upload', class: '', location: 'sidebar'});
+      }
+
+      if(userInfo?.UsuarioInfo?.UserProfile === "FreightFowarder" || userInfo?.UsuarioInfo?.UserProfile === "Both") {
+        ROUTES.push({ path: 'receita-federal-house', title: 'Submeter House RFB',  icon: 'pe-7s-cloud-upload', class: '', location: 'sidebar' });
+        ROUTES.push({ path: 'receita-federal-association', title: 'Submeter Associação House RFB',  icon: 'pe-7s-cloud-upload', class: '', location: 'sidebar' });
+      }
+    }
 
   ngOnInit() {
     const storage = this.localstorage.getLocalStore();

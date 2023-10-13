@@ -335,7 +335,7 @@ export class MastersComponent implements OnInit {
       ValorFretePP: newData.ValorFretePP,
       ValorFretePPUN: newData.ValorFretePPUN.toUpperCase(),
       ValorFreteFC: newData.ValorFreteFC,
-      ValorFreteFCUN: newData.ValorFreteFCUN.toUpperCase(),
+      ValorFreteFCUN: newData.ValorFretePPUN.toUpperCase(),
       IndicadorMadeiraMacica: newData.IndicadorMadeiraMacica,
       IndicadorNaoDesunitizacao: newData.IndicadorNaoDesunitizacao,
       IndicadorAwbNaoIata: this.awbPadraoNaoIata,
@@ -359,10 +359,10 @@ export class MastersComponent implements OnInit {
       ConsolidadoDireto: newData.ConsolidadoDireto ?? undefined,
       TotalParcial: newData.TotalParcial ? newData.TotalParcial.toUpperCase() : undefined,
       NumeroVooXML: newData.NumeroVooXML ? newData.NumeroVooXML.toUpperCase() : undefined,
-      DataVoo: this.filtroDataVoo,
+      DataVoo: new Date(this.filtroDataVoo.toDateString()),
       AeroportoOrigemCodigo: newData.AeroportoOrigemCodigo.toUpperCase(),
       AeroportoDestinoCodigo: newData.AeroportoDestinoCodigo.toUpperCase(),
-      NaturezaCarga: newData.NaturezaCarga && newData.NaturezaCarga.trim().length > 0 ? newData.NaturezaCarga.toUpperCase() : undefined
+      NaturezaCarga: newData.NaturezaCarga
     }
 
     await this.masterClient.atualizarMaster(updateRequest)
@@ -400,34 +400,34 @@ export class MastersComponent implements OnInit {
       ValorFretePP: +newData.ValorFretePP,
       ValorFretePPUN: newData.ValorFretePPUN.toUpperCase(),
       ValorFreteFC: +newData.ValorFreteFC,
-      ValorFreteFCUN: newData.ValorFreteFCUN.toUpperCase(),
+      ValorFreteFCUN: newData.ValorFretePPUN.toUpperCase(),
       IndicadorMadeiraMacica: newData.IndicadorMadeiraMacica,
       IndicadorNaoDesunitizacao: newData.IndicadorNaoDesunitizacao,
       IndicadorAwbNaoIata: this.awbPadraoNaoIata,
       DescricaoMercadoria: newData.DescricaoMercadoria.toUpperCase(),
-      CodigoRecintoAduaneiro: newData.CodigoRecintoAduaneiro ? newData.CodigoRecintoAduaneiro.toUpperCase() : null,
-      RUC: newData.RUC ? newData.RUC.toUpperCase() : null,
+      CodigoRecintoAduaneiro: newData.CodigoRecintoAduaneiro ? newData.CodigoRecintoAduaneiro.toUpperCase() : undefined,
+      RUC: newData.RUC ? newData.RUC.toUpperCase() : undefined,
       ConsignatarioNome: newData.ConsignatarioNome.toUpperCase(),
-      ConsignatarioEndereco: newData.ConsignatarioEndereco ? newData.ConsignatarioEndereco.toUpperCase() : null,
-      ConsignatarioPostal: newData.ConsignatarioPostal ? newData.ConsignatarioPostal.toUpperCase() : null,
-      ConsignatarioCidade: newData.ConsignatarioCidade ? newData.ConsignatarioCidade.toUpperCase() : null,
+      ConsignatarioEndereco: newData.ConsignatarioEndereco ? newData.ConsignatarioEndereco.toUpperCase() : undefined,
+      ConsignatarioPostal: newData.ConsignatarioPostal ? newData.ConsignatarioPostal.toUpperCase() : undefined,
+      ConsignatarioCidade: newData.ConsignatarioCidade ? newData.ConsignatarioCidade.toUpperCase() : undefined,
       ConsignatarioPaisCodigo: newData.ConsignatarioPaisCodigo.toUpperCase(),
-      ConsignatarioSubdivisao: newData.ConsignatarioSubdivisao ? newData.ConsignatarioSubdivisao.toUpperCase() : null,
-      ConsignatarioCNPJ: newData.ConsignatarioCNPJ ? newData.ConsignatarioCNPJ.toUpperCase() : null,
+      ConsignatarioSubdivisao: newData.ConsignatarioSubdivisao ? newData.ConsignatarioSubdivisao.toUpperCase() : undefined,
+      ConsignatarioCNPJ: newData.ConsignatarioCNPJ ? newData.ConsignatarioCNPJ.toUpperCase() : undefined,
       DataEmissaoXML: newData.DataEmissaoXML,
       NCMLista: newData.NCMLista,
       RemetenteNome: newData.RemetenteNome.toUpperCase(),
-      RemetenteEndereco: newData.RemetenteEndereco == null ? null : newData.RemetenteEndereco.toUpperCase(),
-      RemetentePostal: newData.RemetentePostal == null ? null : newData.RemetentePostal.toUpperCase(),
-      RemetenteCidade: newData.RemetenteCidade == null ? null : newData.RemetenteCidade.toUpperCase(),
+      RemetenteEndereco: newData.RemetenteEndereco == null ? undefined : newData.RemetenteEndereco.toUpperCase(),
+      RemetentePostal: newData.RemetentePostal == null ? undefined : newData.RemetentePostal.toUpperCase(),
+      RemetenteCidade: newData.RemetenteCidade == null ? undefined : newData.RemetenteCidade.toUpperCase(),
       RemetentePaisCodigo: newData.RemetentePaisCodigo.toUpperCase(),
-      ConsolidadoDireto: newData.ConsolidadoDireto == null ? null : newData.ConsolidadoDireto,
-      TotalParcial: newData.TotalParcial == null ? null : newData.TotalParcial.toUpperCase(),
-      NumeroVooXML: newData.NumeroVooXML == null ? null : newData.NumeroVooXML.toUpperCase(),
+      ConsolidadoDireto: newData.ConsolidadoDireto == null ? undefined : newData.ConsolidadoDireto,
+      TotalParcial: newData.TotalParcial == null ? undefined : newData.TotalParcial.toUpperCase(),
+      NumeroVooXML: newData.NumeroVooXML == null ? undefined : newData.NumeroVooXML.toUpperCase(),
       DataVoo: this.filtroDataVoo,
       AeroportoOrigemCodigo: newData.AeroportoOrigemCodigo.toUpperCase(),
       AeroportoDestinoCodigo: newData.AeroportoDestinoCodigo.toUpperCase(),
-      NaturezaCarga: newData.NaturezaCarga ? newData.NaturezaCarga.toUpperCase() : undefined,
+      NaturezaCarga: newData.NaturezaCarga,
     }
 
     await this.masterClient.inserirMaster(insertRequest)
@@ -534,11 +534,8 @@ export class MastersComponent implements OnInit {
             break;
           case LocalSituacaoRfb.NoSubmitted:
           case LocalSituacaoRfb.ProcessedDeletion:
-            this.rfbNonProcessedRows.push(x);
-            break;
           case LocalSituacaoRfb.Rejected:
-            if (!item.ProtocoloRFB || item.ProtocoloRFB == '')
-              this.rfbNonProcessedRows.push(x);
+            this.rfbNonProcessedRows.push(x);
             break;
         }
       });
@@ -610,8 +607,12 @@ export class MastersComponent implements OnInit {
   }
 
   validaCnpj(e) {
+    if (e.value.length === 0)
+      return true;
+
     if (this.editCsneePais.toUpperCase() !== 'BR')
       return true;
+
     if (e.value.length >= 2 && e.value.substr(0, 2).toUpperCase() == 'PP') {
       return true;
     }
@@ -675,6 +676,16 @@ export class MastersComponent implements OnInit {
     cell.setValue(null);
   }
 
+  onSIValueChanged(e: any, cell) {
+    if (e.length > 0) {
+      const value = e.map(x => x.code);
+      if (value)
+        cell.setValue(value);
+      return;
+    }
+    cell.setValue(null);
+  }
+
   async onClickVerificarStatus(e: any) {
 
   }
@@ -720,7 +731,7 @@ export class MastersComponent implements OnInit {
 
     this.errorImportMessage = undefined;
     this.popupImportVisible = false;
-    
+
     let fileInfo: FileParameter = {
       fileName: this.fileUploader.value[0].name,
       data: this.fileUploader.value[0]
@@ -728,7 +739,7 @@ export class MastersComponent implements OnInit {
 
     this.masterClient.uploadImportFile(this.curVoo, this.curImportFile, fileInfo)
       .subscribe(res => {
-        if(res.result.Sucesso) {
+        if (res.result.Sucesso) {
           this.importFileNotification = res.result.Notificacoes;
           this.popupImportLogVisible = true;
         }

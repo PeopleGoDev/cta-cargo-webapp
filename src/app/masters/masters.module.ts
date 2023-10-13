@@ -21,6 +21,7 @@ import { PipesModule } from 'app/shared/util/pipes.module';
 import { MasterClient, VooClient } from 'app/shared/proxy/ctaapi';
 import { SharedModule } from 'app/shared/shared.module';
 import { NcmSelectorModule } from 'app/shared/components/ncm-selector/ncm-selector.module';
+import { SpecialInstructionModule } from 'app/shared/components/special-instruction/special-instruction.module';
 
 @NgModule({
   declarations: [MastersComponent],
@@ -41,6 +42,7 @@ import { NcmSelectorModule } from 'app/shared/components/ncm-selector/ncm-select
     DxTextBoxModule,
     PipesModule,
     NcmSelectorModule,
+    SpecialInstructionModule,
     DxFileUploaderModule,
     DxPopupModule,
     DxScrollViewModule,

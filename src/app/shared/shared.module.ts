@@ -9,6 +9,7 @@ import { SelectComponent } from '@shared/atoms/select/select.component';
 import { TitleComponent } from './components/title/title.component';
 import { NcmSelectorModule } from './components/ncm-selector/ncm-selector.module';
 import { FlightSegmentModule } from './components/flight-segment/flight-segment.module';
+import { SpecialInstructionModule } from './components/special-instruction/special-instruction.module';
 
 @NgModule({
   declarations: [InputComponent, SelectComponent, MasterDetailComponent, TitleComponent],
@@ -18,6 +19,7 @@ import { FlightSegmentModule } from './components/flight-segment/flight-segment.
     FormsModule,
     TextMaskModule,
     NcmSelectorModule,
+    SpecialInstructionModule,
     FlightSegmentModule
   ], 
   exports: [InputComponent, SelectComponent, MasterDetailComponent, TitleComponent],

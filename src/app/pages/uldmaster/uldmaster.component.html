@@ -18,15 +18,16 @@
                                     <dx-drop-down-button [splitButton]="true" [useSelectMode]="false"
                                         text="Selecione o Voo" [icon]="icon" [items]="listaVoos"
                                         [selectedItemKey]="curVoo?.VooId" (onItemClick)="onItemClick($event)"
-                                        displayExpr="text" keyExpr="vooId" [disabled]="!listaVoos || listaVoos.length === 0"
-                                        [useSelectMode]="true" width="285px"></dx-drop-down-button>
+                                        displayExpr="text" keyExpr="vooId"
+                                        [disabled]="!listaVoos || listaVoos.length === 0" [useSelectMode]="true"
+                                        width="285px"></dx-drop-down-button>
                                 </div>
                                 <div style="display: table-cell; width: 10px;">&nbsp;</div>
                                 <div style="display: table-cell">
                                     <dx-drop-down-button [splitButton]="true" [useSelectMode]="false"
-                                        text="Selecione o Voo" [items]="listaTrechos"
-                                        [selectedItemKey]="curTrecho?.Id" (onItemClick)="onTrechoItemClick($event)"
-                                        displayExpr="AeroportoDestinoCodigo" keyExpr="Id" [disabled]="!listaTrechos || listaTrechos.length === 0"
+                                        text="Selecione o Voo" [items]="listaTrechos" [selectedItemKey]="curTrecho?.Id"
+                                        (onItemClick)="onTrechoItemClick($event)" displayExpr="AeroportoDestinoCodigo"
+                                        keyExpr="Id" [disabled]="!listaTrechos || listaTrechos.length === 0"
                                         [useSelectMode]="true" width="85px"></dx-drop-down-button>
                                 </div>
                             </div>
@@ -89,19 +90,16 @@
                         <div class="master-detail-caption">Master(s) Associados</div>
                         <dx-data-grid [dataSource]="item.data.ULDs" [showBorders]="true"
                             (onRowInserting)="onRowInserting($event, item.data)" (onRowInserted)="onRowInserted($event)"
+                            (onRowUpdated)="onRowUpdated($event)"
                             (onRowUpdating)="onRowUpdating($event)" (onRowRemoving)="onRowRemoving($event)"
-                            keyExpr="Id">
+                            (onInitNewRow)="onInitNewRow($event)" keyExpr="Id">
                             <dxo-editing mode="row" [allowUpdating]="allowEdit()" [selectTextOnEditStart]="true"
                                 [startEditAction]="'click'" [allowDeleting]="allowEdit()" [allowAdding]="allowEdit()">
                             </dxo-editing>
-                            <dxo-selection [selectAllMode]="'allPages'" [showCheckBoxesMode]="'onClick'"
-                                mode="multiple"></dxo-selection>
-                            <dxi-column dataField="MasterNumero" caption="Master" width="180" cellTemplate="awbTemplate"
+                            <dxo-selection mode="single"></dxo-selection>
+                            <dxi-column dataField="MasterNumero" caption="Master" width="110" cellTemplate="awbTemplate"
                                 [editorOptions]="{ maxLength: 12, mask: 'AAA-AAAAAAAA' }">
                                 <dxi-validation-rule type="required"></dxi-validation-rule>
-                                <!-- <dxi-validation-rule type="custom" message="Numero do Master invalido!"
-                                    [validationCallback]="ValidarMasterNumero">
-                                </dxi-validation-rule> -->
                                 <div *dxTemplate="let data of 'awbTemplate'">
                                     {{ data.value | master }}
                                 </div>
@@ -109,19 +107,33 @@
                             <dxi-column dataField="UldCaracteristicaCodigo" [visible]="false"></dxi-column>
                             <dxi-column dataField="UldId" [visible]="false"></dxi-column>
                             <dxi-column dataField="UldIdPrimario" [visible]="false"></dxi-column>
-                            <dxi-column dataField="QuantidadePecas" Caption="Peças" dataType="number" width="110">
+                            <dxi-column dataField="QuantidadePecas" caption="Peças" dataType="number" width="70">
                                 <dxi-validation-rule type="required"></dxi-validation-rule>
                             </dxi-column>
-                            <dxi-column dataField="Peso" width="110" dataType="number" format="decimal" [editorOptions]="{
+                            <dxi-column dataField="Peso" width="90" dataType="number" format="decimal" [editorOptions]="{
                                 format: 'decimal',
                                 precision: 3,
                                 showClearButton: true }">
                                 <dxo-format type="fixedPoint" [precision]="3"></dxo-format>
                                 <dxi-validation-rule type="required"></dxi-validation-rule>
                             </dxi-column>
-                            <dxi-column dataField="PesoUnidade" width="110" [allowEditing]="false"></dxi-column>
-                            <dxi-column dataField="UsuarioCriacao" [allowEditing]="false"></dxi-column>
-                            <dxi-column dataField="DataCricao" [allowEditing]="false" width="180"></dxi-column>
+                            <dxi-column dataField="PesoUnidade" width="110" [allowEditing]="true">
+                                <dxo-lookup [dataSource]="pesoUnidade" displayExpr="Codigo" valueExpr="Codigo" width="70">
+                                </dxo-lookup>
+                            </dxi-column>
+                            <dxi-column dataField="TotalParcial" width="130" [allowEditing]="true"
+                                Caption="Total/Parcial">
+                                <dxo-lookup [dataSource]="totalParcialData" displayExpr="description" valueExpr="code">
+                                </dxo-lookup></dxi-column>
+                            <dxi-column dataField="Transferencia" width="100" [allowEditing]="true"
+                                Caption="Transferência" dataType="boolean"></dxi-column>
+                                <dxi-column dataField="AeroportoOrigem" [allowEditing]="true" width="70" caption="Origem"
+                                [editorOptions]="{ maxLength: 3 }"></dxi-column>
+                                <dxi-column dataField="AeroportoDestino" [allowEditing]="true" width="70" caption="Destino"
+                                [editorOptions]="{ maxLength: 3 }"></dxi-column>
+                                <dxi-column dataField="DescricaoMercadoria" [allowEditing]="true" [editorOptions]="{ maxLength: 100 }"></dxi-column>
+                            <dxi-column dataField="UsuarioCriacao" [allowEditing]="false" [visible]="false"></dxi-column>
+                            <dxi-column dataField="DataCricao" [allowEditing]="false" width="180" [visible]="false"></dxi-column>
                         </dx-data-grid>
                     </div>
                 </dx-data-grid>

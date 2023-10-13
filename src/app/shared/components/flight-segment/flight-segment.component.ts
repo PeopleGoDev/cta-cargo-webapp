@@ -1,3 +1,4 @@
+import { DatePipe } from '@angular/common';
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { VooTrechoResponse } from 'app/shared/proxy/ctaapi';
 
@@ -16,12 +17,15 @@ export class FlightSegmentComponent implements OnInit {
     X: /[A-Z]/g,
   }
 
-  constructor() { }
+  constructor(private dataPipe: DatePipe) { }
 
   ngOnInit(): void {
   }
 
   click(e: any) {
+    if (this.readOnly)
+      return;
+
     if (!this.value)
       this.value = [];
 
@@ -37,12 +41,36 @@ export class FlightSegmentComponent implements OnInit {
     }
   }
 
-  onTextChange(e: any) {
+  onDataHoraChegadaEstimadaChanged(e, trecho: VooTrechoResponse) {
+    if (e.value instanceof Date) {
+      const date: any = this.getUTC(e.value);
+      trecho.DataHoraChegadaEstimada = date.toISOString().substring(0, 19);
+    }
+
+    if (typeof e.value == 'string')
+      trecho.DataHoraChegadaEstimada = e.value;
+
+    this.onChanged.emit(this.value);
+  }
+
+  onDataHoraSaidaEstimadaChanged(e, trecho: VooTrechoResponse) {
+    if (e.value instanceof Date) {
+      const date: any = this.getUTC(e.value);
+      trecho.DataHoraSaidaEstimada = date.toISOString().substring(0, 19);
+    }
+
+    if (typeof e.value == 'string')
+      trecho.DataHoraSaidaEstimada = e.value;
+
     this.onChanged.emit(this.value);
   }
 
   removeTrecho(idx) {
     this.value.splice(idx);
     this.onChanged.emit(this.value);
+  }
+
+  private getUTC(date: Date) {
+    return new Date(date.getTime() - (date.getTimezoneOffset() * 60000));
   }
 }

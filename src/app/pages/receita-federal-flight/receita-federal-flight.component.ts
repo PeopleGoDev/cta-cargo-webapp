@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { PortoIATAResponseDto } from 'app/shared/model/dto/portoiatadto';
 import { StatusVoo } from 'app/shared/model/statusvoo';
-import { ReceitaFederalClient, VooClient, VooListaResponseDto, VooListarInputDto, VooUploadInput, VooUploadResponse } from 'app/shared/proxy/ctaapi';
+import { FlightUploadRequest, ReceitaFederalClient, VooClient, VooListaResponseDto, VooListarInputDto, VooUploadResponse } from 'app/shared/proxy/ctaapi';
 import { StatusService } from 'app/shared/services/status.service';
 import { confirm } from 'devextreme/ui/dialog';
 import notify from 'devextreme/ui/notify';
@@ -16,19 +16,27 @@ export class MasterUldUploadByFlightDto {
   public TotalParcial?: string
 }
 
+const PartType = {
+  'T': 'T - Total',
+  'D': 'D - Parcial',
+  'P': 'P - Parcial',
+  'S': 'S - Total'
+}
+
 @Component({
   selector: 'app-receita-federal',
-  templateUrl: './receita-federal.component.html',
-  styleUrls: ['./receita-federal.component.css']
+  templateUrl: './receita-federal-flight.component.html',
+  styleUrls: ['./receita-federal-flight.component.css']
 })
 
-export class ReceitaFederalComponent implements OnInit {
+export class ReceitaFederalFlightComponent implements OnInit {
   @ViewChild("masterDataGrid") masterDataGrid;
   refreshIcon: any;
   filtroDataVoo: Date;
   vooData: VooListaResponseDto[];
+  vooDetalhe: VooUploadResponse= {};
   vooDetalheLista: VooUploadResponse[] = [];
-  mastersDetail: Array<MasterUldUploadByFlightDto>;
+  mastersDetail: MasterUldUploadByFlightDto[];
   botoesGBItems: any = [];
   portosData: Array<PortoIATAResponseDto>;
   statusData: Array<StatusVoo>;
@@ -36,6 +44,7 @@ export class ReceitaFederalComponent implements OnInit {
   curVoo: number = -1;
   botaoUploadEnabled: boolean = false;
   botaoUploadLabel: string = "Submeter Receita Federal";
+  partType = PartType;
 
   constructor(private statusService: StatusService,
     private vooClient: VooClient,
@@ -68,7 +77,6 @@ export class ReceitaFederalComponent implements OnInit {
 
     this.curVoo = -1;
     this.vooData = [];
-    this.vooDetalheLista = [];
     this.botoesGBItems = null;
     this.botaoUploadEnabled = false;
 
@@ -92,12 +100,13 @@ export class ReceitaFederalComponent implements OnInit {
 
   async refreshVooDetalhe() {
     this.vooDetalheLista = [];
+    this.vooDetalhe = undefined;
     this.mastersDetail = [];
     this.vooClient.obterVooUploadPorId(this.curVoo)
       .subscribe(res => {
         if (res.result.Sucesso) {
+          this.vooDetalhe = res.result.Dados;
           this.vooDetalheLista.push(res.result.Dados);
-          this.generateUldMasterList(res.result.Dados);
           this.enableUploadButton(res.result.Dados);
         }
         else {
@@ -109,29 +118,13 @@ export class ReceitaFederalComponent implements OnInit {
       });
   }
 
-  private generateUldMasterList(data: VooUploadResponse) {
-    data.ULDs?.forEach(item => {
-      item.ULDs?.forEach(awb => {
-        let newItem: MasterUldUploadByFlightDto = {
-          ULD: item.ULDLinha,
-          Master: awb.MasterNumero,
-          Quantidade: awb.QuantidadePecas,
-          Peso: awb.Peso,
-          PesoUnidade: awb.PesoUnidade,
-          TotalParcial: awb.TotalParcial
-        };
-        this.mastersDetail.push(newItem);
-      });
-    });
-  }
-
   private enableUploadButton(data: VooUploadResponse) {
     this.botaoUploadEnabled = (data?.SituacaoRFBId !== 2 || (data?.SituacaoRFBId === 2 && data?.Reenviar));
   }
 
   async uploadCompleto() {
-    let input: VooUploadInput = {
-      VooId: this.curVoo
+    let input: FlightUploadRequest = {
+      FlightId: this.curVoo
     }
 
     this.receitaFederalClient.submeterVooCompleto(input)
@@ -189,7 +182,7 @@ export class ReceitaFederalComponent implements OnInit {
   }
 
   uploadAction() {
-    if (this.vooDetalheLista == undefined || this.vooDetalheLista == null || this.vooDetalheLista.length == 0) {
+    if (this.vooDetalheLista == undefined) {
       this.botaoUploadEnabled = false;
       return;
     }

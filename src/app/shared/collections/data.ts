@@ -1,6 +1,9 @@
 export const TotalParcialCollection = [
-    { description: 'Total', code: 'T' },
-    { description: 'Parcial', code: 'P' }]
+    { description: 'P - Parcial', code: 'P' },
+    { description: 'D - Parcial', code: 'D' },
+    { description: 'T - Total', code: 'T' },
+    { description: 'S - Total', code: 'S' },
+]
 
 export const CubicUnitCollection = [
     { description: 'CM3 - Centimetros Cubico', code: 'CMQ' },

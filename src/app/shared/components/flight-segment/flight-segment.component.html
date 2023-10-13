@@ -6,22 +6,24 @@
     <ng-container *ngFor="let trecho of value; let idx = index">
         <div class="flight-segment-field">
             <dx-text-box [(value)]="trecho.AeroportoDestinoCodigo" [showClearButton]="true" mask="AAA" maxLength="3" [maskRules]="customMaskRules"
-            (onChange)="onTextChange($event)">
+            (onChange)="onTextChange($event)" [readOnly]="readOnly">
             </dx-text-box>
         </div>
         <div class="flight-segment-field">
-            <dx-date-box [(value)]="trecho.DataHoraChegadaEstimada" type="datetime" (onValueChanged)="onTextChange($event)">
+            <dx-date-box [value]="trecho.DataHoraChegadaEstimada" type="datetime" 
+            (onValueChanged)="onDataHoraChegadaEstimadaChanged($event, trecho)" [readOnly]="readOnly">
             </dx-date-box>
         </div>
         <div class="flight-segment-field">
-            <dx-date-box [(value)]="trecho.DataHoraSaidaEstimada" type="datetime" (onValueChanged)="onTextChange($event)">
+            <dx-date-box [value]="trecho.DataHoraSaidaEstimada" type="datetime" (onValueChanged)="onDataHoraSaidaEstimadaChanged($event, trecho)"
+            [readOnly]="readOnly">
             </dx-date-box>
         </div>
-        <div class="flight-segment-field right middle"><a class="removeLink" *ngIf="idx !==0" (click)="removeTrecho(idx)">Remove</a></div>
+        <div class="flight-segment-field right middle"><a class="removeLink" *ngIf="!readOnly && idx !==0" (click)="removeTrecho(idx)">Remove</a></div>
     </ng-container>
     <div class="flight-segment-field"></div>
     <div class="flight-segment-field"></div>
-    <div class="flight-segment-field right">
+    <div *ngIf="!readOnly" class="flight-segment-field right">
         <dx-button stylingMode="contained" text="Adicionar" type="default" [width]="120" (onClick)="click($event)">
         </dx-button>
     </div>

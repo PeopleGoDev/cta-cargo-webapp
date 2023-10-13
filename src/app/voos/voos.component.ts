@@ -1,11 +1,10 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { LocalStorageService } from 'app/shared/services/localstorage.service';
 import { PortoIATAResponseDto } from 'app/shared/model/dto/portoiatadto';
 import { StatusVoo } from 'app/shared/model/statusvoo';
 import { confirm } from 'devextreme/ui/dialog';
 import { StatusService } from 'app/shared/services/status.service';
 import notify from 'devextreme/ui/notify';
-import { UsuarioInfoResponse, VooClient, VooInsertRequestDto, VooListarInputDto, VooResponseDto, VooTrechoResponse, VooUpdateRequestDto } from 'app/shared/proxy/ctaapi';
+import { VooClient, VooInsertRequestDto, VooListarInputDto, VooResponseDto, VooTrechoResponse, VooUpdateRequestDto } from 'app/shared/proxy/ctaapi';
 import { environment } from 'environments/environment';
 import { DxDataGridComponent } from 'devextreme-angular';
 
@@ -28,9 +27,10 @@ export class VoosComponent implements OnInit {
   statusRFB: Array<StatusVoo>;
   somenteLeitura: boolean = true;
   curgridKey: number = 0;
-  private usuarioInfo: UsuarioInfoResponse;
   currentRow: number;
-
+  isDrawerOpen: boolean = false;
+  cloneFlight: any = {}; 
+  
   private editDataSaidaReal: Date;
   private editDataChegadaEstimada: Date;
   private editDataChegadaReal: Date;
@@ -49,8 +49,7 @@ export class VoosComponent implements OnInit {
     }
   };
 
-  constructor(private localstorage: LocalStorageService,
-    private statusService: StatusService,
+  constructor(private statusService: StatusService,
     private vooClient: VooClient) {
     this.statusData = this.statusService.getStatus();
     this.statusRFB = this.statusService.getStatusRFB();
@@ -72,7 +71,6 @@ export class VoosComponent implements OnInit {
     this.filtroDataFinal = new Date();
     this.filtroDataInicial = new Date();
     this.filtroDataInicial.setDate(this.filtroDataFinal.getDate() - 7);
-    this.usuarioInfo = this.localstorage.getLocalStore().UsuarioInfo;
     this.refreshGrid();
   }
 
@@ -96,6 +94,7 @@ export class VoosComponent implements OnInit {
     const updateRequest: VooUpdateRequestDto = {
       VooId: newData.VooId,
       Numero: newData.Numero,
+      PrefixoAeronave: newData.PrefixoAeronave,
       DataVoo: newData.DataVoo,
       DataHoraSaidaReal: newData.DataHoraSaidaReal,
       DataHoraSaidaPrevista: newData.DataHoraSaidaPrevista,
@@ -139,6 +138,7 @@ export class VoosComponent implements OnInit {
       
     const insertRequest: VooInsertRequestDto = {
       Numero: newData.Numero.toUpperCase(),
+      PrefixoAeronave: newData.PrefixoAeronave.toUpperCase(),
       DataVoo: newData.DataVoo,
       DataHoraSaidaReal: newData.DataHoraSaidaReal,
       DataHoraSaidaPrevista: newData.DataHoraSaidaPrevista,
@@ -429,5 +429,17 @@ export class VoosComponent implements OnInit {
 
   onTrechoChange(e: any, cell) {
     cell.setValue(e);
+  }
+
+  private getUTC(date: Date) {
+    return new Date(date.getTime() - (date.getTimezoneOffset() * 60000));
+  }
+
+  cloneSegmentHandler(e, voo) {
+    console.log(e);
+    console.log(voo);
+    this.cloneFlight.airportCode = e.data.AeroportoDestinoCodigo;
+    this.cloneFlight.scheduleDeparture = e.data.DataHoraSaidaEstimada;
+    this.isDrawerOpen = true;
   }
 }

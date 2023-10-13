@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { PortoIATAResponseDto } from 'app/shared/model/dto/portoiatadto';
 import { StatusVoo } from 'app/shared/model/statusvoo';
-import { MasterClient, MasterListarRequest, MasterResponseDto, ReceitaFederalClient, UsuarioInfoResponse, VooClient, VooListaResponseDto, VooListarInputDto, VooResponseDto, VooUploadInput } from 'app/shared/proxy/ctaapi';
+import { FileUploadResponse, FlightUploadRequest, MasterClient, MasterListarRequest, MasterResponseDto, ReceitaFederalClient, UsuarioInfoResponse, VooClient, VooListaResponseDto, VooListarInputDto, VooResponseDto } from 'app/shared/proxy/ctaapi';
 import { LocalStorageService } from 'app/shared/services/localstorage.service';
 import { StatusService } from 'app/shared/services/status.service';
 import { confirm } from 'devextreme/ui/dialog';
@@ -113,19 +113,19 @@ export class ReceitaFederalMasterComponent implements OnInit {
   }
 
   async uploadCompleto() {
-    let input: VooUploadInput = {
-      VooId: this.curVoo
+    let input: FlightUploadRequest = {
+      FlightId: this.curVoo
     }
 
     this.receitaFederalClient.submeterMasterVooCompleto(input)
       .subscribe(res => {
         if (res.result.Sucesso) {
-          this.refreshGrid();
-          notify(res.result.Dados ?? "Arquivo Submetido com Sucesso!", 'success', environment.ErrorTimeout);
+          this.updateList(res.result.Dados);
+          notify("Arquivo Submetido com Sucesso!", 'success', environment.ErrorTimeout);
         }
         else {
           if (res.result.Notificacoes == undefined) {
-            notify(res.result.Dados ?? "Erro desconhecido!", 'error', environment.ErrorTimeout)
+            notify("Erro desconhecido!", 'error', environment.ErrorTimeout)
           }
           else {
             notify(res.result.Notificacoes[0].Mensagem, 'error', environment.ErrorTimeout);
@@ -135,6 +135,42 @@ export class ReceitaFederalMasterComponent implements OnInit {
       }, err => {
         notify(err, 'error', environment.ErrorTimeout)
       });
+  }
+
+  updateList(dados: FileUploadResponse[]) {
+
+    if(!dados)
+      return;
+
+    dados.forEach(item => {
+      const foundIdx = this.mastersData.findIndex(x => x.MasterId == item.Id);
+      if(foundIdx > -1) {
+        this.getSituacaoRfbId(item, this.mastersData[foundIdx]);
+      }
+    })
+  }
+
+  getSituacaoRfbId(status: FileUploadResponse, data: MasterResponseDto) {
+    switch (status.Status) {
+      case 'Received':
+        data.SituacaoRFB = 1;
+        data.ProtocoloRFB = status.Protocol;
+        data.CodigoErroRFB = null;
+        data.DescricoErroRFB = null;
+        break;
+      case 'Processed':
+        data.SituacaoRFB = 2;
+        data.ProtocoloRFB = status.Protocol;
+        data.CodigoErroRFB = null;
+        data.DescricoErroRFB = null;
+        break;
+      case 'Rejected':
+        data.SituacaoRFB = 3;
+        data.ProtocoloRFB = status.Protocol;
+        data.CodigoErroRFB = status.ErrorCode;
+        data.DescricoErroRFB = status.Message;
+        break;
+    }
   }
 
   autoMapper(dados: VooListaResponseDto[]) {

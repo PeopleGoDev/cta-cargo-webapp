@@ -8,10 +8,10 @@ import { environment } from 'environments/environment';
 import { confirm } from 'devextreme/ui/dialog';
 import { StatusService } from 'app/shared/services/status.service';
 import { StatusVoo } from 'app/shared/model/statusvoo';
-import { AtualizarMasterReenviarRequest, ExcluirMastersByIdRequest, FileParameter, MasterClient, MasterFileResponseDto, MasterInsertRequestDto, MasterListarRequest, MasterResponseDto, MasterUpdateRequestDto, Notificacao, UsuarioInfoResponse, VooClient, VooListaResponseDto, VooListarInputDto } from 'app/shared/proxy/ctaapi';
+import { AtualizarMasterReenviarRequest, ExcluirMastersByIdRequest, FileParameter, MasterClient, MasterFileResponseDto, MasterInsertRequestDto, MasterListarRequest, MasterResponseDto, MasterUpdateRequestDto, Notificacao, VooClient, VooListaResponseDto, VooListarInputDto } from 'app/shared/proxy/ctaapi';
 import { LocalSituacaoRfb } from 'app/shared/enum/api.enum';
 import { DxDataGridComponent, DxFileUploaderComponent } from 'devextreme-angular';
-import { CubicUnitCollection, TotalParcialCollection } from 'app/shared/collections/data';
+import { CubicUnitCollection, FlightTypeEnum, TotalParcialCollection } from 'app/shared/collections/data';
 
 @Component({
   selector: 'app-masters',
@@ -75,6 +75,7 @@ export class MastersComponent implements OnInit {
   closeButtonOptions: any;
   errorImportMessage: string;
   // Privados
+  flightTypeEnum = FlightTypeEnum;
 
   constructor(private localstorageService: LocalStorageService,
     private consolidadoDiretoService: ConsolidadoDiretoService,
@@ -136,7 +137,6 @@ export class MastersComponent implements OnInit {
     this.validaCnpj = this.validaCnpj.bind(this);
     this.onItemFileImportClick = this.onItemFileImportClick.bind(this);
     this.onOpenPopup = this.onOpenPopup.bind(this);
-    //this.onUploadImportFile = this.onUploadImportFile.bind(this);
     this.consolidadoDiretoData = this.consolidadoDiretoService.Listar();
   }
 
@@ -317,10 +317,6 @@ export class MastersComponent implements OnInit {
     this.dataGrid.instance.addRow();
   }
 
-  exportToExcel(e) {
-    this.dataGrid.instance.exportToExcel(false);
-  }
-
   async onRowUpdating(e) {
     e.cancel = true;
 
@@ -328,6 +324,7 @@ export class MastersComponent implements OnInit {
 
     const updateRequest: MasterUpdateRequestDto = {
       MasterId: newData.MasterId,
+      VooId: this.curVoo,
       Numero: newData.Numero.toUpperCase(),
       PesoTotalBruto: newData.PesoTotalBruto,
       PesoTotalBrutoUN: newData.PesoTotalBrutoUN.toUpperCase(),
@@ -365,10 +362,10 @@ export class MastersComponent implements OnInit {
       NaturezaCarga: newData.NaturezaCarga
     }
 
-    await this.masterClient.atualizarMaster(updateRequest)
+    this.masterClient.atualizarMaster(updateRequest)
       .subscribe(res => {
         if (res.result.Sucesso) {
-          for (var i in this.mastersData) {
+          for (const i in this.mastersData) {
             if (this.mastersData[i].MasterId == newData.MasterId) {
               this.mastersData[i] = res.result.Dados;
               break;
@@ -597,7 +594,7 @@ export class MastersComponent implements OnInit {
       let item = {
         icon: "airplane",
         alignment: "left",
-        text: dados[i].Numero + ' - ' + dados[i].CiaAereaNome,
+        text: dados[i].Numero + ' - ' + dados[i].CiaAereaNome + ' - ' + this.flightTypeEnum[dados[i].FlightType],
         vooid: dados[i].VooId,
         data: dados[i],
       };

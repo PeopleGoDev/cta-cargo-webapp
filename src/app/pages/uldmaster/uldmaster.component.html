@@ -57,16 +57,17 @@
         <div class="row">
             <div class="col-md-12" style="margin-bottom: 10px;">
                 <dx-data-grid id="gridContainer" #gridContainer [dataSource]="uldLista" [hoverStateEnabled]="true"
-                    [showBorders]="true" [columnAutoWidth]="true" [height]="470" width="100%" keyExpr="ULDLinha"
+                    [showBorders]="true" [columnAutoWidth]="true"  width="100%" keyExpr="ULDLinha"
                     [masterDetail]="{ enabled: true, template: 'detail' }" (onRowInserting)="onGridRowInserting($event)"
-                    (onRowInserted)="onGridRowInserted($event)" (onRowRemoving)="onGridRowRemoving($event)">
+                    (onRowInserted)="onGridRowInserted($event)" (onRowRemoving)="onGridRowRemoving($event)"
+                    (onContentReady)="onContentReady($event)">
                     <dxo-filter-row [visible]="true"></dxo-filter-row>
                     <dxo-header-filter [visible]="true"></dxo-header-filter>
                     <dxo-selection mode="single"></dxo-selection>
-                    <dxo-paging [pageSize]="11"></dxo-paging>
+                    <!-- <dxo-paging [pageSize]="11"></dxo-paging>
                     <dxo-pager [showPageSizeSelector]="false" [infoText]="'Página {0} de {1} ({2} itens)'"
                         [showInfo]="true" [visible]="true">
-                    </dxo-pager>
+                    </dxo-pager> -->
                     <dxo-editing mode="row" [allowUpdating]="allowEdit()" [allowDeleting]="allowEdit()"
                         [selectTextOnEditStart]="true" [startEditAction]="'click'"></dxo-editing>
                     <dxi-column dataField="ULDLinha" caption="ULD" width="150" [allowEditing]="false">

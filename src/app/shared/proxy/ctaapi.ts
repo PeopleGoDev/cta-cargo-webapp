@@ -2836,6 +2836,61 @@ export class ReceitaFederalClient {
      * @param body (optional) 
      * @return Success
      */
+    submitscheduledflight(body: FlightUploadRequest | undefined): Observable<SwaggerResponse<StringApiResponse>> {
+        let url_ = this.baseUrl + "/api/v1/ReceitaFederal/submitscheduledflight";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processSubmitscheduledflight(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processSubmitscheduledflight(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<StringApiResponse>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<StringApiResponse>>;
+        }));
+    }
+
+    protected processSubmitscheduledflight(response: HttpResponseBase): Observable<SwaggerResponse<StringApiResponse>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as StringApiResponse;
+            return _observableOf(new SwaggerResponse(status, _headers, result200));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<StringApiResponse>>(new SwaggerResponse(status, _headers, null as any));
+    }
+
+    /**
+     * @param body (optional) 
+     * @return Success
+     */
     submeterMasterVooCompleto(body: FlightUploadRequest | undefined): Observable<SwaggerResponse<FileUploadResponseIEnumerableApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/ReceitaFederal/SubmeterMasterVooCompleto";
         url_ = url_.replace(/[?&]$/, "");
@@ -5082,6 +5137,7 @@ export interface HouseInsertRequestDto {
     DataEmissaoXML?: Date | undefined;
     MasterNumeroXML?: string | undefined;
     NCMLista?: string[] | undefined;
+    NaturezaCarga?: string[] | undefined;
     RemetenteNome?: string | undefined;
     RemetenteEndereco?: string | undefined;
     RemetentePostal?: string | undefined;
@@ -5132,6 +5188,7 @@ export interface HouseResponseDto {
     DataEmissaoXML?: Date | undefined;
     MasterNumeroXML?: string | undefined;
     NCMLista?: string[] | undefined;
+    NaturezaCarga?: string[] | undefined;
     RemetenteNome?: string | undefined;
     RemetenteEndereco?: string | undefined;
     RemetentePostal?: string | undefined;
@@ -5195,6 +5252,7 @@ export interface HouseUpdateRequestDto {
     DataEmissaoXML?: Date | undefined;
     MasterNumeroXML?: string | undefined;
     NCMLista?: string[] | undefined;
+    NaturezaCarga?: string[] | undefined;
     RemetenteNome?: string | undefined;
     RemetenteEndereco?: string | undefined;
     RemetentePostal?: string | undefined;
@@ -5492,6 +5550,7 @@ export interface MasterUpdateRequestDto {
     AssinaturaTransportadorLocal?: string | undefined;
     AssinaturaTransportadorData?: Date | undefined;
     MasterId?: number;
+    VooId?: number;
     DataVoo?: Date;
 }
 
@@ -5912,6 +5971,7 @@ export interface UsuarioUpdateRequest {
 
 export interface VooInsertRequestDto {
     Numero?: string | undefined;
+    FlightType?: VooType;
     PrefixoAeronave?: string | undefined;
     DataVoo?: Date;
     DataHoraSaidaReal?: Date | undefined;
@@ -5929,9 +5989,11 @@ export interface VooInsertTrechoRequest {
 export interface VooListaResponseDto {
     VooId?: number;
     Numero?: string | undefined;
+    FlightType?: VooType;
     SituacaoVoo?: RecordStatus;
     CiaAereaNome?: string | undefined;
     CertificadoValidade?: Date | undefined;
+    GhostFlight?: boolean;
     Trechos?: VooTrechoResponse[] | undefined;
 }
 
@@ -5950,6 +6012,7 @@ export interface VooListarInputDto {
 export interface VooResponseDto {
     VooId?: number;
     Numero?: string | undefined;
+    FlightType?: VooType;
     DataVoo?: Date;
     DataHoraSaidaReal?: Date | undefined;
     DataHoraSaidaPrevista?: Date | undefined;
@@ -5969,6 +6032,11 @@ export interface VooResponseDto {
     CountryOrigin?: string | undefined;
     PrefixoAeronave?: string | undefined;
     Trechos?: VooTrechoResponse[] | undefined;
+    ScheduleSituationRFB?: number | undefined;
+    ProtocoloScheduleRFB?: string | undefined;
+    ScheduleErrorCodeRFB?: string | undefined;
+    ScheduleErrorDescriptionRFB?: string | undefined;
+    GhostFlight?: boolean;
 }
 
 export interface VooResponseDtoApiResponse {
@@ -5998,6 +6066,11 @@ export interface VooTrechoResponseIEnumerableApiResponse {
     Notificacoes?: Notificacao[] | undefined;
 }
 
+export enum VooType {
+    _0 = 0,
+    _1 = 1,
+}
+
 export interface VooUpdateRequestDto {
     VooId?: number;
     Numero?: string | undefined;
@@ -6019,6 +6092,7 @@ export interface VooUpdateTrechoRequest {
 export interface VooUploadResponse {
     VooId?: number;
     Numero?: string | undefined;
+    FlightType?: VooType;
     DataVoo?: Date;
     DataHoraSaidaReal?: Date | undefined;
     DataHoraSaidaPrevista?: Date | undefined;
@@ -6038,6 +6112,11 @@ export interface VooUploadResponse {
     CountryOrigin?: string | undefined;
     PrefixoAeronave?: string | undefined;
     Trechos?: VooTrechoResponse[] | undefined;
+    ScheduleSituationRFB?: number | undefined;
+    ProtocoloScheduleRFB?: string | undefined;
+    ScheduleErrorCodeRFB?: string | undefined;
+    ScheduleErrorDescriptionRFB?: string | undefined;
+    GhostFlight?: boolean;
 }
 
 export interface VooUploadResponseApiResponse {

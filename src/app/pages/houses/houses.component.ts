@@ -1,14 +1,14 @@
 import {
-  AfterViewInit,
   Component,
   ElementRef,
   OnInit,
   ViewChild,
 } from "@angular/core";
 import { LocalSituacaoRfb } from "app/shared/enum/api.enum";
-import { PortoIataResponseDto, ReceitaFederalClient } from "app/shared/proxy/ctaapi";
-import { PortoIATAClient } from "app/shared/proxy/ctaapi";
 import {
+  PortoIataResponseDto,
+  ReceitaFederalClient,
+  PortoIATAClient,
   AgenteDeCargaClient,
   AgenteDeCargaListaSimplesResponse,
   HouseClient,
@@ -34,7 +34,7 @@ function isNotEmpty(value: any): boolean {
   templateUrl: "./houses.component.html",
   styleUrls: ["./houses.component.css"],
 })
-export class HousesComponent implements OnInit, AfterViewInit {
+export class HousesComponent implements OnInit {
   @ViewChild("dataGrid", { static: false }) dataGrid: DxDataGridComponent;
   @ViewChild("panel1") panel1Element: ElementRef;
   @ViewChild("panel2") panel2Element: ElementRef;
@@ -52,7 +52,7 @@ export class HousesComponent implements OnInit, AfterViewInit {
   readOnlyEdition: boolean = false;
   // Data Soure
   housesData: HouseResponseDto[] = [];
-  portosData: PortoIataResponseDto[];
+  portosData: PortoIataResponseDto[] = [];
   pesoUnidade: any = [];
   botoesGBItems: any = [];
   statusHouse: any = [];
@@ -170,8 +170,6 @@ export class HousesComponent implements OnInit, AfterViewInit {
     this.usuarioInfo = this.localstorageService.getLocalStore().UsuarioInfo;
   }
 
-  ngAfterViewInit(): void { }
-
   onToolbarPreparing(e) {
     e.toolbarOptions.visible = false;
   }
@@ -231,7 +229,6 @@ export class HousesComponent implements OnInit, AfterViewInit {
             if (res.result.Dados && res.result.Dados.length > 0) {
               this.curAgenteDeCarga = res.result.Dados[0].AgenteDeCargaId;
               this.agenteDeCarga = res.result.Dados[0];
-              //this.refreshGrid(res.result.Dados[0].AgenteDeCargaId);
             }
             return;
           }
@@ -285,7 +282,7 @@ export class HousesComponent implements OnInit, AfterViewInit {
       .toPromise()
       .then((res) => {
         if (res.result.Sucesso) {
-          this.portosData = res.result.Dados;
+          this.portosData = res.result.Dados ?? [];
         } else {
           this.portosData = [];
           notify(
@@ -328,7 +325,7 @@ export class HousesComponent implements OnInit, AfterViewInit {
       ValorFretePP: newData.ValorFretePP,
       ValorFretePPUN: newData.ValorFretePPUN.toUpperCase(),
       ValorFreteFC: newData.ValorFreteFC,
-      ValorFreteFCUN: newData.ValorFreteFCUN.toUpperCase(),
+      ValorFreteFCUN: newData.ValorFretePPUN.toUpperCase(),
       IndicadorMadeiraMacica: newData.IndicadorMadeiraMacica,
       DescricaoMercadoria: newData.DescricaoMercadoria.toUpperCase(),
       CodigoRecintoAduaneiro: newData.CodigoRecintoAduaneiro,
@@ -372,7 +369,8 @@ export class HousesComponent implements OnInit, AfterViewInit {
       AgenteDeCargaNumero: newData.AgenteDeCargaNumero.toUpperCase(),
       NCMLista: newData.NCMLista,
       MasterNumeroXML: newData.MasterNumeroXML,
-      DataEmissaoXML: newData.DataEmissaoXML
+      DataEmissaoXML: newData.DataEmissaoXML,
+      NaturezaCarga: newData.NaturezaCarga,
     };
 
     await this.houseClient
@@ -418,7 +416,7 @@ export class HousesComponent implements OnInit, AfterViewInit {
       ValorFretePP: newData.ValorFretePP,
       ValorFretePPUN: newData.ValorFretePPUN.toUpperCase(),
       ValorFreteFC: newData.ValorFreteFC,
-      ValorFreteFCUN: newData.ValorFreteFCUN.toUpperCase(),
+      ValorFreteFCUN: newData.ValorFretePPUN.toUpperCase(),
       IndicadorMadeiraMacica: newData.IndicadorMadeiraMacica,
       DescricaoMercadoria: newData.DescricaoMercadoria.toUpperCase(),
       CodigoRecintoAduaneiro: newData.CodigoRecintoAduaneiro, // Recinto Aduaneiro
@@ -463,6 +461,7 @@ export class HousesComponent implements OnInit, AfterViewInit {
       NCMLista: newData.NCMLista,
       MasterNumeroXML: newData.MasterNumeroXML,
       DataEmissaoXML: newData.DataEmissaoXML,
+      NaturezaCarga: newData.NaturezaCarga,
     };
 
     await this.houseClient
@@ -489,12 +488,12 @@ export class HousesComponent implements OnInit, AfterViewInit {
 
   async onRowDelete(itens: number[]) {
 
-    await this.houseClient.excluirHouse(this.selectedRows[0])
+    this.houseClient.excluirHouse(this.selectedRows[0])
       .subscribe(res => {
         if (res.result.Sucesso) {
           itens.forEach(x => {
             let item = this.housesData.find(x => x.HouseId == x);
-            var index = this.housesData.indexOf(item);
+            const index = this.housesData.indexOf(item);
             this.housesData.splice(index, 1);
           });
           notify('House apagado!', 'success', environment.ErrorTimeout);
@@ -509,56 +508,11 @@ export class HousesComponent implements OnInit, AfterViewInit {
   }
 
   onEditorPreparing(e: any): void {
+
     if (e.parentType !== "dataRow") return;
 
-    if (e.row?.isNewRow) {
-      if (e.parentType == "dataRow" && e.dataField == "Numero") {
-        this.readOnlyEdition = false;
-        e.editorOptions.readOnly = false;
-        this.curgridKey = 0;
-      }
-    }
-    else {
-      switch (e.parentType) {
-        case "dataRow":
-          switch (e.row.data.SituacaoRFB) {
-            case LocalSituacaoRfb.Received:
-            case LocalSituacaoRfb.ProcessedDeletion:
-            case LocalSituacaoRfb.Processed:
-              
-              if (e.row.data.Reenviar) {
-                this.readOnlyEdition = false;
-                e.editorOptions.readOnly = false;
-              } else {
-                this.readOnlyEdition = true;
-                e.editorOptions.readOnly = true;
-              }
-
-              if(e.dataField == "DataEmissaoXML") {
-                e.editorOptions.readOnly = true;
-              }
-              break;
-            default:
-              this.readOnlyEdition = false;
-              if (e.dataField == "Numero") {
-                e.editorOptions.readOnly = true;
-                this.curgridKey = e.row.key;
-                return;
-              }
-              break;
-          }
-          break;
-        default:
-          break;
-      }
-    }
-
-
-    if (
-      e.dataField === "AeroportoOrigem" ||
-      e.dataField === "AeroportoDestino"
-    ) {
-      const portos = this.portosData ? this.portosData.map((x) => `${x.Codigo} - ${x.Nome}`) : [];
+    if (e.dataField === "AeroportoOrigem" || e.dataField === "AeroportoDestino") {
+      const portos = this.portosData.map((x) => `${x.Codigo} - ${x.Nome}`);
 
       e.editorType = "dxAutocomplete";
       e.editorOptions = {
@@ -568,10 +522,11 @@ export class HousesComponent implements OnInit, AfterViewInit {
         readOnly: e.dataField == "AeroportoOrigem" && e.row.data.SituacaoRFB == LocalSituacaoRfb.Processed ? true : this.readOnlyEdition,
         value: e.value,
         onValueChanged: (ev) => {
-          if(ev.value)
+          if (ev.value)
             e.setValue(ev.value.substring(0, 3));
         },
       };
+      return;
     }
 
     if (e.dataField === "PesoTotalBrutoUN") {
@@ -582,33 +537,60 @@ export class HousesComponent implements OnInit, AfterViewInit {
         searchTimeout: "500",
         value: e.value,
         onValueChanged: (ev) => {
-          if(ev.value)
+          if (ev.value)
             e.setValue(ev.value.substring(0, 3));
         },
       };
+      return;
     }
 
     if (e.row?.isNewRow) {
-      switch (e.dataField) {
-        case "Numero":
+      if (e.parentType == "dataRow" && e.dataField == "Numero") {
+        this.readOnlyEdition = false;
+        e.editorOptions.readOnly = false;
+        this.curgridKey = 0;
+      }
+      if (e.parentType == 'dataRow' && e.dataField == 'ndicadorMadeiraMacica')
+        e.editorOptions.value = false;
+      return;
+    }
+
+    if (e.dataField === "Numero") {
+      e.editorOptions.readOnly = true;
+      return;
+    }
+
+
+    switch (e.row.data.SituacaoRFB) {
+      case LocalSituacaoRfb.Received:
+      case LocalSituacaoRfb.ProcessedDeletion:
+      case LocalSituacaoRfb.Processed:
+        if (e.row.data.Reenviar) {
+          this.readOnlyEdition = false;
           e.editorOptions.readOnly = false;
-          break;
-        case "IndicadorMadeiraMacica":
-          e.editorOptions.value = false;
-          break;
-      }
-    } else {
-      switch (e.dataField) {
-        case "Numero":
+        } else {
+          this.readOnlyEdition = true;
           e.editorOptions.readOnly = true;
-          break;
-      }
+        }
+
+        if (e.dataField == "DataEmissaoXML") {
+          e.editorOptions.readOnly = true;
+        }
+        break;
+      default:
+        this.readOnlyEdition = false;
+        if (e.dataField == "Numero") {
+          e.editorOptions.readOnly = true;
+          this.curgridKey = e.row.key;
+          return;
+        }
+        break;
     }
   }
 
   isEditVisible(e) {
-    return (e.row.data.SituacaoRFB === 0 || 
-      e.row.data.SituacaoRFB === 3 || 
+    return (e.row.data.SituacaoRFB === 0 ||
+      e.row.data.SituacaoRFB === 3 ||
       (e.row.data.SituacaoRFB === 2 && e.row.data.Reenviar && e.row.data.RFBCancelationStatus === 0));
   }
 
@@ -678,7 +660,7 @@ export class HousesComponent implements OnInit, AfterViewInit {
 
   async onSubmitExclusion(e: any) {
 
-    if(this.rfbSubmitExclusionRows.length === 0)
+    if (this.rfbSubmitExclusionRows.length === 0)
       return;
 
     let result = confirm("<i>Deseja submeter/verificar a exclusão do house na RFB ?</i>", "Confirma?");
@@ -725,7 +707,7 @@ export class HousesComponent implements OnInit, AfterViewInit {
       const item = this.housesData.find(y => y.HouseId == x);
       switch (item.SituacaoRFB) {
         case LocalSituacaoRfb.Processed:
-          if(item.RFBCancelationStatus === 0)
+          if (item.RFBCancelationStatus === 0)
             this.rfbProcessedRows.push(x);
           this.rfbSubmitExclusionRows.push(x);
           break;
@@ -794,6 +776,16 @@ export class HousesComponent implements OnInit, AfterViewInit {
 
   onClickVerificarStatus(e: any) {
     console.log(e);
+  }
+
+  onSIValueChanged(e: any, cell) {
+    if (e.length > 0) {
+      const value = e.map(x => x.code);
+      if (value)
+        cell.setValue(value);
+      return;
+    }
+    cell.setValue(null);
   }
 
 }

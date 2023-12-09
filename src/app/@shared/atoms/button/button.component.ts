@@ -15,6 +15,7 @@ export class ButtonComponent {
   @Input() isBlock: boolean = false;
   @Input() isBright: boolean = false;
   @Input() isButtonOrange: boolean = false;
+  @Input() isButtonBlue: boolean = false;
   @Input() isDisabled: boolean = false;
   @Input() isDisabledOpacity: boolean = false;
   @Input() isJust: boolean = false;

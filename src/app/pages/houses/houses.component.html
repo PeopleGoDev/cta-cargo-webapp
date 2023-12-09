@@ -203,17 +203,20 @@
                             </dxi-item>
 
                             <dxi-item itemType="group" caption="Frete" [colCount]="2" [colSpan]="2">
-                                <dxi-item dataField="ValorFretePP">
-                                    <dxi-validation-rule type="required"></dxi-validation-rule>
+                                <dxi-item itemType="group">
+                                    <dxi-item dataField="NaturezaCarga">
+                                    </dxi-item>
                                 </dxi-item>
-                                <dxi-item dataField="ValorFretePPUN" [editorOptions]="{ maxLength: 3 }">
-                                    <dxi-validation-rule type="required"></dxi-validation-rule>
-                                </dxi-item>
-                                <dxi-item dataField="ValorFreteFC">
-                                    <dxi-validation-rule type="required"></dxi-validation-rule>
-                                </dxi-item>
-                                <dxi-item dataField="ValorFreteFCUN" [editorOptions]="{ maxLength: 3 }">
-                                    <dxi-validation-rule type="required"></dxi-validation-rule>
+                                <dxi-item itemType="group">
+                                    <dxi-item dataField="ValorFretePP">
+                                        <dxi-validation-rule type="required"></dxi-validation-rule>
+                                    </dxi-item>
+                                    <dxi-item dataField="ValorFreteFC">
+                                        <dxi-validation-rule type="required"></dxi-validation-rule>
+                                    </dxi-item>
+                                    <dxi-item dataField="ValorFretePPUN" [editorOptions]="{ maxLength: 3 }">
+                                        <dxi-validation-rule type="required"></dxi-validation-rule>
+                                    </dxi-item>
                                 </dxi-item>
                             </dxi-item>
 
@@ -228,6 +231,9 @@
                                 </dxi-item>
                             </dxi-item>
 
+                            <dxi-item itemType="group" [colCount]="1" [colSpan]="3">
+
+                            </dxi-item>
                         </dxo-form>
                     </dxo-editing>
                     <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[10, 25, 50, 100]"></dxo-pager>
@@ -235,7 +241,7 @@
                         <dxi-button name="edit" hint="Editar" icon="edit" [visible]="isEditVisible"></dxi-button>
                         <dxi-button name="edit" hint="Visualizar" icon="find" [visible]="isViewVisible"></dxi-button>
                         <dxi-button name="edit" hint="Submetido/Processamnto Pendente" icon="refresh"
-                         [visible]="isCheckStatusAvailable"></dxi-button>
+                            [visible]="isCheckStatusAvailable"></dxi-button>
                     </dxi-column>
                     <dxi-column dataField="HouseId" caption="Id" [visible]="false"></dxi-column>
                     <dxi-column dataField="Numero" caption="Número" [width]="150"></dxi-column>
@@ -322,13 +328,20 @@
                     </dxi-column>
                     <dxi-column caption="Outras Informações">
                         <dxi-column dataField="CodigoRecintoAduaneiro" caption="Recinto Aduaneito"></dxi-column>
+                        <dxi-column dataField="NaturezaCarga" caption="Natureza Carga" width="150"
+                            editCellTemplate="dataSICellTemplate" cssClass="word-wrap">
+                        </dxi-column>
                         <dxi-column dataField="DataEmissaoXML" dataType="datetime"></dxi-column>
                     </dxi-column>
-                    <dxo-export [enabled]="permitirAdicao"></dxo-export>
+                    <div *dxTemplate="let cell of 'dataSICellTemplate'">
+                        <app-special-instruction [(value)]="cell.value" [readOnly]="readOnlyEdition"
+                            (onItemSelected)="onSIValueChanged($event, cell)"></app-special-instruction>
+                    </div>
                     <div *dxTemplate="let cell of 'dataNCMCellTemplate'">
                         <app-ncm-selector [(value)]="cell.value" [readOnly]="readOnlyEdition"
                             (onItemSelected)="onNcmValueChanged($event, cell)"></app-ncm-selector>
                     </div>
+                    <dxo-export [enabled]="permitirAdicao"></dxo-export>
                 </dx-data-grid>
             </div>
         </div>

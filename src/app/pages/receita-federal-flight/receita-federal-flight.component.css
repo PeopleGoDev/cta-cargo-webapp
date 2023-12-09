@@ -1,5 +1,4 @@
 .table-header {
-    background-color: lightgray;
     display: grid;
     grid-template-columns: 120px 80px 80px 80px 80px 80px 80px auto;
     color: #959595;
@@ -11,7 +10,6 @@
 }
 
 .table-header-segment {
-    background-color: lightgray;
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     color: #959595;

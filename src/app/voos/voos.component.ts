@@ -7,6 +7,7 @@ import notify from 'devextreme/ui/notify';
 import { VooClient, VooInsertRequestDto, VooListarInputDto, VooResponseDto, VooTrechoResponse, VooUpdateRequestDto } from 'app/shared/proxy/ctaapi';
 import { environment } from 'environments/environment';
 import { DxDataGridComponent } from 'devextreme-angular';
+import { FlightType } from 'app/shared/collections/data';
 
 @Component({
   selector: 'app-voos',
@@ -29,7 +30,8 @@ export class VoosComponent implements OnInit {
   curgridKey: number = 0;
   currentRow: number;
   isDrawerOpen: boolean = false;
-  cloneFlight: any = {}; 
+  cloneFlight: any = {};
+  flightType = FlightType;
   
   private editDataSaidaReal: Date;
   private editDataChegadaEstimada: Date;
@@ -138,6 +140,7 @@ export class VoosComponent implements OnInit {
       
     const insertRequest: VooInsertRequestDto = {
       Numero: newData.Numero.toUpperCase(),
+      FlightType: newData.FlightType,
       PrefixoAeronave: newData.PrefixoAeronave.toUpperCase(),
       DataVoo: newData.DataVoo,
       DataHoraSaidaReal: newData.DataHoraSaidaReal,

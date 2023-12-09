@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { FlightTypeEnum } from 'app/shared/collections/data';
 import { PortoIATAResponseDto } from 'app/shared/model/dto/portoiatadto';
 import { StatusVoo } from 'app/shared/model/statusvoo';
 import { FileUploadResponse, FlightUploadRequest, MasterClient, MasterListarRequest, MasterResponseDto, ReceitaFederalClient, UsuarioInfoResponse, VooClient, VooListaResponseDto, VooListarInputDto, VooResponseDto } from 'app/shared/proxy/ctaapi';
@@ -28,6 +29,7 @@ export class ReceitaFederalMasterComponent implements OnInit {
   curVoo: number = -1;
   botaoUploadEnabled: boolean = false;
   private usuarioInfo: UsuarioInfoResponse;
+  flightTypeEnum = FlightTypeEnum;
 
   constructor(private localstorageService: LocalStorageService,
     private statusService: StatusService,
@@ -181,7 +183,7 @@ export class ReceitaFederalMasterComponent implements OnInit {
       let item = {
         icon: "airplane",
         alignment: "left",
-        text: dados[i].Numero + ' - ' + dados[i].CiaAereaNome,
+        text: dados[i].Numero + ' - ' + dados[i].CiaAereaNome + ' - ' + this.flightTypeEnum[dados[i].FlightType],
         vooid: dados[i].VooId
       };
       arrayBG.push(item);

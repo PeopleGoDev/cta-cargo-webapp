@@ -1,0 +1,75 @@
+<div class="full-width">
+    <div class="panel-header">
+        <div class="panel-header-item">Número </div>
+        <div class="panel-header-item">Porto Inicial </div>
+        <div class="panel-header-item">Porto Final </div>
+        <div class="panel-header-item">Hora Estimada Partida </div>
+        <div class="panel-header-item">Hora Real Partida </div>
+    </div>
+    <div class="panel-item" *ngIf="voo">
+        <div class="panel-item-row">{{ voo?.Numero }}<br /> {{ flightTypeEnum[voo?.FlightType] }}</div>
+        <div class="panel-item-row">{{ voo?.AeroportoOrigemCodigo }}</div>
+        <div class="panel-item-row">{{ voo?.AeroportoDestinoCodigo }}</div>
+        <div class="panel-item-row">
+            <div class="panel-item-row-button" *ngIf="!voo?.GhostFlight">
+                <app-button (buttonClicked)="onScheduleClick($event)" [mobileFull]="true"
+                    [isDisabled]="!isScheduleAvailable"
+                    [isButtonOrange]="isScheduleAvailable && buttonScheduleCaption == 'Submeter Saída Estimativa'"
+                    [isButtonBlue]="isScheduleAvailable && buttonScheduleCaption == 'Verificar Voo Agendamento'"
+                    id="modal-create-master-group-link">
+                    {{buttonScheduleCaption}}
+                </app-button>
+            </div>
+            <div class="upload-detail">
+                <div><b>Horário</b></div>
+                <div>{{ voo?.DataHoraSaidaPrevista | date:'dd/MM/yyy HH:mm' }}</div>
+                <ng-container *ngIf="!voo?.GhostFlight">
+                    <div><b>Status RFB</b></div>
+                    <div>{{ displayedStatus[voo?.ScheduleSituationRFB] }}</div>
+                    <ng-container *ngIf="voo?.ProtocoloScheduleRFB">
+                        <div><b>Protocolo</b></div>
+                        <div>{{ voo?.ProtocoloScheduleRFB }}</div>
+                    </ng-container>
+                    <ng-container *ngIf="voo?.ScheduleErrorDescriptionRFB">
+                        <div><b>Erro Código</b></div>
+                        <div>{{ voo?.ScheduleErrorCodeRFB }}</div>
+                        <div><b>Erro</b></div>
+                        <div class="error">{{ voo?.ScheduleErrorDescriptionRFB }}</div>
+                    </ng-container>
+                </ng-container>
+            </div>
+        </div>
+        <div class="panel-item-row">
+            <div class="panel-item-row-button" *ngIf="!voo?.GhostFlight">
+                <app-button (buttonClicked)="onActualClick($event)" [mobileFull]="true"
+                    [isDisabled]="!isActualAvailable"
+                    [isButtonOrange]="isActualAvailable && buttonRealCaption == 'Submeter Saída Real'"
+                    [isButtonBlue]="isActualAvailable && buttonRealCaption == 'Verificar Voo'"
+                    id="modal-create-master-group-link">
+                    {{buttonRealCaption}}
+                </app-button>
+            </div>
+            <div class="upload-detail">
+                <div><b>Horário</b></div>
+                <div>{{ voo?.DataHoraSaidaReal | date:'dd/MM/yyy HH:mm' }}</div>
+                <ng-container *ngIf="!voo?.GhostFlight">
+                    <div><b>Status RFB</b></div>
+                    <div>{{ displayedStatus[voo?.SituacaoRFBId] }}</div>
+                    <ng-container *ngIf="voo?.ProtocoloRFB">
+                        <div><b>Protocolo</b></div>
+                        <div>{{ voo?.ProtocoloRFB }}</div>
+                    </ng-container>
+                    <ng-container *ngIf="voo?.ErroDescricaoRFB">
+                        <div><b>Erro Código</b></div>
+                        <div>{{ voo?.ErroCodigoRFB }}</div>
+                        <div><b>Erro</b></div>
+                        <div class="error">{{ voo?.ErroDescricaoRFB }}</div>
+                    </ng-container>
+                </ng-container>
+            </div>
+        </div>
+    </div>
+    <div class="panel-item-empty" *ngIf="!voo">
+        <div class="panel-item-empty-content">Sem Dados</div>
+    </div>
+</div>

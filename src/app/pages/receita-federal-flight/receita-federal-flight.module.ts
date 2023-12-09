@@ -5,21 +5,20 @@ import { DxButtonModule,
   DxDateBoxModule,
   DxButtonGroupModule,
   DxToolbarModule,
-  DxDataGridModule, 
   DxDropDownButtonModule} from 'devextreme-angular';
 import { ReceitaFederalClient } from 'app/shared/proxy/ctaapi';
 import { ButtonModule } from 'app/@shared/atoms/button/button.module';
 import { PipesModule } from 'app/shared/util/pipes.module';
+import { FlightDetailComponent } from './flight-detail/flight-detail.component';
 
 @NgModule({
-  declarations: [ReceitaFederalFlightComponent],
+  declarations: [ReceitaFederalFlightComponent, FlightDetailComponent],
   imports: [
     CommonModule,
     DxButtonModule,
     DxDateBoxModule,
     DxButtonGroupModule,
     DxToolbarModule,
-    DxDataGridModule,
     DxDropDownButtonModule,
     PipesModule,
     ButtonModule

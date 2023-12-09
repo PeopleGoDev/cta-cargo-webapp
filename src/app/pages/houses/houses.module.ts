@@ -17,6 +17,7 @@ import { DxDataGridModule ,
 import { PipesModule } from 'app/shared/util/pipes.module';
 import { CertificadoDigitalClient, NcmClient, PortoIATAClient } from 'app/shared/proxy/ctaapi';
 import { NcmSelectorModule } from 'app/shared/components/ncm-selector/ncm-selector.module';
+import { SpecialInstructionModule } from 'app/shared/components/special-instruction/special-instruction.module';
 
 @NgModule({
   declarations: [HousesComponent],
@@ -36,6 +37,7 @@ import { NcmSelectorModule } from 'app/shared/components/ncm-selector/ncm-select
     DxAutocompleteModule,
     DxSwitchModule,
     NcmSelectorModule,
+    SpecialInstructionModule,
     PipesModule
   ],
   exports: [HousesComponent],

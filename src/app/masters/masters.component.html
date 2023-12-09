@@ -42,14 +42,14 @@
                                         text="Selecione o Voo" icon="airplane" [items]="botoesGBItems"
                                         [selectedItemKey]="curVoo" (onItemClick)="onItemClick($event)"
                                         displayExpr="text" keyExpr="vooid" [disabled]="!vooData || vooData.length === 0"
-                                        [useSelectMode]="true" width="285px"></dx-drop-down-button>
+                                        [useSelectMode]="true" width="335px"></dx-drop-down-button>
                                 </div>
                             </div>
                         </div>
                     </dxi-item>
                     <dxi-item location="before">
                         <div *dxTemplate>
-                            <div id="panel2" #panel2 style="display: table; vertical-align: middle; display: none;">
+                            <div id="panel2" #panel2 style="vertical-align: middle; display: none;">
                                 <div style="display: table-cell">Data de Emissão&nbsp;</div>
                                 <div style="display: table-cell">
                                     <dx-date-box [value]="filtroData" type="date" width="115"
@@ -65,7 +65,7 @@
                     </dxi-item>
                     <dxi-item location="before">
                         <div *dxTemplate>
-                            <div id="panel3" #panel3 style="display: table; vertical-align: middle; display: none;">
+                            <div id="panel3" #panel3 style="vertical-align: middle; display: none;">
                                 <dx-validation-group id="consultaMaster">
                                     <div style="display: table-cell">Número &nbsp;</div>
                                     <div style="display: table-cell">
@@ -100,12 +100,6 @@
                         <dx-drop-down-button [splitButton]="true" [useSelectMode]="false" text="Adicionar Master"
                             icon="plus" [items]="buttonNewAction" (onItemClick)="addRow($event)"
                             [disabled]="!vooData || vooData.length === 0"></dx-drop-down-button>
-                    </dxi-item>
-                    <dxi-item location="after" widget="dxButton" [options]="excelIcon">
-                        <dx-button stylingMode="contained" icon="xlsxfile" text="Exportar" type="normal"
-                            hint="Exportar Excel" [disabled]="!mastersData || mastersData.length === 0"
-                            (click)="exportToExcel($event)">
-                        </dx-button>
                     </dxi-item>
                 </dx-toolbar>
             </div>

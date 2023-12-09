@@ -486,4 +486,8 @@ export class UldmasterComponent implements OnInit {
     e.data.Transferencia = false;
   }
 
+  onContentReady(e: any) {
+
+  }
+
 }

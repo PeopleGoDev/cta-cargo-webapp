@@ -1,5 +1,5 @@
 <dx-drawer openedStateMode="overlap" position="right" revealMode="slide" template="template" [(opened)]="isDrawerOpen"
- [closeOnOutsideClick]="true" [shading]="true" height="calc(100vh - 75px)">
+    [closeOnOutsideClick]="true" [shading]="true" height="calc(100vh - 75px)">
     <div *dxTemplate="let data of 'template'" class="drawer-container">
         <app-voo-clone-segment [flightInfo]="cloneFlight"></app-voo-clone-segment>
     </div>
@@ -33,7 +33,7 @@
                         <dxo-column-chooser [enabled]="true" mode="dragAndDrop"></dxo-column-chooser>
                         <dxo-export [enabled]="true"></dxo-export>
                         <dxo-editing mode="popup" [allowUpdating]="true" [allowAdding]="true">
-                            <dxo-popup title="Editar/Incluir Voo" [showTitle]="false" [width]="850" [height]="475">
+                            <dxo-popup title="Editar/Incluir Voo" [showTitle]="false" [width]="950" [height]="525">
                                 <dxi-toolbar-item widget="dxButton" location="after" toolbar="bottom" [options]="{
                                 text: 'Salvar',
                                 onClick: onEditSave,
@@ -67,6 +67,10 @@
                                         <dxi-validation-rule type="required"
                                             message="Número do voo é requerido!"></dxi-validation-rule>
                                     </dxi-item>
+                                    <dxi-item dataField="FlightType">
+                                        <dxi-validation-rule type="required"
+                                            message="Tipo do voo requerido"></dxi-validation-rule>
+                                    </dxi-item>
                                     <dxi-item dataField="PrefixoAeronave"
                                         [editorOptions]="{ maxLength: 35, inputAttr: {'style': 'text-transform: uppercase'} }">
                                         <dxi-validation-rule type="required"
@@ -86,8 +90,6 @@
                                             message="Saida Real requerida!"></dxi-validation-rule>
                                     </dxi-item>
                                     <dxi-item dataField="DataHoraSaidaReal">
-                                        <dxi-validation-rule type="required"
-                                            message="Saida Real requerida!"></dxi-validation-rule>
                                     </dxi-item>
                                 </dxi-item>
                                 <dxi-item itemType="group" caption="Trechos" [colCount]="1" [colSpan]="2">
@@ -106,6 +108,10 @@
                         </dxi-column>
                         <dxi-column caption="Informações Voo">
                             <dxi-column dataField="Numero" width="110"></dxi-column>
+                            <dxi-column dataField="FlightType" width="110" caption="Voo Tipo">
+                                <dxo-lookup [dataSource]="flightType" displayExpr="description" valueExpr="code">
+                                </dxo-lookup>
+                            </dxi-column>
                             <dxi-column dataField="PrefixoAeronave" width="110"></dxi-column>
                             <dxi-column dataField="DataVoo" width="110" dataType="date" format="shortDate"></dxi-column>
                             <dxi-column dataField="DataHoraSaidaReal" width="150" caption="Saida Atual"

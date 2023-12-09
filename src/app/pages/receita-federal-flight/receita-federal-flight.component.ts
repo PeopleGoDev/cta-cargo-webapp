@@ -1,4 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
+import { FlightTypeEnum } from 'app/shared/collections/data';
 import { PortoIATAResponseDto } from 'app/shared/model/dto/portoiatadto';
 import { StatusVoo } from 'app/shared/model/statusvoo';
 import { FlightUploadRequest, ReceitaFederalClient, VooClient, VooListaResponseDto, VooListarInputDto, VooUploadResponse } from 'app/shared/proxy/ctaapi';
@@ -45,6 +46,7 @@ export class ReceitaFederalFlightComponent implements OnInit {
   botaoUploadEnabled: boolean = false;
   botaoUploadLabel: string = "Submeter Receita Federal";
   partType = PartType;
+  flightTypeEnum = FlightTypeEnum;
 
   constructor(private statusService: StatusService,
     private vooClient: VooClient,
@@ -75,20 +77,25 @@ export class ReceitaFederalFlightComponent implements OnInit {
       DataVoo: this.filtroDataVoo
     }
 
+    const item = {
+      alignment: "left",
+      text: 'Selecione o Voo',
+      vooid: -1
+    };
+
     this.curVoo = -1;
     this.vooData = [];
-    this.botoesGBItems = null;
+    this.vooDetalhe = undefined;
+    this.vooDetalheLista = [];
+    this.botoesGBItems = [];
+    this.botoesGBItems.push(item);
     this.botaoUploadEnabled = false;
 
     this.vooClient.listarVoosLista(input)
       .subscribe(res => {
         if (res.result.Sucesso) {
           this.vooData = res.result.Dados;
-          if (this.vooData.length > 0) {
-            this.botoesGBItems = this.autoMapper(this.vooData);
-            this.curVoo = this.vooData[0].VooId;
-            this.refreshVooDetalhe();
-          }
+          this.botoesGBItems = this.autoMapper(this.vooData);
         }
         else {
           notify(res.result.Notificacoes[0].Mensagem, 'error', environment.ErrorTimeout);
@@ -102,6 +109,10 @@ export class ReceitaFederalFlightComponent implements OnInit {
     this.vooDetalheLista = [];
     this.vooDetalhe = undefined;
     this.mastersDetail = [];
+    if(this.curVoo === -1) {
+      this.botaoUploadEnabled = false;
+      return;
+    }
     this.vooClient.obterVooUploadPorId(this.curVoo)
       .subscribe(res => {
         if (res.result.Sucesso) {
@@ -147,15 +158,46 @@ export class ReceitaFederalFlightComponent implements OnInit {
       });
   }
 
+  async submitScheduledFlight() {
+    let input: FlightUploadRequest = {
+      FlightId: this.curVoo
+    }
+
+    this.receitaFederalClient.submitscheduledflight(input)
+      .subscribe(res => {
+        if (res.result.Sucesso) {
+          this.refreshVooDetalhe();
+          notify(res.result.Dados ?? "Arquivo Submetido com Sucesso!", 'success', environment.ErrorTimeout);
+        }
+        else {
+          if (res.result.Notificacoes == undefined) {
+            notify(res.result.Dados ?? "Erro desconhecido!", 'error', environment.ErrorTimeout)
+          }
+          else {
+            notify(res.result.Notificacoes[0].Mensagem, 'error', environment.ErrorTimeout);
+          }
+          this.refreshVooDetalhe();
+        }
+      }, err => {
+        notify(err, 'error', environment.ErrorTimeout)
+      });
+  }
+
   autoMapper(dados: VooListaResponseDto[]) {
     let arrayBG: any = [];
+    let item = {
+      alignment: "left",
+      text: 'Selecione o Voo',
+      vooid: -1
+    };
+    arrayBG.push(item);
     if (dados == null) return arrayBG;
 
-    for (var i in dados) {
+    for (const i in dados) {
       let item = {
         icon: "airplane",
         alignment: "left",
-        text: dados[i].Numero + ' - ' + dados[i].CiaAereaNome,
+        text: dados[i].Numero + ' - ' + dados[i].CiaAereaNome + ' - ' + this.flightTypeEnum[dados[i].FlightType],
         vooid: dados[i].VooId
       };
       arrayBG.push(item);
@@ -188,28 +230,37 @@ export class ReceitaFederalFlightComponent implements OnInit {
     }
     switch (this.vooDetalheLista[0].SituacaoRFBId) {
       case 0:
-        if (this.vooDetalheLista[0].StatusId == 1) {
+        if (this.vooDetalheLista[0].StatusId === 1) {
           this.botaoUploadEnabled = true;
-          return;
+           break;
         }
         this.botaoUploadEnabled = false;
+        break;
       case 1:
-        this.botaoUploadEnabled = true;
-        return;
       case 3:
         this.botaoUploadEnabled = true;
         return;
+      default:
+        this.botaoUploadEnabled = false;
+        break;
     }
-
-    // foreach em cada master
 
   }
 
   onClickUpload(e: any) {
-    let result = confirm("<i>Você tem certeza?</i>", "Você está prestes a enviar os dados para a Receita Federal. Confirma ?");
+    let result = confirm("Você está prestes a enviar os dados para a Receita Federal. Confirma ?", "Você tem certeza ?");
     result.then((dialogResult) => {
       if (dialogResult) {
         this.uploadCompleto();
+      }
+    });
+  }
+
+  onScheduleClick(e: any) {
+    let result = confirm("Você está prestes a enviar os dados de voo estimado para a Receita Federal. Confirma ?", "Você tem certeza ?");
+    result.then((dialogResult) => {
+      if (dialogResult) {
+        this.submitScheduledFlight();
       }
     });
   }

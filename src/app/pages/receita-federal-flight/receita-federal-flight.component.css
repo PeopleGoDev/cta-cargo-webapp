@@ -90,7 +90,8 @@
     text-align: center;
 }
 
-::ng-deep .dx-data-row .word-wrap, .word-wrap {
+::ng-deep .dx-data-row .word-wrap,
+.word-wrap {
     word-wrap: break-word;
     white-space: normal !important;
 }
@@ -103,4 +104,8 @@
 
 .table-segment {
     margin-bottom: 20px;
+}
+
+::ng-deep .dx-dropdownbutton-action.dx-button .dx-button-content {
+    text-align: left;
 }

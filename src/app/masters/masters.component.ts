@@ -222,19 +222,24 @@ export class MastersComponent implements OnInit {
   }
 
   refreshListaVoos() {
-
     this.filtroDataVoo.setSeconds(0);
     this.filtroDataVoo.setMinutes(0);
     this.filtroDataVoo.setHours(0);
 
-    let input: VooListarInputDto = {
+    const input: VooListarInputDto = {
       DataVoo: this.filtroDataVoo,
     }
 
+    this.botoesGBItems = []
+    this.botoesGBItems.push({
+      alignment: "left",
+      text: 'Selecione o Voo',
+      vooid: -1
+    });
     this.curVoo = -1;
+    this.curVooNumber = '';
     this.vooData = [];
     this.mastersData = [];
-    this.botoesGBItems = null;
 
     this.vooClient.listarVoosLista(input)
       .subscribe(res => {
@@ -245,10 +250,7 @@ export class MastersComponent implements OnInit {
           notify(res.result.Notificacoes[0].Mensagem, 'error', environment.ErrorTimeout);
         }
         if (this.vooData && this.vooData.length > 0) {
-          this.botoesGBItems = this.mapearButtonGroup(this.vooData);
-          this.curVoo = this.vooData[0].VooId;
-          this.curVooNumber = this.vooData[0].Numero;
-          this.refreshGrid();
+          this.autoMapper(this.vooData);
         }
       }, err => {
         notify(err, 'error', environment.ErrorTimeout);
@@ -257,10 +259,16 @@ export class MastersComponent implements OnInit {
 
   refreshGrid() {
 
+    this.mastersData = [];
+
+    if (this.curVoo === -1)
+      return;
+
     let input: MasterListarRequest;
 
     switch (this.curListaOpcoes) {
       case 0:
+        if (this.curVoo == -1) return;
         input = {
           VooId: this.curVoo,
         }
@@ -587,20 +595,34 @@ export class MastersComponent implements OnInit {
     return this.mastersData == null ? false : true;
   }
 
-  mapearButtonGroup(dados: VooListaResponseDto[]) {
-    let arrayBG: any = [];
-    if (dados == null) return arrayBG;
-    for (var i in dados) {
-      let item = {
+  // mapearButtonGroup(dados: VooListaResponseDto[]) {
+  //   let arrayBG: any = [];
+  //   if (dados == null) return arrayBG;
+  //   for (var i in dados) {
+  //     let item = {
+  //       icon: "airplane",
+  //       alignment: "left",
+  //       text: dados[i].Numero + ' - ' + dados[i].CiaAereaNome + ' - ' + this.flightTypeEnum[dados[i].FlightType],
+  //       vooid: dados[i].VooId,
+  //       data: dados[i],
+  //     };
+  //     arrayBG.push(item);
+  //   }
+  //   return arrayBG;
+  // }
+
+  autoMapper(dados: VooListaResponseDto[]) {
+    if (dados == null) return;
+
+    for (const i in dados) {
+
+      this.botoesGBItems.push({
         icon: "airplane",
         alignment: "left",
         text: dados[i].Numero + ' - ' + dados[i].CiaAereaNome + ' - ' + this.flightTypeEnum[dados[i].FlightType],
-        vooid: dados[i].VooId,
-        data: dados[i],
-      };
-      arrayBG.push(item);
+        vooid: dados[i].VooId
+      });
     }
-    return arrayBG;
   }
 
   validaCnpj(e) {

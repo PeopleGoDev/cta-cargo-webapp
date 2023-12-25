@@ -17,9 +17,9 @@
                                 <div style="display: table-cell">
                                     <dx-drop-down-button [splitButton]="true" [useSelectMode]="false"
                                         text="Selecione o Voo" [icon]="icon" [items]="listaVoos"
-                                        [selectedItemKey]="curVoo?.VooId" (onItemClick)="onItemClick($event)"
+                                        [selectedItemKey]="curVoo" (onItemClick)="onItemClick($event)"
                                         displayExpr="text" keyExpr="vooId"
-                                        [disabled]="!listaVoos || listaVoos.length === 0" [useSelectMode]="true"
+                                        [disabled]="!listaVoos || listaVoos.length === 1" [useSelectMode]="true"
                                         width="285px"></dx-drop-down-button>
                                 </div>
                                 <div style="display: table-cell; width: 10px;">&nbsp;</div>

@@ -35,7 +35,7 @@ export class ReceitaFederalFlightComponent implements OnInit {
   refreshIcon: any;
   filtroDataVoo: Date;
   vooData: VooListaResponseDto[];
-  vooDetalhe: VooUploadResponse= {};
+  vooDetalhe: VooUploadResponse = {};
   vooDetalheLista: VooUploadResponse[] = [];
   mastersDetail: MasterUldUploadByFlightDto[];
   botoesGBItems: any = [];
@@ -73,29 +73,27 @@ export class ReceitaFederalFlightComponent implements OnInit {
     this.filtroDataVoo.setMinutes(0);
     this.filtroDataVoo.setHours(0);
 
-    let input: VooListarInputDto = {
+    const input: VooListarInputDto = {
       DataVoo: this.filtroDataVoo
     }
 
-    const item = {
+    this.botoesGBItems = []
+    this.botoesGBItems.push({
       alignment: "left",
       text: 'Selecione o Voo',
       vooid: -1
-    };
-
+    });
     this.curVoo = -1;
     this.vooData = [];
     this.vooDetalhe = undefined;
     this.vooDetalheLista = [];
-    this.botoesGBItems = [];
-    this.botoesGBItems.push(item);
     this.botaoUploadEnabled = false;
 
     this.vooClient.listarVoosLista(input)
       .subscribe(res => {
         if (res.result.Sucesso) {
           this.vooData = res.result.Dados;
-          this.botoesGBItems = this.autoMapper(this.vooData);
+          this.autoMapper(this.vooData);
         }
         else {
           notify(res.result.Notificacoes[0].Mensagem, 'error', environment.ErrorTimeout);
@@ -109,7 +107,7 @@ export class ReceitaFederalFlightComponent implements OnInit {
     this.vooDetalheLista = [];
     this.vooDetalhe = undefined;
     this.mastersDetail = [];
-    if(this.curVoo === -1) {
+    if (this.curVoo === -1) {
       this.botaoUploadEnabled = false;
       return;
     }
@@ -184,25 +182,17 @@ export class ReceitaFederalFlightComponent implements OnInit {
   }
 
   autoMapper(dados: VooListaResponseDto[]) {
-    let arrayBG: any = [];
-    let item = {
-      alignment: "left",
-      text: 'Selecione o Voo',
-      vooid: -1
-    };
-    arrayBG.push(item);
-    if (dados == null) return arrayBG;
+    if (dados == null) return;
 
     for (const i in dados) {
-      let item = {
+
+      this.botoesGBItems.push({
         icon: "airplane",
         alignment: "left",
         text: dados[i].Numero + ' - ' + dados[i].CiaAereaNome + ' - ' + this.flightTypeEnum[dados[i].FlightType],
         vooid: dados[i].VooId
-      };
-      arrayBG.push(item);
+      });
     }
-    return arrayBG;
   }
 
   handleValueDataChangeDataVoo(e) {
@@ -232,7 +222,7 @@ export class ReceitaFederalFlightComponent implements OnInit {
       case 0:
         if (this.vooDetalheLista[0].StatusId === 1) {
           this.botaoUploadEnabled = true;
-           break;
+          break;
         }
         this.botaoUploadEnabled = false;
         break;

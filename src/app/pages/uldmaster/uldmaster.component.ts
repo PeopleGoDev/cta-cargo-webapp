@@ -7,6 +7,7 @@ import { environment } from 'environments/environment';
 import { MasteruldsumarioComponent } from './components/masteruldsumario/masteruldsumario.component';
 import * as pdfMake from "pdfmake/build/pdfmake";
 import * as pdfFonts from "pdfmake/build/vfs_fonts";
+import { FlightTypeEnum } from 'app/shared/collections/data';
 (pdfMake as any).vfs = pdfFonts.pdfMake.vfs;
 
 import jsPDF from 'jspdf';
@@ -26,7 +27,7 @@ export class UldmasterComponent implements OnInit {
   @ViewChild("sumario") sumarioComponent: MasteruldsumarioComponent;
   @ViewChild("mainContent", { static: true }) mainContent!: ElementRef<HTMLImageElement>;
 
-  curVoo: VooListaResponseDto;
+  curVooDetail: VooListaResponseDto;
   curTrecho: VooTrechoResponse = undefined;
   filtroDataVoo: Date;
   uldForm: UldMasterResponseDto;
@@ -50,6 +51,9 @@ export class UldmasterComponent implements OnInit {
     "Codigo": "LBS"
   }];
   totalParcialData = TotalParcialCollection;
+  flightTypeEnum = FlightTypeEnum;
+  curVoo: number = -1;
+
   // Privados
   private awbref: AWBReference = new AWBReference();
 
@@ -94,9 +98,17 @@ export class UldmasterComponent implements OnInit {
       DataVoo: this.filtroDataVoo,
     }
 
-    this.curVoo = undefined;
+    this.listaVoos = []
+    this.listaVoos.push({
+      alignment: "left",
+      text: 'Selecione o Voo',
+      vooId: -1,
+      data: undefined
+    });
+    this.curVoo = -1;
+
+    this.curVooDetail = undefined;
     this.uldLista = [];
-    this.listaVoos = [];
     this.listaTrechos = [];
 
     this.vooClient.listarVoosLista(input)
@@ -104,10 +116,6 @@ export class UldmasterComponent implements OnInit {
         if (res.result.Sucesso) {
           if (res.result.Dados != null && res.result.Dados.length > 0) {
             this.mapearButtonGroup(res.result.Dados);
-            this.curVoo = res.result.Dados[0];
-            this.listaTrechos = res.result.Dados[0].Trechos;
-            this.curTrecho = this.curVoo.Trechos ? this.curVoo.Trechos[0] : undefined;
-            this.refreshGrid();
           }
         }
         else {
@@ -137,15 +145,14 @@ export class UldmasterComponent implements OnInit {
   mapearButtonGroup(dados: VooListaResponseDto[]) {
     if (dados == null) return;
 
-    for (var i in dados) {
-      let item = {
+    for (const i in dados) {
+      this.listaVoos.push({
         icon: "airplane",
         alignment: "left",
-        text: dados[i].Numero + ' - ' + dados[i].CiaAereaNome,
+        text: dados[i].Numero + ' - ' + dados[i].CiaAereaNome + ' - ' + this.flightTypeEnum[dados[i].FlightType],
         vooId: dados[i].VooId,
         data: dados[i],
-      };
-      this.listaVoos.push(item);
+      });
     }
   }
 
@@ -225,8 +232,8 @@ export class UldmasterComponent implements OnInit {
     newData.PesoUnidade = newData.PesoUnidade.toUpperCase();
     newData.TotalParcial = newData.TotalParcial.toLocaleUpperCase();
     newData.AeroportoOrigem = newData.AeroportoOrigem ? newData.AeroportoOrigem.toUpperCase() : undefined;
-    newData.AeroportoDestino = newData.AeroportoDestino ? newData.AeroportoDestino.toUpperCase(): undefined;
-    newData.DescricaoMercadoria = newData.DescricaoMercadoria ? newData.DescricaoMercadoria.toUpperCase(): undefined;
+    newData.AeroportoDestino = newData.AeroportoDestino ? newData.AeroportoDestino.toUpperCase() : undefined;
+    newData.DescricaoMercadoria = newData.DescricaoMercadoria ? newData.DescricaoMercadoria.toUpperCase() : undefined;
 
     const insertRequest: UldMasterInsertRequest = {
       MasterNumero: newData.MasterNumero,
@@ -294,8 +301,8 @@ export class UldmasterComponent implements OnInit {
     newData.PesoUnidade = newData.PesoUnidade.toUpperCase();
     newData.TotalParcial = newData.TotalParcial.toLocaleUpperCase();
     newData.AeroportoOrigem = newData.AeroportoOrigem ? newData.AeroportoOrigem.toUpperCase() : undefined;
-    newData.AeroportoDestino = newData.AeroportoDestino ? newData.AeroportoDestino.toUpperCase(): undefined;
-    newData.DescricaoMercadoria = newData.DescricaoMercadoria ? newData.DescricaoMercadoria.toUpperCase(): undefined;
+    newData.AeroportoDestino = newData.AeroportoDestino ? newData.AeroportoDestino.toUpperCase() : undefined;
+    newData.DescricaoMercadoria = newData.DescricaoMercadoria ? newData.DescricaoMercadoria.toUpperCase() : undefined;
 
     let updateRequests: UldMasterUpdateRequest[] = new Array<UldMasterUpdateRequest>();
     const updateRequest: UldMasterUpdateRequest = {
@@ -334,13 +341,13 @@ export class UldmasterComponent implements OnInit {
           .then(res => {
             if (res.result.Sucesso) {
               //if(newDataUpdate.MasterId)
-                newDataUpdate.MasterId = res.result.Dados[0].MasterId;
+              newDataUpdate.MasterId = res.result.Dados[0].MasterId;
               //if(newDataUpdate.AeroportoOrigem)
-                newDataUpdate.AeroportoOrigem = res.result.Dados[0].AeroportoOrigem;
+              newDataUpdate.AeroportoOrigem = res.result.Dados[0].AeroportoOrigem;
               //if(newDataUpdate.AeroportoDestino)
-                newDataUpdate.AeroportoDestino = res.result.Dados[0].AeroportoDestino;
+              newDataUpdate.AeroportoDestino = res.result.Dados[0].AeroportoDestino;
               //if(newDataUpdate.DescricaoMercadoria)
-                newDataUpdate.DescricaoMercadoria = res.result.Dados[0].DescricaoMercadoria;
+              newDataUpdate.DescricaoMercadoria = res.result.Dados[0].DescricaoMercadoria;
               resolve(false);
             }
             else {
@@ -402,10 +409,15 @@ export class UldmasterComponent implements OnInit {
   }
 
   onItemClick(e) {
-    if (e.itemData.vooId == this.curVoo.VooId) return;
-    this.curVoo = e.itemData.data;
-    this.listaTrechos = e.itemData.data.Trechos;
-    this.curTrecho = e.itemData.data.Trechos[0];
+    if (e.itemData.vooId == this.curVoo) return;
+    this.curVoo = e.itemData.vooId;
+    this.listaTrechos = [];
+    this.curTrecho = undefined;
+    this.uldLista = [];
+    if (e.itemData.data.Trechos) {
+      this.listaTrechos = e.itemData.data.Trechos;
+      this.curTrecho = e.itemData.data.Trechos[0];
+    }
     this.refreshGrid();
   }
 
@@ -416,10 +428,10 @@ export class UldmasterComponent implements OnInit {
   }
 
   onVisualizarSumario(e: any) {
-    if (this.curVoo.VooId == -1) return;
+    if (this.curVoo == -1) return;
     this.uldLista = [];
     let input: ListaUldMasterRequest = {
-      vooId: this.curVoo.VooId
+      vooId: this.curVooDetail.VooId
     }
 
     this.uldClient.listarMasterUldSumario(input)
@@ -450,7 +462,7 @@ export class UldmasterComponent implements OnInit {
       ULDId: e.data.ULDId,
       ULDCaracteristicaCodigo: e.data.ULDCaracteristicaCodigo,
       ULDIdPrimario: e.data.ULDIdPrimario,
-      VooId: this.curVoo.VooId
+      VooId: this.curVoo
     }
 
     const res = await this.uldClient.excluirUld(removeData);
@@ -459,7 +471,7 @@ export class UldmasterComponent implements OnInit {
   }
 
   allowEdit(): boolean {
-    return this.curVoo && this.curVoo.SituacaoVoo != 2
+    return this.curVoo && this.curVooDetail?.SituacaoVoo != 2
   }
 
   public print(): void {

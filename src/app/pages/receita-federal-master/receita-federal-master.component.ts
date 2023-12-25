@@ -58,15 +58,20 @@ export class ReceitaFederalMasterComponent implements OnInit {
     this.filtroDataVoo.setMinutes(0);
     this.filtroDataVoo.setHours(0);
 
-    let input: VooListarInputDto = {
+    const input: VooListarInputDto = {
       DataVoo: this.filtroDataVoo
     }
 
+    this.botoesGBItems = []
+    this.botoesGBItems.push({
+      alignment: "left",
+      text: 'Selecione o Voo',
+      vooId: -1
+    });
     this.curVoo = -1;
     this.vooData = [];
     this.vooDetalheLista = [];
     this.mastersData = null;
-    this.botoesGBItems = null;
     this.botaoUploadEnabled = false;
 
     this.vooClient.listarVoosLista(input)
@@ -74,9 +79,7 @@ export class ReceitaFederalMasterComponent implements OnInit {
         if (res.result.Sucesso) {
           this.vooData = res.result.Dados;
           if (this.vooData.length > 0) {
-            this.botoesGBItems = this.autoMapper(this.vooData);
-            this.curVoo = this.vooData[0].VooId;
-            this.refreshGrid();
+            this.autoMapper(this.vooData);
           }
         }
         else {
@@ -88,26 +91,33 @@ export class ReceitaFederalMasterComponent implements OnInit {
   }
 
   async refreshGrid() {
+    this.mastersData = []
+    this.botaoUploadEnabled = false;
+
+    if (this.curVoo === -1)
+      return;
+
     const input: MasterListarRequest = {
       VooId: this.curVoo
     }
 
-    let res = await this.masterClient.listarMasters(input)
-    .subscribe(res => {
-    if (res.result.Sucesso) {
-      this.mastersData = res.result.Dados;
-      this.enableUploadButton(res.result.Dados);
-    }
-    else {
-      this.mastersData = null;
-      notify(res.result.Notificacoes[0].Mensagem, 'error', environment.ErrorTimeout);
-    }});
+    await this.masterClient.listarMasters(input)
+      .subscribe(res => {
+        if (res.result.Sucesso) {
+          this.mastersData = res.result.Dados;
+          this.enableUploadButton(res.result.Dados);
+        }
+        else {
+          this.mastersData = null;
+          notify(res.result.Notificacoes[0].Mensagem, 'error', environment.ErrorTimeout);
+        }
+      });
   }
 
   private enableUploadButton(dados: MasterResponseDto[]) {
     dados.forEach(item => {
-      var enabled = (item.SituacaoRFB !== 2 || (item.SituacaoRFB ===2 && item.Reenviar));
-      if(enabled) {
+      var enabled = (item.SituacaoRFB !== 2 || (item.SituacaoRFB === 2 && item.Reenviar));
+      if (enabled) {
         this.botaoUploadEnabled = true;
         return;
       }
@@ -141,12 +151,12 @@ export class ReceitaFederalMasterComponent implements OnInit {
 
   updateList(dados: FileUploadResponse[]) {
 
-    if(!dados)
+    if (!dados)
       return;
 
     dados.forEach(item => {
       const foundIdx = this.mastersData.findIndex(x => x.MasterId == item.Id);
-      if(foundIdx > -1) {
+      if (foundIdx > -1) {
         this.getSituacaoRfbId(item, this.mastersData[foundIdx]);
       }
     })
@@ -176,19 +186,14 @@ export class ReceitaFederalMasterComponent implements OnInit {
   }
 
   autoMapper(dados: VooListaResponseDto[]) {
-    let arrayBG: any = [];
-    if (dados == null) return arrayBG;
-
-    for (var i in dados) {
-      let item = {
+    for (const i in dados) {
+      this.botoesGBItems.push({
         icon: "airplane",
         alignment: "left",
         text: dados[i].Numero + ' - ' + dados[i].CiaAereaNome + ' - ' + this.flightTypeEnum[dados[i].FlightType],
-        vooid: dados[i].VooId
-      };
-      arrayBG.push(item);
+        vooId: dados[i].VooId
+      });
     }
-    return arrayBG;
   }
 
   handleValueDataChangeDataVoo(e) {
@@ -197,8 +202,8 @@ export class ReceitaFederalMasterComponent implements OnInit {
   }
 
   onItemClick(e) {
-    if (e.itemData.vooid == this.curVoo) return;
-    this.curVoo = e.itemData.vooid;
+    if (e.itemData.vooId == this.curVoo) return;
+    this.curVoo = e.itemData.vooId;
     this.refreshGrid();
   }
 

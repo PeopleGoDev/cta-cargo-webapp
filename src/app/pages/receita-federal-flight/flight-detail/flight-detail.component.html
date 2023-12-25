@@ -11,15 +11,17 @@
         <div class="panel-item-row">{{ voo?.AeroportoOrigemCodigo }}</div>
         <div class="panel-item-row">{{ voo?.AeroportoDestinoCodigo }}</div>
         <div class="panel-item-row">
-            <div class="panel-item-row-button" *ngIf="!voo?.GhostFlight">
-                <app-button (buttonClicked)="onScheduleClick($event)" [mobileFull]="true"
-                    [isDisabled]="!isScheduleAvailable"
-                    [isButtonOrange]="isScheduleAvailable && buttonScheduleCaption == 'Submeter Saída Estimativa'"
-                    [isButtonBlue]="isScheduleAvailable && buttonScheduleCaption == 'Verificar Voo Agendamento'"
-                    id="modal-create-master-group-link">
-                    {{buttonScheduleCaption}}
-                </app-button>
-            </div>
+            <ng-container *ngIf="voo?.CountryOrigin === 'BR'">
+                <div class="panel-item-row-button" *ngIf="!voo?.GhostFlight">
+                    <app-button (buttonClicked)="onScheduleClick($event)" [mobileFull]="true"
+                        [isDisabled]="!isScheduleAvailable"
+                        [isButtonOrange]="isScheduleAvailable && buttonScheduleCaption == 'Submeter Saída Estimativa'"
+                        [isButtonBlue]="isScheduleAvailable && buttonScheduleCaption == 'Verificar Voo Agendamento'"
+                        id="modal-create-master-group-link">
+                        {{buttonScheduleCaption}}
+                    </app-button>
+                </div>
+            </ng-container>
             <div class="upload-detail">
                 <div><b>Horário</b></div>
                 <div>{{ voo?.DataHoraSaidaPrevista | date:'dd/MM/yyy HH:mm' }}</div>

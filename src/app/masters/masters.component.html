@@ -99,7 +99,7 @@
                     <dxi-item location="after">
                         <dx-drop-down-button [splitButton]="true" [useSelectMode]="false" text="Adicionar Master"
                             icon="plus" [items]="buttonNewAction" (onItemClick)="addRow($event)"
-                            [disabled]="!vooData || vooData.length === 0"></dx-drop-down-button>
+                            [disabled]="curVoo === -1"></dx-drop-down-button>
                     </dxi-item>
                 </dx-toolbar>
             </div>

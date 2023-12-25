@@ -24,7 +24,7 @@
                                 <div style="display: table-cell">&nbsp;</div>
                                 <div style="display: table-cell">
                                     <dx-drop-down-button [splitButton]="true" [useSelectMode]="false"
-                                        text="Selecione o Voo" icon="airplane" [items]="botoesGBItems"
+                                        text="Selecione o Voo" [items]="botoesGBItems"
                                         [selectedItemKey]="curVoo" (onItemClick)="onItemClick($event)"
                                         displayExpr="text" keyExpr="vooId" [disabled]="!vooData || vooData.length === 0"
                                         [useSelectMode]="true" width="285px"></dx-drop-down-button>

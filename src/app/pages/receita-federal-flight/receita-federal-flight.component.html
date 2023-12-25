@@ -1,0 +1,96 @@
+<div class="main-content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card card-plain">
+                    <div class="header">
+                        <h4 class="title">Receita Federal</h4>
+                        <p class="category">Submeter Arquivos</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12" style="margin-bottom: 10px;">
+                <dx-toolbar>
+                    <dxi-item location="before">
+                        <div *dxTemplate>
+                            <div id="panel1" #panel1 style="display: flex; align-items: center;">
+                                <div style="display: table-cell">Data do Voo&nbsp;</div>
+                                <div style="display: table-cell">
+                                    <dx-date-box [value]="filtroDataVoo" type="date" width="115"
+                                        (onValueChanged)="handleValueDataChangeDataVoo($event)"></dx-date-box>
+                                </div>
+                                <div style="display: table-cell">&nbsp;</div>
+                                <div style="display: table-cell">
+                                    <dx-drop-down-button [splitButton]="true" [useSelectMode]="false"
+                                        text="Selecione o Voo" [items]="botoesGBItems" [selectedItemKey]="curVoo"
+                                        (onItemClick)="onItemClick($event)" displayExpr="text" keyExpr="vooid"
+                                        [disabled]="!vooData || vooData.length === 0" [useSelectMode]="true"
+                                        width="285px"></dx-drop-down-button>
+                                </div>
+                            </div>
+                        </div>
+                    </dxi-item>
+                    <dxi-item location="after" widget="dxButton" [options]="refreshIcon">
+                    </dxi-item>
+                </dx-toolbar>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <app-flight-detail [voo]="vooDetalhe" (onActualClick)="onClickUpload($event)"
+                (onScheduleClick)="onScheduleClick($event)"></app-flight-detail>
+            </div>
+        </div>
+        <div>&nbsp;</div>
+        <div class="row">
+            <div class="col-md-12">
+                <div>
+                    <div *ngFor="let trecho of vooDetalhe?.Trechos" class="flight-segment">
+                        <div class="table-segment">
+                            <div class="table-header-segment">
+                                <div class="table-header-item">Trecho</div>
+                                <div class="table-header-item">Data Prevista de Chegada</div>
+                                <div class="table-header-item">Data Prevista de Saída<datalist></datalist></div>
+                            </div>
+                            <div class="table-item-segment">
+                                <div class="table-item-row"><b>{{ trecho.AeroportoDestinoCodigo }}</b></div>
+                                <div class="table-item-row">{{ trecho.DataHoraChegadaEstimada | date:'dd/MM/yyyy
+                                    HH:mm'}}</div>
+                                <div class="table-item-row">{{ trecho.DataHoraSaidaEstimada | date:'dd/MM/yyyy HH:mm'}}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div *ngIf="!trecho.ULDs || trecho.ULDs?.length == 0">Nenhuma Uld associada ao trecho</div>
+                        <div *ngFor="let item of trecho.ULDs">
+                            <br />
+                            <div>{{ item.ULDLinha }}</div>
+                            <div class="table-header">
+                                <div class="table-header-item">MAWB</div>
+                                <div class="table-header-item right">Quantidade</div>
+                                <div class="table-header-item right">Peso</div>
+                                <div class="table-header-item right">Peso Unidade</div>
+                                <div class="table-header-item right">Total / Parcial</div>
+                                <div class="table-header-item center">Origem</div>
+                                <div class="table-header-item center">Destino</div>
+                                <div class="table-header-item">Descrição Mercadoria</div>
+                            </div>
+                            <div *ngFor="let uld of item.ULDs" class="table-item">
+                                <div class="table-item-row">{{ uld.MasterNumero | master }}</div>
+                                <div class="table-item-row right">{{ uld.QuantidadePecas }}</div>
+                                <div class="table-item-row right">{{ uld.Peso | number:'1.4-4' }}</div>
+                                <div class="table-item-row right">{{ uld.PesoUnidade }}</div>
+                                <div class="table-item-row right">{{ partType[uld.TotalParcial] }}</div>
+                                <div class="table-item-row center">{{ uld.AeroportoOrigem }}</div>
+                                <div class="table-item-row center">{{ uld.AeroportoDestino }}</div>
+                                <div class="table-item-row">{{ uld.DescricaoMercadoria }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -47,6 +47,7 @@ export class ReceitaFederalHouseComponent implements OnInit {
 
   ngOnInit(): void {
     this.filtroDataProcessamento = new Date();
+    this.filtroDataProcessamento.setHours(0, 0, 0, 0);
     this.statusData = this.statusService.getStatus();
     this.usuarioInfo = this.localStorageService.getLocalStore().UsuarioInfo;
 
@@ -54,9 +55,8 @@ export class ReceitaFederalHouseComponent implements OnInit {
   }
 
   onDataProcessamentoChanged(e: any) {
-    let data: Date = new Date(e.value.getFullYear(),
-      e.value.getMonth(),
-      e.value.getDate(), 0, 0, 0, 0);
+    let data: Date = new Date(e.value);
+    data.setHours(0, 0, 0, 0);
 
     this.filtroDataProcessamento = data;
     this.refreshGrid(this.curAgenteDeCarga);
@@ -155,9 +155,8 @@ export class ReceitaFederalHouseComponent implements OnInit {
   }
 
   private activateUpload() {
-    this.botaoUploadEnabled = this.dataHouse.findIndex(x => x.SituacaoRFB == 1 || x.SituacaoRFB == 3) > -1;
-    this.botaoAssociacaoUploadEnabled = this.dataHouse.findIndex(x => x.SituacaoRFB ==2 && 
-      (x.SituacaoAssociacaoRFBId == 0 || x.SituacaoAssociacaoRFBId == 1 || x.SituacaoAssociacaoRFBId == 3)) > -1;
+    this.botaoUploadEnabled = this.dataHouse.findIndex(x => 
+      x.SituacaoRFB == 0 || x.SituacaoRFB == 1 || x.SituacaoRFB == 3 || x.Reenviar) > -1;
   }
 
   async uploadRFB(agenteDeCargaId: number) {
@@ -191,23 +190,23 @@ export class ReceitaFederalHouseComponent implements OnInit {
       AgenteDeCargaId: agenteDeCargaId
     }
 
-    await this.receitaFederalClient.submeterAssociacaoHouseMaster(input)
-      .subscribe(res => {
-        if (res.result.Sucesso) {
-          notify("Arquivo Submetido com Sucesso!", 'success', environment.ErrorTimeout);
-        }
-        else {
-          if (res.result.Notificacoes == undefined) {
-            notify("Erro desconhecido!", 'error', environment.ErrorTimeout)
-          }
-          else {
-            notify(res.result.Notificacoes[0].Mensagem, 'error', environment.ErrorTimeout);
-          }
-        }
-        this.refreshGrid(agenteDeCargaId);
-      }, err => {
-        notify(err, 'error', environment.ErrorTimeout)
-      });
+    // await this.receitaFederalClient.submeterAssociacaoHouseMaster(input)
+    //   .subscribe(res => {
+    //     if (res.result.Sucesso) {
+    //       notify("Arquivo Submetido com Sucesso!", 'success', environment.ErrorTimeout);
+    //     }
+    //     else {
+    //       if (res.result.Notificacoes == undefined) {
+    //         notify("Erro desconhecido!", 'error', environment.ErrorTimeout)
+    //       }
+    //       else {
+    //         notify(res.result.Notificacoes[0].Mensagem, 'error', environment.ErrorTimeout);
+    //       }
+    //     }
+    //     this.refreshGrid(agenteDeCargaId);
+    //   }, err => {
+    //     notify(err, 'error', environment.ErrorTimeout)
+    //   });
   }
 
   onRowPrepared(e: any) {

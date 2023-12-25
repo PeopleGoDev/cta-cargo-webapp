@@ -1,14 +1,14 @@
 import {
-  AfterViewInit,
   Component,
   ElementRef,
   OnInit,
   ViewChild,
 } from "@angular/core";
 import { LocalSituacaoRfb } from "app/shared/enum/api.enum";
-import { PortoIATAResponseDto } from "app/shared/proxy/ctaapi";
-import { PortoIATAClient } from "app/shared/proxy/ctaapi";
 import {
+  PortoIataResponseDto,
+  ReceitaFederalClient,
+  PortoIATAClient,
   AgenteDeCargaClient,
   AgenteDeCargaListaSimplesResponse,
   HouseClient,
@@ -19,21 +19,23 @@ import {
   UsuarioInfoResponse,
 } from "app/shared/proxy/ctaapi";
 import { LocalStorageService } from "app/shared/services/localstorage.service";
-import { NCMService } from "app/shared/services/ncm.service";
-import { PortoIATAService } from "app/shared/services/portoiata.service";
 import { cnpj, cpf } from "cpf-cnpj-validator";
+import { DxDataGridComponent } from "devextreme-angular";
 import { confirm } from "devextreme/ui/dialog";
 import notify from "devextreme/ui/notify";
 import { environment } from "environments/environment";
-import ArrayStore from 'devextreme/data/array_store';
+
+function isNotEmpty(value: any): boolean {
+  return value !== undefined && value !== null && value !== '';
+}
 
 @Component({
   selector: "app-houses",
   templateUrl: "./houses.component.html",
   styleUrls: ["./houses.component.css"],
 })
-export class HousesComponent implements OnInit, AfterViewInit {
-  @ViewChild("dataGrid") dataGrid;
+export class HousesComponent implements OnInit {
+  @ViewChild("dataGrid", { static: false }) dataGrid: DxDataGridComponent;
   @ViewChild("panel1") panel1Element: ElementRef;
   @ViewChild("panel2") panel2Element: ElementRef;
 
@@ -50,7 +52,7 @@ export class HousesComponent implements OnInit, AfterViewInit {
   readOnlyEdition: boolean = false;
   // Data Soure
   housesData: HouseResponseDto[] = [];
-  portosData: PortoIATAResponseDto[];
+  portosData: PortoIataResponseDto[] = [];
   pesoUnidade: any = [];
   botoesGBItems: any = [];
   statusHouse: any = [];
@@ -66,15 +68,19 @@ export class HousesComponent implements OnInit, AfterViewInit {
   selectedRows: number[] = [];
   rfbProcessedRows: number[] = [];
   rfbNonProcessedRows: number[] = [];
+  rfbAssociationProcessedRows: number[] = [];
+  rfbSubmitExclusionRows: number[] = [];
   dataSource: any;
+  showThirdParty: boolean = false;
 
   constructor(
     private houseClient: HouseClient,
     private agenteDeCargaClient: AgenteDeCargaClient,
     private localstorageService: LocalStorageService,
     private portoIATAClient: PortoIATAClient,
-    private ncmService: NCMService
+    private receitaFederalClient: ReceitaFederalClient,
   ) {
+
     this.listaOpcoes = [
       {
         Id: 0,
@@ -89,7 +95,7 @@ export class HousesComponent implements OnInit, AfterViewInit {
     this.curListaOpcoes = 0;
 
     this.selectFiltro = {
-      width: 220,
+      width: 180,
       value: this.curListaOpcoes,
       dataSource: this.listaOpcoes,
       displayExpr: "Descricao",
@@ -144,7 +150,7 @@ export class HousesComponent implements OnInit, AfterViewInit {
     this.onToolbarPreparing = this.onToolbarPreparing.bind(this);
     this.onEditSave = this.onEditSave.bind(this);
     this.onEditCancel = this.onEditCancel.bind(this);
-    this.onEditDelete = this.onEditDelete.bind(this);
+    this.onSubmitExclusion = this.onSubmitExclusion.bind(this);
     const now = new Date();
     this.filtroDataProcessamento = new Date(
       now.getFullYear(),
@@ -156,10 +162,6 @@ export class HousesComponent implements OnInit, AfterViewInit {
       0
     );
     this.usuarioInfo = this.localstorageService.getLocalStore().UsuarioInfo;
-    this.dataSource = new ArrayStore({
-      data: ncmService.getNCMs(),
-      key: 'Codigo',
-    });
     this.refreshIataPorts();
     this.refreshGrid();
   }
@@ -167,8 +169,6 @@ export class HousesComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this.usuarioInfo = this.localstorageService.getLocalStore().UsuarioInfo;
   }
-
-  ngAfterViewInit(): void {}
 
   onToolbarPreparing(e) {
     e.toolbarOptions.visible = false;
@@ -229,7 +229,6 @@ export class HousesComponent implements OnInit, AfterViewInit {
             if (res.result.Dados && res.result.Dados.length > 0) {
               this.curAgenteDeCarga = res.result.Dados[0].AgenteDeCargaId;
               this.agenteDeCarga = res.result.Dados[0];
-              //this.refreshGrid(res.result.Dados[0].AgenteDeCargaId);
             }
             return;
           }
@@ -239,7 +238,7 @@ export class HousesComponent implements OnInit, AfterViewInit {
             environment.ErrorTimeout
           );
         },
-        (err) => {}
+        (err) => { }
       );
   }
 
@@ -279,11 +278,11 @@ export class HousesComponent implements OnInit, AfterViewInit {
 
   async refreshIataPorts() {
     await this.portoIATAClient
-      .listarPortosIATA(this.usuarioInfo.EmpresaId)
+      .listarPortosIATA()
       .toPromise()
       .then((res) => {
         if (res.result.Sucesso) {
-          this.portosData = res.result.Dados;
+          this.portosData = res.result.Dados ?? [];
         } else {
           this.portosData = [];
           notify(
@@ -320,28 +319,30 @@ export class HousesComponent implements OnInit, AfterViewInit {
       Numero: newData.Numero.toUpperCase(),
       PesoTotalBruto: newData.PesoTotalBruto,
       PesoTotalBrutoUN: newData.PesoTotalBrutoUN.toUpperCase(),
-      TotalVolumes: newData.TotalVolumes,
+      TotalVolumes: +newData.TotalVolumes,
+      Volume: +newData.Volume,
+      VolumeUN: newData.VolumeUN,
       ValorFretePP: newData.ValorFretePP,
       ValorFretePPUN: newData.ValorFretePPUN.toUpperCase(),
       ValorFreteFC: newData.ValorFreteFC,
-      ValorFreteFCUN: newData.ValorFreteFCUN.toUpperCase(),
+      ValorFreteFCUN: newData.ValorFretePPUN.toUpperCase(),
       IndicadorMadeiraMacica: newData.IndicadorMadeiraMacica,
       DescricaoMercadoria: newData.DescricaoMercadoria.toUpperCase(),
-      CodigoRecintoAduaneiro: +newData.CodigoRecintoAduaneiro,
-      RUC: newData.RUC == null ? null : newData.RUC.toUpperCase(),
+      CodigoRecintoAduaneiro: newData.CodigoRecintoAduaneiro,
+      RUC: newData.RUC == null ? undefined : newData.RUC.toUpperCase(),
       RemetenteNome: newData.RemetenteNome.toUpperCase(),
       RemetenteEndereco: newData.RemetenteEndereco
         ? newData.RemetenteEndereco.toUpperCase()
-        : null,
+        : undefined,
       RemetentePostal: newData.RemetentePostal
         ? newData.RemetentePostal.toUpperCase()
-        : null,
+        : undefined,
       RemetenteCidade: newData.RemetenteCidade
         ? newData.RemetenteCidade.toUpperCase()
-        : null,
+        : undefined,
       RemetentePaisCodigo: newData.RemetentePaisCodigo
         ? newData.RemetentePaisCodigo.toUpperCase()
-        : null,
+        : undefined,
       ConsignatarioNome: newData.ConsignatarioNome.toUpperCase(),
       ConsignatarioEndereco:
         newData.ConsignatarioEndereco == null
@@ -353,21 +354,23 @@ export class HousesComponent implements OnInit, AfterViewInit {
           : newData.ConsignatarioPostal.toUpperCase(),
       ConsignatarioCidade:
         newData.ConsignatarioCidade == null
-          ? null
+          ? undefined
           : newData.ConsignatarioCidade.toUpperCase(),
       ConsignatarioPaisCodigo: newData.ConsignatarioPaisCodigo.toUpperCase(),
       ConsignatarioSubdivisao:
         newData.ConsignatarioSubdivisao == null
-          ? null
+          ? undefined
           : newData.ConsignatarioSubdivisao.toUpperCase(),
-      ConsignatarioCNPJ: newData.ConsignatarioCNPJ.toUpperCase(),
+      ConsignatarioCNPJ: newData.ConsignatarioCNPJ ? newData.ConsignatarioCNPJ.toUpperCase()
+        : undefined,
       AeroportoOrigem: newData.AeroportoOrigem.toUpperCase(),
       AeroportoDestino: newData.AeroportoDestino.toUpperCase(),
       HouseId: newData.HouseId,
       AgenteDeCargaNumero: newData.AgenteDeCargaNumero.toUpperCase(),
       NCMLista: newData.NCMLista,
       MasterNumeroXML: newData.MasterNumeroXML,
-      DataEmissaoXML: newData.DataEmissaoXML
+      DataEmissaoXML: newData.DataEmissaoXML,
+      NaturezaCarga: newData.NaturezaCarga,
     };
 
     await this.houseClient
@@ -408,53 +411,57 @@ export class HousesComponent implements OnInit, AfterViewInit {
       PesoTotalBruto: newData.PesoTotalBruto,
       PesoTotalBrutoUN: newData.PesoTotalBrutoUN.toUpperCase(),
       TotalVolumes: +newData.TotalVolumes,
+      Volume: +newData.Volume,
+      VolumeUN: newData.VolumeUN,
       ValorFretePP: newData.ValorFretePP,
       ValorFretePPUN: newData.ValorFretePPUN.toUpperCase(),
       ValorFreteFC: newData.ValorFreteFC,
-      ValorFreteFCUN: newData.ValorFreteFCUN.toUpperCase(),
+      ValorFreteFCUN: newData.ValorFretePPUN.toUpperCase(),
       IndicadorMadeiraMacica: newData.IndicadorMadeiraMacica,
       DescricaoMercadoria: newData.DescricaoMercadoria.toUpperCase(),
-      CodigoRecintoAduaneiro: newData.CodigoRecintoAduaneiro ? +newData.CodigoRecintoAduaneiro: 0, // Recinto Aduaneiro
+      CodigoRecintoAduaneiro: newData.CodigoRecintoAduaneiro, // Recinto Aduaneiro
       AgenteDeCargaNumero: newData.AgenteDeCargaNumero.toUpperCase(), // Código Agente de Carga
       RUC: newData.RUC ? newData.RUC.toUpperCase() : null,
       RemetenteNome: newData.RemetenteNome.toUpperCase(),
       RemetenteEndereco: newData.RemetenteEndereco
         ? newData.RemetenteEndereco.toUpperCase()
-        : null,
+        : undefined,
       RemetentePostal: newData.RemetentePostal
         ? newData.RemetentePostal.toUpperCase()
-        : null,
+        : undefined,
       RemetenteCidade: newData.RemetenteCidade
         ? newData.RemetenteCidade.toUpperCase()
-        : null,
+        : undefined,
       RemetentePaisCodigo: newData.RemetentePaisCodigo
         ? newData.RemetentePaisCodigo.toUpperCase()
-        : null,
+        : undefined,
       ConsignatarioNome: newData.ConsignatarioNome.toUpperCase(),
       ConsignatarioEndereco: newData.ConsignatarioEndereco
         ? newData.ConsignatarioEndereco.toUpperCase()
-        : null,
+        : undefined,
       ConsignatarioPostal: newData.ConsignatarioPostal
         ? newData.ConsignatarioPostal.toUpperCase()
-        : null,
+        : undefined,
       ConsignatarioCidade: newData.ConsignatarioCidade
         ? newData.ConsignatarioCidade.toUpperCase()
-        : null,
+        : undefined,
       ConsignatarioPaisCodigo: newData.ConsignatarioPaisCodigo.toUpperCase(),
       ConsignatarioSubdivisao: newData.ConsignatarioSubdivisao
         ? newData.ConsignatarioSubdivisao.toUpperCase()
-        : null,
-      ConsignatarioCNPJ: newData.ConsignatarioCNPJ.toUpperCase(),
+        : undefined,
+      ConsignatarioCNPJ: newData.ConsignatarioCNPJ ? newData.ConsignatarioCNPJ.toUpperCase()
+        : undefined,
       AeroportoOrigem: newData.AeroportoOrigem
         ? newData.AeroportoOrigem.toUpperCase()
-        : null,
+        : undefined,
       AeroportoDestino: newData.AeroportoDestino
         ? newData.AeroportoDestino.toUpperCase()
-        : null,
+        : undefined,
       DataProcessamento: this.filtroDataProcessamento,
       NCMLista: newData.NCMLista,
       MasterNumeroXML: newData.MasterNumeroXML,
       DataEmissaoXML: newData.DataEmissaoXML,
+      NaturezaCarga: newData.NaturezaCarga,
     };
 
     await this.houseClient
@@ -481,12 +488,12 @@ export class HousesComponent implements OnInit, AfterViewInit {
 
   async onRowDelete(itens: number[]) {
 
-    await this.houseClient.excluirHouse(this.selectedRows[0])
+    this.houseClient.excluirHouse(this.selectedRows[0])
       .subscribe(res => {
         if (res.result.Sucesso) {
           itens.forEach(x => {
             let item = this.housesData.find(x => x.HouseId == x);
-            var index = this.housesData.indexOf(item);
+            const index = this.housesData.indexOf(item);
             this.housesData.splice(index, 1);
           });
           notify('House apagado!', 'success', environment.ErrorTimeout);
@@ -501,59 +508,25 @@ export class HousesComponent implements OnInit, AfterViewInit {
   }
 
   onEditorPreparing(e: any): void {
+
     if (e.parentType !== "dataRow") return;
 
-    if (e.row?.isNewRow) {
-      if (e.parentType == "dataRow" && e.dataField == "Numero") {
-        e.editorOptions.readOnly = false;
-        this.curgridKey = 0;
-      }
-    }
-    else {
-      switch (e.parentType) {
-        case "dataRow":
-          switch (e.row.data.SituacaoRFB) {
-            case LocalSituacaoRfb.Received:
-            case LocalSituacaoRfb.ProcessedDeletion:
-            case LocalSituacaoRfb.Processed:
-              if (e.row.data.Reenviar) {
-                this.readOnlyEdition = false;
-                e.editorOptions.readOnly = false;
-              } else {
-                this.readOnlyEdition = true;
-                e.editorOptions.readOnly = true;
-              }
-              break;
-            default:
-              this.readOnlyEdition = false;
-              if (e.dataField == "Numero") {
-                e.editorOptions.readOnly = true;
-                this.curgridKey = e.row.key;
-                return;
-              }
-              break;
-          }
-          break;
-        default:
-          break;
-      }
-    }
+    if (e.dataField === "AeroportoOrigem" || e.dataField === "AeroportoDestino") {
+      const portos = this.portosData.map((x) => `${x.Codigo} - ${x.Nome}`);
 
-
-    if (
-      e.dataField === "AeroportoOrigem" ||
-      e.dataField === "AeroportoDestino"
-    ) {
       e.editorType = "dxAutocomplete";
       e.editorOptions = {
-        items: this.portosData.map((x) => `${x.Codigo} - ${x.Nome}`),
+        items: portos,
         minSearchLength: "2",
         searchTimeout: "500",
+        readOnly: e.dataField == "AeroportoOrigem" && e.row.data.SituacaoRFB == LocalSituacaoRfb.Processed ? true : this.readOnlyEdition,
         value: e.value,
         onValueChanged: (ev) => {
-          e.setValue(ev.value.substring(0, 3));
+          if (ev.value)
+            e.setValue(ev.value.substring(0, 3));
         },
       };
+      return;
     }
 
     if (e.dataField === "PesoTotalBrutoUN") {
@@ -564,52 +537,92 @@ export class HousesComponent implements OnInit, AfterViewInit {
         searchTimeout: "500",
         value: e.value,
         onValueChanged: (ev) => {
-          e.setValue(ev.value.substring(0, 3));
+          if (ev.value)
+            e.setValue(ev.value.substring(0, 3));
         },
       };
+      return;
     }
 
     if (e.row?.isNewRow) {
-      switch (e.dataField) {
-        case "Numero":
+      if (e.parentType == "dataRow" && e.dataField == "Numero") {
+        this.readOnlyEdition = false;
+        e.editorOptions.readOnly = false;
+        this.curgridKey = 0;
+      }
+      if (e.parentType == 'dataRow' && e.dataField == 'ndicadorMadeiraMacica')
+        e.editorOptions.value = false;
+      return;
+    }
+
+    if (e.dataField === "Numero") {
+      e.editorOptions.readOnly = true;
+      return;
+    }
+
+
+    switch (e.row.data.SituacaoRFB) {
+      case LocalSituacaoRfb.Received:
+      case LocalSituacaoRfb.ProcessedDeletion:
+      case LocalSituacaoRfb.Processed:
+        if (e.row.data.Reenviar) {
+          this.readOnlyEdition = false;
           e.editorOptions.readOnly = false;
-          break;
-        case "IndicadorMadeiraMacica":
-          e.editorOptions.value = false;
-          break;
-      }
-    } else {
-      switch (e.dataField) {
-        case "Numero":
+        } else {
+          this.readOnlyEdition = true;
           e.editorOptions.readOnly = true;
-          break;
-      }
+        }
+
+        if (e.dataField == "DataEmissaoXML") {
+          e.editorOptions.readOnly = true;
+        }
+        break;
+      default:
+        this.readOnlyEdition = false;
+        if (e.dataField == "Numero") {
+          e.editorOptions.readOnly = true;
+          this.curgridKey = e.row.key;
+          return;
+        }
+        break;
     }
   }
 
   isEditVisible(e) {
-    return !(e.row.data.StatusId == 2);
+    return (e.row.data.SituacaoRFB === 0 ||
+      e.row.data.SituacaoRFB === 3 ||
+      (e.row.data.SituacaoRFB === 2 && e.row.data.Reenviar && e.row.data.RFBCancelationStatus === 0));
   }
 
   isViewVisible(e) {
-    return (e.row.data.StatusId == 2);
+    return (e.row.data.SituacaoRFB === 2 && !e.row.data.Reenviar && e.row.data.RFBCancelationStatus === 0);
   }
 
   isCheckStatusAvailable(e) {
-    return (e.row.data.SituacaoRFB == 1 || e.row.data.SituacaoRFB == 4);
+    return (e.row.data.SituacaoRFB === 1 || e.row.data.RFBCancelationStatus === 1);
   }
 
-  ValidaCnpj(e) {
-    if (e.value.length >= 2 && e.value.substr(0, 2).toUpperCase() == "PP") {
+  validaCnpj(e) {
+    if (e.value.length === 0)
       return true;
-    } else {
+
+    if (e.value.length >= 2 && e.value.substr(0, 2).toUpperCase() == 'PP') {
+      return true;
+    }
+    else {
       if (e.value.length == 11) {
         return cpf.isValid(e.value);
-      } else if (e.value.length == 14) {
+      }
+      else if (e.value.length == 14) {
         return cnpj.isValid(e.value);
       }
     }
     return false;
+  }
+
+  validaDataEmissao(e) {
+    return true;
+    //return e.value < new Date;
   }
 
   ValidaMasterNumero(e) {
@@ -645,36 +658,69 @@ export class HousesComponent implements OnInit, AfterViewInit {
     this.dataGrid.instance.cancelEditData();
   }
 
-  onEditDelete(e: any) {
-    this.dataGrid.instance.cancelEditData();
+  async onSubmitExclusion(e: any) {
+
+    if (this.rfbSubmitExclusionRows.length === 0)
+      return;
+
+    let result = confirm("<i>Deseja submeter/verificar a exclusão do house na RFB ?</i>", "Confirma?");
+    result.then(async (dialogResult) => {
+      if (dialogResult) {
+        await this.receitaFederalClient.cancelarHouse(this.rfbSubmitExclusionRows[0])
+          .subscribe(res => {
+            if (res.result.Sucesso) {
+              const idx = this.housesData.findIndex(x => x.HouseId === this.rfbSubmitExclusionRows[0]);
+              if (idx > -1) {
+                this.housesData[idx] = res.result.Dados;
+                this.dataGrid.instance.repaintRows([idx]);
+              }
+              this.selectionChangedHandler();
+              notify('Exclusão submetida com sucesso', 'success', environment.ErrorTimeout);
+            } else {
+              notify(
+                res.result.Notificacoes[0].Mensagem,
+                "error",
+                environment.ErrorTimeout
+              );
+            }
+          })
+      }
+    });
   }
 
-  onNCMValueChanged(e: any, cell) {
-    console.log(e);
-    cell.setValue(e.value);
+  onNcmValueChanged(e: any, cell) {
+    if (e.length > 0) {
+      const value = e.map(x => x.code);
+      if (value)
+        cell.setValue(value);
+      return;
+    }
+    cell.setValue(null);
   }
 
   selectionChangedHandler() {
     this.rfbProcessedRows = [];
     this.rfbNonProcessedRows = [];
-    if (this.selectedRows.length) {
-      this.selectedRows.forEach(x => {
-        const item = this.housesData.find(y => y.HouseId == x);
-        switch (item.SituacaoRFB) {
-          case LocalSituacaoRfb.Processed:
+    this.rfbSubmitExclusionRows = [];
+
+    this.selectedRows.forEach(x => {
+      const item = this.housesData.find(y => y.HouseId == x);
+      switch (item.SituacaoRFB) {
+        case LocalSituacaoRfb.Processed:
+          if (item.RFBCancelationStatus === 0)
             this.rfbProcessedRows.push(x);
-            break;
-          case LocalSituacaoRfb.NoSubmitted:
-          case LocalSituacaoRfb.ProcessedDeletion:
+          this.rfbSubmitExclusionRows.push(x);
+          break;
+        case LocalSituacaoRfb.NoSubmitted:
+        case LocalSituacaoRfb.ProcessedDeletion:
+          this.rfbNonProcessedRows.push(x);
+          break;
+        case LocalSituacaoRfb.Rejected:
+          if (!item.ProtocoloRFB || item.ProtocoloRFB == '')
             this.rfbNonProcessedRows.push(x);
-            break;
-          case LocalSituacaoRfb.Rejected:
-            if (!item.ProtocoloRFB || item.ProtocoloRFB == '')
-              this.rfbNonProcessedRows.push(x);
-            break;
-        }
-      });
-    }
+          break;
+      }
+    });
   }
 
   deleteHouseEdition(e): void {
@@ -687,10 +733,25 @@ export class HousesComponent implements OnInit, AfterViewInit {
   }
 
   releaseHouseEdition(e): void {
+    if (!this.rfbProcessedRows)
+      return;
+
+    if (this.rfbProcessedRows.length === 0)
+      return;
+
     let result = confirm("<i>Confirma a liberação para edição dos Master(s) selecionado(s) ?</i>", "Confirma?");
     result.then((dialogResult) => {
       if (dialogResult) {
-        //this.releaseMasterEditionConfirm(e);
+        this.houseClient.atualizarReenviarHouse(this.rfbProcessedRows[0])
+          .subscribe(res => {
+            if (res.result.Sucesso) {
+              const idx = this.housesData.findIndex(x => x.HouseId === this.rfbProcessedRows[0]);
+              if (idx > -1) {
+                this.housesData[idx].Reenviar = true;
+                this.dataGrid.instance.repaintRows([idx]);
+              }
+            }
+          })
       }
     });
   }
@@ -716,4 +777,15 @@ export class HousesComponent implements OnInit, AfterViewInit {
   onClickVerificarStatus(e: any) {
     console.log(e);
   }
+
+  onSIValueChanged(e: any, cell) {
+    if (e.length > 0) {
+      const value = e.map(x => x.code);
+      if (value)
+        cell.setValue(value);
+      return;
+    }
+    cell.setValue(null);
+  }
+
 }

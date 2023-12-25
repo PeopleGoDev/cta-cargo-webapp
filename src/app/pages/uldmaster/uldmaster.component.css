@@ -1,18 +1,22 @@
 @media print {
-    /* invert the display (show/hide) properties of the main */
-    /* aplication component and the printing component       */
-  
-    .printable {
-      display: block;
-    }
-  
-    .no-printable {
-      display: none;
-    }
+  /* invert the display (show/hide) properties of the main */
+  /* aplication component and the printing component       */
 
-    @page {
-        size: landscape;
-        margin-left: 0;
-        margin-right: 0;
-    }
+  .printable {
+    display: block;
   }
+
+  .no-printable {
+    display: none;
+  }
+
+  @page {
+    size: landscape;
+    margin-left: 0;
+    margin-right: 0;
+  }
+}
+
+::ng-deep .dx-dropdownbutton-action.dx-button .dx-button-content {
+  text-align: left;
+}

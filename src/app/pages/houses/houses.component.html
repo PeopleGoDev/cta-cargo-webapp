@@ -17,7 +17,7 @@
                     </dxi-item>
                     <dxi-item location="before">
                         <div *dxTemplate>
-                            <div id="panel1" #panel1 style="display: table; vertical-align: middle;">
+                            <div id="panel1" #panel1 style="display: flex; align-items: center;">
                                 <div style="display: table-cell">Data&nbsp;</div>
                                 <div style="display: table-cell">
                                     <dx-date-box [value]="filtroDataProcessamento" type="date" width="115"
@@ -28,7 +28,7 @@
                     </dxi-item>
                     <dxi-item location="before">
                         <div *dxTemplate>
-                            <div id="panel2" #panel2 style="display: table; vertical-align: middle; display: none;">
+                            <div id="panel2" #panel2 style="display: flex; align-items: center; display: none;">
                                 <dx-validation-group id="consultaMaster">
                                     <div style="display: table-cell">Número &nbsp;</div>
                                     <div style="display: table-cell">
@@ -39,6 +39,13 @@
                                                 </dxi-validation-rule>
                                             </dx-validator>
                                         </dx-text-box>
+                                    </div>
+                                    <div style="display: table-cell">&nbsp;</div>
+                                    <div style="display: table-cell">
+                                        <dx-button stylingMode="contained" text="Consultar" type="normal" [width]="120"
+                                            [validationGroup]="consultaMaster" icon="search"
+                                            (onClick)="onSearchClick($event)">
+                                        </dx-button>
                                     </div>
                                 </dx-validation-group>
                             </div>
@@ -56,22 +63,24 @@
         <div class="row">
             <div class="col-md-12">
                 <dx-data-grid id="gridHouses" #dataGrid [dataSource]="housesData" keyExpr="HouseId"
-                    [hoverStateEnabled]="true" [showBorders]="true" [columnAutoWidth]="true" [height]="500"
+                    [repaintChangesOnly]="true" [hoverStateEnabled]="true" [showBorders]="true" [columnAutoWidth]="true"
                     (onToolbarPreparing)="onToolbarPreparing($event)" (onRowUpdating)="onRowUpdating($event)"
                     [(selectedRowKeys)]="selectedRows" (onSelectionChanged)="selectionChangedHandler()"
                     (onRowInserting)="onRowInserting($event)" (onEditorPreparing)="onEditorPreparing($event)">
                     <dxo-filter-row [visible]="true"></dxo-filter-row>
                     <dxo-header-filter [visible]="true"></dxo-header-filter>
-                    <dxo-selection mode="single"></dxo-selection>
-                    <dxo-scrolling mode="virtual"></dxo-scrolling>
-                    <dxo-paging [pageSize]="10"></dxo-paging>
-                    <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[5, 10, 20]" [showInfo]="true">
+                    <dxo-selection mode="single" showCheckBoxesMode="none"></dxo-selection>
+                    <dxo-load-panel [enabled]="false"></dxo-load-panel>
+                    <dxo-paging [pageSize]="9"></dxo-paging>
+                    <dxo-pager [showPageSizeSelector]="false" [infoText]="'Página {0} de {1} ({2} itens)'"
+                        [showInfo]="false" [visible]="true">
                     </dxo-pager>
                     <dxo-editing mode="popup" [allowUpdating]="true" [allowAdding]="permitirAdicao">
                         <dxo-popup title="Editar/Incluir House" [showTitle]="false" [fullScreen]="true">
                             <dxi-toolbar-item widget="dxButton" location="after" toolbar="bottom" [options]="{
                                 text: 'Salvar',
-                                onClick: onEditSave
+                                onClick: onEditSave,
+                                visible: !this.readOnlyEdition
                             }">
                             </dxi-toolbar-item>
                             <dxi-toolbar-item widget="dxButton" location="after" toolbar="bottom" [options]="{
@@ -79,17 +88,10 @@
                                 onClick: onEditCancel 
                             }">
                             </dxi-toolbar-item>
-                            <dxi-toolbar-item *ngIf="curgridKey > 0" widget="dxButton" location="before"
-                                toolbar="bottom" [options]="{
-                                text: 'Excluir',
-                                type: 'danger',
-                                onClick: onEditDelete
-                            }">
-                            </dxi-toolbar-item>
                         </dxo-popup>
                         <dxo-form [colCount]="3">
                             <dxi-item itemType="group" [colCount]="3" [colSpan]="3">
-                                <dxi-item dataField="Numero" [editorOptions]="{ maxLength: 15 }">
+                                <dxi-item dataField="Numero" [editorOptions]="{ maxLength: 11 }">
                                     <dxi-validation-rule type="required"></dxi-validation-rule>
                                 </dxi-item>
                                 <dxi-item dataField="MasterNumeroXML"
@@ -105,14 +107,14 @@
                             </dxi-item>
 
                             <dxi-item itemType="group" caption="Remetente" [colCount]="3" [colSpan]="3">
-                                <dxi-item dataField="RemetenteNome" [editorOptions]="{ maxLength: 60 }">
+                                <dxi-item dataField="RemetenteNome" [editorOptions]="{ maxLength: 70 }">
                                     <dxi-validation-rule type="required"></dxi-validation-rule>
                                 </dxi-item>
-                                <dxi-item dataField="RemetenteEndereco" [editorOptions]="{ maxLength: 60 }">
+                                <dxi-item dataField="RemetenteEndereco" [editorOptions]="{ maxLength: 70 }">
                                 </dxi-item>
-                                <dxi-item dataField="RemetenteCidade" [editorOptions]="{ maxLength: 60 }">
+                                <dxi-item dataField="RemetenteCidade" [editorOptions]="{ maxLength: 70 }">
                                 </dxi-item>
-                                <dxi-item dataField="RemetentePostal" [editorOptions]="{ maxLength: 15 }">
+                                <dxi-item dataField="RemetentePostal" [editorOptions]="{ maxLength: 35 }">
                                 </dxi-item>
                                 <dxi-item dataField="RemetentePaisCodigo" [editorOptions]="{ maxLength: 2 }">
                                     <dxi-validation-rule type="required"></dxi-validation-rule>
@@ -121,81 +123,125 @@
 
                             <dxi-item itemType="group" caption="Destinatário" [colCount]="3" [colSpan]="3">
                                 <dxi-item dataField="ConsignatarioCNPJ" [editorOptions]="{ maxLength: 14 }">
-                                    <dxi-validation-rule type="required"></dxi-validation-rule>
-                                    <dxi-validation-rule type="custom" [validationCallback]="ValidaCnpj"
+                                    <dxi-validation-rule type="custom" [validationCallback]="validaCnpj"
                                         message="CNPJ/CPF/Passporte invalido!">
                                     </dxi-validation-rule>
                                 </dxi-item>
-                                <dxi-item dataField="ConsignatarioNome" [editorOptions]="{ maxLength: 60 }">
+                                <dxi-item dataField="ConsignatarioNome" [editorOptions]="{ maxLength: 70 }">
                                     <dxi-validation-rule type="required"></dxi-validation-rule>
                                 </dxi-item>
-                                <dxi-item dataField="ConsignatarioEndereco" [editorOptions]="{ maxLength: 60 }">
+                                <dxi-item dataField="ConsignatarioEndereco" [editorOptions]="{ maxLength: 70 }">
                                 </dxi-item>
-                                <dxi-item dataField="ConsignatarioCidade" [editorOptions]="{ maxLength: 60 }">
+                                <dxi-item dataField="ConsignatarioCidade" [editorOptions]="{ maxLength: 70 }">
                                 </dxi-item>
-                                <dxi-item dataField="ConsignatarioPostal" [editorOptions]="{ maxLength: 15 }">
+                                <dxi-item dataField="ConsignatarioPostal" [editorOptions]="{ maxLength: 35 }">
                                 </dxi-item>
                                 <dxi-item dataField="ConsignatarioPaisCodigo" [editorOptions]="{ maxLength: 2 }">
                                     <dxi-validation-rule type="required"></dxi-validation-rule>
                                 </dxi-item>
                             </dxi-item>
 
-                            <dxi-item itemType="group" caption="Volume/Peso" [colCount]="3" [colSpan]="3">
-                                <dxi-item dataField="TotalVolumes">
+                            <!-- <dxi-item itemType="group"
+                                caption="Agente de Carga Internacional" [colCount]="3" [colSpan]="3">
+                                <dxi-item dataField="AgenteNome"
+                                    [editorOptions]="{ maxLength: 60, disabled: !showThirdParty  }">
                                     <dxi-validation-rule type="required"></dxi-validation-rule>
                                 </dxi-item>
-                                <dxi-item dataField="PesoTotalBruto">
+                                <dxi-item dataField="AgenteEndereco"
+                                    [editorOptions]="{ maxLength: 60, disabled: !showThirdParty  }">
+                                </dxi-item>
+                                <dxi-item dataField="AgenteCidade"
+                                    [editorOptions]="{ maxLength: 60, disabled: !showThirdParty  }">
+                                </dxi-item>
+                                <dxi-item dataField="AgentePostal"
+                                    [editorOptions]="{ maxLength: 15, disabled: !showThirdParty  }">
+                                </dxi-item>
+                                <dxi-item dataField="AgentePaisCodigo"
+                                    [editorOptions]="{ maxLength: 2, disabled: !showThirdParty  }">
                                     <dxi-validation-rule type="required"></dxi-validation-rule>
                                 </dxi-item>
-                                <dxi-item dataField="PesoTotalBrutoUN" [editorOptions]="{ maxLength: 3 }">
-                                    <dxi-validation-rule type="required"></dxi-validation-rule>
+                            </dxi-item> -->
+
+                            <dxi-item itemType="group" caption="Descrição/Peso/Origem/Destino" [colCount]="4"
+                                [colSpan]="3">
+                                <dxi-item itemType="group">
+                                    <dxi-item dataField="NCMLista">
+                                    </dxi-item>
                                 </dxi-item>
-                                <dxi-item dataField="AeroportoOrigem" [editorOptions]="{ maxLength: 3 }">
-                                    <dxi-validation-rule type="required"></dxi-validation-rule>
+                                <dxi-item itemType="group">
+                                    <dxi-item dataField="TotalVolumes">
+                                        <dxi-validation-rule type="required"></dxi-validation-rule>
+                                    </dxi-item>
+                                    <dxi-item dataField="PesoTotalBruto">
+                                        <dxi-validation-rule type="required"></dxi-validation-rule>
+                                    </dxi-item>
+                                    <dxi-item dataField="PesoTotalBrutoUN" [editorOptions]="{ maxLength: 3 }">
+                                        <dxi-validation-rule type="required"></dxi-validation-rule>
+                                    </dxi-item>
                                 </dxi-item>
-                                <dxi-item dataField="AeroportoDestino" [editorOptions]="{ maxLength: 3 }">
-                                    <dxi-validation-rule type="required"></dxi-validation-rule>
+                                <dxi-item itemType="group" [colSpan]="2" [colCount]="2">
+                                    <dxi-item itemType="group">
+                                        <dxi-item dataField="Volume">
+                                        </dxi-item>
+                                        <dxi-item dataField="VolumeUN">
+                                        </dxi-item>
+                                    </dxi-item>
+                                    <dxi-item itemType="group">
+                                        <dxi-item dataField="AeroportoOrigem" [editorOptions]="{ maxLength: 3 }">
+                                            <dxi-validation-rule type="required"></dxi-validation-rule>
+                                        </dxi-item>
+                                        <dxi-item dataField="AeroportoDestino" [editorOptions]="{ maxLength: 3 }">
+                                            <dxi-validation-rule type="required"></dxi-validation-rule>
+                                        </dxi-item>
+                                    </dxi-item>
+                                    <dxi-item itemType="group" [colSpan]="2" [colCount]="1">
+                                        <dxi-item dataField="DescricaoMercadoria">
+                                            <dxi-validation-rule type="required"></dxi-validation-rule>
+                                        </dxi-item>
+                                    </dxi-item>
                                 </dxi-item>
-                                <dxi-item dataField="NCMLista">
-                                    <dxi-validation-rule type="required"></dxi-validation-rule>
-                                </dxi-item>
-                                <dxi-item dataField="DescricaoMercadoria">
-                                    <dxi-validation-rule type="required"></dxi-validation-rule>
-                                </dxi-item>
-                                <dxi-item itemType="empty"></dxi-item>
                             </dxi-item>
 
                             <dxi-item itemType="group" caption="Frete" [colCount]="2" [colSpan]="2">
-                                <dxi-item dataField="ValorFretePP">
-                                    <dxi-validation-rule type="required"></dxi-validation-rule>
+                                <dxi-item itemType="group">
+                                    <dxi-item dataField="NaturezaCarga">
+                                    </dxi-item>
                                 </dxi-item>
-                                <dxi-item dataField="ValorFretePPUN" [editorOptions]="{ maxLength: 3 }">
-                                    <dxi-validation-rule type="required"></dxi-validation-rule>
-                                </dxi-item>
-                                <dxi-item dataField="ValorFreteFC">
-                                    <dxi-validation-rule type="required"></dxi-validation-rule>
-                                </dxi-item>
-                                <dxi-item dataField="ValorFreteFCUN" [editorOptions]="{ maxLength: 3 }">
-                                    <dxi-validation-rule type="required"></dxi-validation-rule>
+                                <dxi-item itemType="group">
+                                    <dxi-item dataField="ValorFretePP">
+                                        <dxi-validation-rule type="required"></dxi-validation-rule>
+                                    </dxi-item>
+                                    <dxi-item dataField="ValorFreteFC">
+                                        <dxi-validation-rule type="required"></dxi-validation-rule>
+                                    </dxi-item>
+                                    <dxi-item dataField="ValorFretePPUN" [editorOptions]="{ maxLength: 3 }">
+                                        <dxi-validation-rule type="required"></dxi-validation-rule>
+                                    </dxi-item>
                                 </dxi-item>
                             </dxi-item>
 
                             <dxi-item itemType="group" caption="Outras Informações" [colCount]="1" [colSpan]="1">
                                 <dxi-item dataField="DataEmissaoXML">
                                     <dxi-validation-rule type="required"></dxi-validation-rule>
+                                    <dxi-validation-rule type="custom" [validationCallback]="validaDataEmissao"
+                                        message="Data/Hora inserida maior do que a atual">
+                                    </dxi-validation-rule>
                                 </dxi-item>
-                                <dxi-item dataField="CodigoRecintoAduaneiro">
+                                <dxi-item dataField="CodigoRecintoAduaneiro" [editorOptions]="{ maxLength: 7 }">
                                 </dxi-item>
                             </dxi-item>
 
+                            <dxi-item itemType="group" [colCount]="1" [colSpan]="3">
+
+                            </dxi-item>
                         </dxo-form>
                     </dxo-editing>
                     <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[10, 25, 50, 100]"></dxo-pager>
                     <dxi-column type="buttons" width="50" caption="Editar">
                         <dxi-button name="edit" hint="Editar" icon="edit" [visible]="isEditVisible"></dxi-button>
                         <dxi-button name="edit" hint="Visualizar" icon="find" [visible]="isViewVisible"></dxi-button>
-                        <dxi-button name="verificarStatus" hint="Verificar Status da Carga RFB" icon="refresh"
-                            [onClick]="onClickVerificarStatus" [visible]="isCheckStatusAvailable"></dxi-button>
+                        <dxi-button name="edit" hint="Submetido/Processamnto Pendente" icon="refresh"
+                            [visible]="isCheckStatusAvailable"></dxi-button>
                     </dxi-column>
                     <dxi-column dataField="HouseId" caption="Id" [visible]="false"></dxi-column>
                     <dxi-column dataField="Numero" caption="Número" [width]="150"></dxi-column>
@@ -221,21 +267,25 @@
                                 {{ data.value | cnpj }}
                             </div>
                         </dxi-column>
-                        <dxi-column dataField="ConsignatarioNome" caption="Nome" [width]="230"></dxi-column>
-                        <dxi-column dataField="ConsignatarioEndereco" caption="Endereço" [width]="330"></dxi-column>
+                        <dxi-column dataField="ConsignatarioNome" caption="Nome" [width]="230"
+                            cssClass="word-wrap"></dxi-column>
+                        <dxi-column dataField="ConsignatarioEndereco" caption="Endereço" [width]="330"
+                            cssClass="word-wrap"></dxi-column>
                         <dxi-column dataField="ConsignatarioPostal" caption="Postal" [width]="80"></dxi-column>
                         <dxi-column dataField="ConsignatarioCidade" caption="Cidade" [width]="150"></dxi-column>
                         <dxi-column dataField="ConsignatarioPaisCodigo" caption="Pais" [width]="60"></dxi-column>
                     </dxi-column>
                     <dxi-column caption="Remetente" [visible]="true">
-                        <dxi-column dataField="RemetenteNome" caption="Nome" [width]="230"></dxi-column>
-                        <dxi-column dataField="RemetenteEndereco" caption="Endereço" [width]="330"></dxi-column>
+                        <dxi-column dataField="RemetenteNome" caption="Nome" [width]="230"
+                            cssClass="word-wrap"></dxi-column>
+                        <dxi-column dataField="RemetenteEndereco" caption="Endereço" [width]="330"
+                            cssClass="word-wrap"></dxi-column>
                         <dxi-column dataField="RemetentePostal" caption="Postal" [width]="80"></dxi-column>
                         <dxi-column dataField="RemetenteCidade" caption="Cidade" [width]="150"></dxi-column>
                         <dxi-column dataField="RemetentePaisCodigo" caption="Pais" [width]="60"></dxi-column>
                     </dxi-column>
                     <dxi-column caption="Peso/Volume">
-                        <dxi-column dataField="TotalVolumes" caption="Volumes"></dxi-column>
+                        <dxi-column dataField="TotalVolumes" caption="N.de Peças"></dxi-column>
                         <dxi-column dataField="PesoTotalBruto" caption="Peso Total" dataType="number" format="decimal"
                             [editorOptions]="{
                                 format: 'decimal',
@@ -246,8 +296,12 @@
                             </dxo-format>
                         </dxi-column>
                         <dxi-column dataField="PesoTotalBrutoUN" caption="Peso Unidade" alignment="right"></dxi-column>
-                        <dxi-column dataField="DescricaoMercadoria" caption="Desc Merc"></dxi-column>
-                        <dxi-column dataField="NCMLista" caption="Lista NCM" editCellTemplate="dataCellTemplate">
+                        <dxi-column dataField="Volume" caption="Volume" alignment="right"></dxi-column>
+                        <dxi-column dataField="VolumeUN" caption="MC/CBM" alignment="right"></dxi-column>
+                        <dxi-column dataField="DescricaoMercadoria" caption="Desc Merc" [width]="300"
+                            cssClass="word-wrap"></dxi-column>
+                        <dxi-column dataField="NCMLista" caption="Lista NCM" editCellTemplate="dataNCMCellTemplate"
+                            cssClass="word-wrap">
                         </dxi-column>
                     </dxi-column>
                     <dxi-column caption="Frete">
@@ -273,21 +327,21 @@
                         <dxi-column dataField="ValorFreteFCUN" caption="Moeda" alignment="right"></dxi-column>
                     </dxi-column>
                     <dxi-column caption="Outras Informações">
-                        <dxi-column dataField="CodigoRecintoAduaneiro"></dxi-column>
+                        <dxi-column dataField="CodigoRecintoAduaneiro" caption="Recinto Aduaneito"></dxi-column>
+                        <dxi-column dataField="NaturezaCarga" caption="Natureza Carga" width="150"
+                            editCellTemplate="dataSICellTemplate" cssClass="word-wrap">
+                        </dxi-column>
                         <dxi-column dataField="DataEmissaoXML" dataType="datetime"></dxi-column>
                     </dxi-column>
-                    <dxo-export [enabled]="permitirAdicao"></dxo-export>
-
-                    <div *dxTemplate="let cell of 'dataCellTemplate'">
-                        <!-- <dx-tag-box [value]="cell.value" [searchEnabled]="false" [acceptCustomValue]="true"
-                            [showMultiTagOnly]="false" [openOnFieldClick]="false" [items]="cell.value"
-                            [items]="cell.value" (onValueChanged)="onNCMValueChanged($event, cell)">
-                        </dx-tag-box> -->
-                        <dx-tag-box [dataSource]="dataSource" displayExpr="Descricao"
-                        valueExpr="Codigo" applyValueMode="useButtons" 
-                        (onValueChanged)="onNCMValueChanged($event, cell)">
-                    </dx-tag-box>
+                    <div *dxTemplate="let cell of 'dataSICellTemplate'">
+                        <app-special-instruction [(value)]="cell.value" [readOnly]="readOnlyEdition"
+                            (onItemSelected)="onSIValueChanged($event, cell)"></app-special-instruction>
                     </div>
+                    <div *dxTemplate="let cell of 'dataNCMCellTemplate'">
+                        <app-ncm-selector [(value)]="cell.value" [readOnly]="readOnlyEdition"
+                            (onItemSelected)="onNcmValueChanged($event, cell)"></app-ncm-selector>
+                    </div>
+                    <dxo-export [enabled]="permitirAdicao"></dxo-export>
                 </dx-data-grid>
             </div>
         </div>
@@ -308,7 +362,16 @@
                             <dx-button stylingMode="contained" icon="edit" text="Liberar Edição" type="normal"
                                 hint="Liberar House para Edição"
                                 [disabled]="rfbProcessedRows.length == 0 || rfbProcessedRows.length != selectedRows.length"
-                                (click)="releaseMasterEdition($event)">
+                                (click)="releaseHouseEdition($event)">
+                            </dx-button>
+                        </div>
+                    </dxi-item>
+                    <dxi-item location="before">
+                        <div *dxTemplate>
+                            <dx-button stylingMode="contained" icon="remove" text="Submeter/Verificar Exclusão do House"
+                                type="normal" hint="Excluir RFB"
+                                [disabled]="rfbSubmitExclusionRows.length === 0 || rfbSubmitExclusionRows.length != selectedRows.length"
+                                (click)="onSubmitExclusion($event)">
                             </dx-button>
                         </div>
                     </dxi-item>

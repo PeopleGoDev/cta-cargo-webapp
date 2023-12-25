@@ -10,7 +10,8 @@ import {
   DxFormModule,
   DxTextBoxModule,
   DxValidatorModule,
-  DxScrollViewModule
+  DxScrollViewModule,
+  DxDropDownButtonModule
 } from 'devextreme-angular';
 import { UldmasterComponent } from './uldmaster.component';
 import { MasteruldsumarioComponent } from 'app/pages/uldmaster/components/masteruldsumario/masteruldsumario.component';
@@ -33,6 +34,7 @@ import { SharedModule } from 'app/shared/shared.module';
     DxValidatorModule,
     DxFormModule,
     DxScrollViewModule,
+    DxDropDownButtonModule,
     PipesModule,
     SharedModule
   ],

@@ -51,6 +51,9 @@
                                 <dxi-item dataField="Nome" [editorOptions]="{ maxLength: 100 }">
                                     <dxi-validation-rule type="required"></dxi-validation-rule>
                                 </dxi-item>
+                                <dxi-item dataField="CountryCode" [editorOptions]="{ maxLength: 2 }">
+                                    <dxi-validation-rule type="required"></dxi-validation-rule>
+                                </dxi-item>
                             </dxi-item>
                         </dxo-form>
                     </dxo-editing>
@@ -59,6 +62,7 @@
                     </dxi-column>
                     <dxi-column dataField="Codigo" width="110"></dxi-column>
                     <dxi-column dataField="Nome"></dxi-column>
+                    <dxi-column dataField="CountryCode" width="160" label="Sigla País"></dxi-column>
                 </dx-data-grid>
             </div>
         </div>

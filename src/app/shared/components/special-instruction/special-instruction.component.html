@@ -1,0 +1,24 @@
+<div class="si-component">
+    <dx-autocomplete placeholder="Entre com a descrição..." [minSearchLength]="2" [searchTimeout]="500"
+        valueExpr="Descricao" [dataSource]="clientsStore" [showClearButton]="true"
+        [readOnly]="readOnly" [(value)]="textValue"
+        (onSelectionChanged)="onSelectionChanged($event)">
+        <div *dxTemplate="let item of 'item'">
+            <div class="autocomplete-item">
+                <div style="padding-right: 5px;">
+                    <p class="text-style">{{ item.Codigo }}</p>
+                </div>
+                <div>
+                    <p class="text-style word-wrap">{{ item.Descricao }}</p>
+                </div>
+            </div>
+        </div>
+    </dx-autocomplete>
+    <div class="tag-panel" [ngClass]="readOnly ? 'tag-panel-readonly' : 'tag-panel-edit'">
+        <div *ngFor="let item of selectedItens" class="tag-panel-selector">
+            <span class="tag-panel-item"><b>{{ item.code }}</b> {{ item.description }}</span>
+            <div *ngIf="!readOnly" (click)="removeItem(item)"><i class="tag-panel-item-button dx-icon dx-icon-clear" title="Remover"></i>
+            </div>
+        </div>
+    </div>
+</div>

@@ -14,3 +14,7 @@
     flex-wrap: wrap;
     justify-content: baseline;
 }
+
+::ng-deep .dx-dropdownbutton-action.dx-button .dx-button-content {
+    text-align: left;
+}

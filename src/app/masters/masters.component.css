@@ -1,14 +1,37 @@
-::ng-deep .dx-data-row .word-wrap, .word-wrap {
+::ng-deep .dx-data-row .word-wrap,
+.word-wrap {
     word-wrap: break-word;
     white-space: normal !important;
 }
 
 ::ng-deep .container-fluid {
     min-height: calc(100% - 0px);
-	display: flex;
-	flex-direction: column;
-  }
+    display: flex;
+    flex-direction: column;
+}
 
-  ::ng-deep .box-2 {
-    flex-grow:1;
+::ng-deep .box-2 {
+    flex-grow: 1;
+}
+
+.left {
+    text-align: left !important;
+}
+
+::ng-deep .dx-dropdownbutton-action.dx-button .dx-button-content {
+    text-align: left;
+}
+
+::ng-deep #fileuploader-container {
+    border: 1px solid #d3d3d3;
+    margin: 20px 20px 0 20px;
+}
+
+::ng-deep #file-container {
+    margin: 20px 20px 0 20px;
+}
+
+.file-error {
+    margin: 20px 20px 0 20px;
+    color: red;
 }

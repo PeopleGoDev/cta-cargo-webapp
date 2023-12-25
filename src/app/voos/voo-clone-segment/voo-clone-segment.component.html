@@ -1,0 +1,36 @@
+<div id="form-container">
+    <dx-form id="form" [formData]="cloneSegment">
+        <dxi-item itemType="group" [colCount]="2" caption="Gerar voo de Saída">
+            <dxi-item dataField="NewFlightName" [editorOptions]="nameEditorOptions">
+                <dxo-label template="nameTemplate" text="Número do Voo"></dxo-label>
+            </dxi-item>
+        </dxi-item>
+        
+        <dxi-item template="vooDetail"></dxi-item>
+        <div *dxTemplate="let data of 'vooDetail'">
+            <div>
+                <div>Aeroporto Origem</div>
+                <div>{{flightInfo?.airportCode}}</div>
+                <div>Data de Saída Estimada</div>
+                <div>{{flightInfo?.scheduleDeparture}}</div>
+                <div>Trechos</div>
+                <div>
+                    <div *ngFor="let item of flightInfo?.segments">
+                        <div>{{item.airportCode}}</div>
+                        <div>{{item.scheduleArrive}}</div>
+                        <div>{{item.scheduleDeparture}}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <dxi-item itemType="button"
+        horizontalAlignment="left"
+        [buttonOptions]="buttonOptions">
+
+        </dxi-item>
+        <div *dxTemplate="let data of 'nameTemplate'">
+            <div><i class="dx-icon {{ data.icon }}"></i>Custom {{ data.text }}</div>
+        </div>
+
+    </dx-form>
+</div>

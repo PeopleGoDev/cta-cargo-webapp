@@ -1,13 +1,13 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { LocalStorageService } from 'app/shared/services/localstorage.service';
 import { PortoIATAResponseDto } from 'app/shared/model/dto/portoiatadto';
 import { StatusVoo } from 'app/shared/model/statusvoo';
 import { confirm } from 'devextreme/ui/dialog';
 import { StatusService } from 'app/shared/services/status.service';
 import notify from 'devextreme/ui/notify';
-import { UsuarioInfoResponse, VooClient, VooInsertRequestDto, VooListarInputDto, VooResponseDto, VooUpdateRequestDto } from 'app/shared/proxy/ctaapi';
+import { VooClient, VooInsertRequestDto, VooListarInputDto, VooResponseDto, VooTrechoResponse, VooUpdateRequestDto } from 'app/shared/proxy/ctaapi';
 import { environment } from 'environments/environment';
 import { DxDataGridComponent } from 'devextreme-angular';
+import { FlightType } from 'app/shared/collections/data';
 
 @Component({
   selector: 'app-voos',
@@ -28,9 +28,11 @@ export class VoosComponent implements OnInit {
   statusRFB: Array<StatusVoo>;
   somenteLeitura: boolean = true;
   curgridKey: number = 0;
-  private usuarioInfo: UsuarioInfoResponse;
   currentRow: number;
-
+  isDrawerOpen: boolean = false;
+  cloneFlight: any = {};
+  flightType = FlightType;
+  
   private editDataSaidaReal: Date;
   private editDataChegadaEstimada: Date;
   private editDataChegadaReal: Date;
@@ -49,8 +51,7 @@ export class VoosComponent implements OnInit {
     }
   };
 
-  constructor(private localstorage: LocalStorageService,
-    private statusService: StatusService,
+  constructor(private statusService: StatusService,
     private vooClient: VooClient) {
     this.statusData = this.statusService.getStatus();
     this.statusRFB = this.statusService.getStatusRFB();
@@ -72,7 +73,6 @@ export class VoosComponent implements OnInit {
     this.filtroDataFinal = new Date();
     this.filtroDataInicial = new Date();
     this.filtroDataInicial.setDate(this.filtroDataFinal.getDate() - 7);
-    this.usuarioInfo = this.localstorage.getLocalStore().UsuarioInfo;
     this.refreshGrid();
   }
 
@@ -82,16 +82,26 @@ export class VoosComponent implements OnInit {
 
     const newData: VooResponseDto = Object.assign(e.oldData, e.newData)
 
+    newData.Trechos = newData.Trechos
+      .filter(x => x.AeroportoDestinoCodigo.trim().length === 3)
+      .map(x => {
+        return {
+          AeroportoDestinoCodigo: x.AeroportoDestinoCodigo.toUpperCase(),
+          DataHoraChegadaEstimada: x.DataHoraChegadaEstimada,
+          DataHoraSaidaEstimada: x.DataHoraSaidaEstimada,
+          Id: x.Id
+        } as VooTrechoResponse
+      });
+
     const updateRequest: VooUpdateRequestDto = {
       VooId: newData.VooId,
+      Numero: newData.Numero,
+      PrefixoAeronave: newData.PrefixoAeronave,
       DataVoo: newData.DataVoo,
-      UsuarioModificadorId: this.usuarioInfo.UsuarioId,
-      DataHoraSaidaEstimada: newData.DataHoraSaidaEstimada,
       DataHoraSaidaReal: newData.DataHoraSaidaReal,
-      DataHoraChegadaEstimada: newData.DataHoraChegadaEstimada,
-      DataHoraChegadaReal: newData.DataHoraChegadaReal,
+      DataHoraSaidaPrevista: newData.DataHoraSaidaPrevista,
       AeroportoOrigemCodigo: newData.AeroportoOrigemCodigo.toLocaleUpperCase(),
-      AeroportoDestinoCodigo: newData.AeroportoDestinoCodigo.toLocaleUpperCase(),
+      Trechos: newData.Trechos
     };
 
     this.vooClient.atualizarVoo(updateRequest)
@@ -117,22 +127,26 @@ export class VoosComponent implements OnInit {
 
     const newData: VooResponseDto = e.data;
 
+    newData.Trechos = newData.Trechos
+      .filter(x => x.AeroportoDestinoCodigo.trim().length === 3)
+      .map(x => {
+        return {
+          AeroportoDestinoCodigo: x.AeroportoDestinoCodigo.toUpperCase(),
+          DataHoraChegadaEstimada: x.DataHoraChegadaEstimada,
+          DataHoraSaidaEstimada: x.DataHoraSaidaEstimada,
+          Id: x.Id
+        } as VooTrechoResponse
+      });
+      
     const insertRequest: VooInsertRequestDto = {
       Numero: newData.Numero.toUpperCase(),
+      FlightType: newData.FlightType,
+      PrefixoAeronave: newData.PrefixoAeronave.toUpperCase(),
       DataVoo: newData.DataVoo,
-      UsuarioInsercaoId: +this.usuarioInfo.UsuarioId,
-      DataHoraSaidaEstimada: newData.DataHoraSaidaEstimada,
       DataHoraSaidaReal: newData.DataHoraSaidaReal,
-      DataHoraChegadaEstimada: newData.DataHoraChegadaEstimada,
-      DataHoraChegadaReal: newData.DataHoraChegadaReal,
-      PesoBruto: newData.PesoBruto,
-      PesoBrutoUnidade: newData.PesoBrutoUnidade,
-      Volume: newData.Volume,
-      VolumeUnidade: newData.VolumeUnidade,
-      TotalPacotes: newData.TotalPacotes,
-      TotalPecas: newData.TotalPecas,
+      DataHoraSaidaPrevista: newData.DataHoraSaidaPrevista,
       AeroportoOrigemCodigo: newData.AeroportoOrigemCodigo.toUpperCase(),
-      AeroportoDestinoCodigo: newData.AeroportoDestinoCodigo.toUpperCase()
+      Trechos: newData.Trechos
     };
 
     this.vooClient.inserirVoo(insertRequest)
@@ -241,11 +255,11 @@ export class VoosComponent implements OnInit {
   }
 
   isEditVisible(e) {
-    return !(e.row.data.StatusId == 2);
+    return (e.row.data.SituacaoRFBId === 0 || e.row.data.SituacaoRFBId === 3 || e.row.data.Reenviar);
   }
 
   isViewVisible(e) {
-    return (e.row.data.StatusId == 2);
+    return ((e.row.data.SituacaoRFBId === 1 || e.row.data.SituacaoRFBId === 2 || e.row.data.SituacaoRFBId === 4) && !e.row.data.Reenviar);
   }
 
   onClickCertificado() {
@@ -275,7 +289,7 @@ export class VoosComponent implements OnInit {
     }
     else {
       this.curgridKey = e.row.key;
-      if (e.parentType == "dataRow" && e.row.data.StatusId == 2) {
+      if (e.parentType == "dataRow" && (e.row.data.SituacaoRFBId === 1 || e.row.data.SituacaoRFBId === 2 || e.row.data.SituacaoRFBId === 4) && !e.row.data.Reenviar) {
         this.somenteLeitura = true;
         e.editorOptions.readOnly = true;
         return;
@@ -381,7 +395,6 @@ export class VoosComponent implements OnInit {
     return this.editDataChegadaEstimada;
   };
 
-
   validateActualArrivalDateField(e) {
     if (!(e.value)) return true;
 
@@ -408,4 +421,28 @@ export class VoosComponent implements OnInit {
     }
   }
 
+  addHours(date, hours) {
+    if (!date)
+      return undefined;
+
+    const dateCopy = new Date(date);
+    dateCopy.setHours(dateCopy.getHours() + hours);
+    return dateCopy;
+  }
+
+  onTrechoChange(e: any, cell) {
+    cell.setValue(e);
+  }
+
+  private getUTC(date: Date) {
+    return new Date(date.getTime() - (date.getTimezoneOffset() * 60000));
+  }
+
+  cloneSegmentHandler(e, voo) {
+    console.log(e);
+    console.log(voo);
+    this.cloneFlight.airportCode = e.data.AeroportoDestinoCodigo;
+    this.cloneFlight.scheduleDeparture = e.data.DataHoraSaidaEstimada;
+    this.isDrawerOpen = true;
+  }
 }

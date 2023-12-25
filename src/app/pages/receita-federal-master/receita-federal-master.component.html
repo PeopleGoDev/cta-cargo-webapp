@@ -15,7 +15,7 @@
                 <dx-toolbar>
                     <dxi-item location="before">
                         <div *dxTemplate>
-                            <div id="panel1" #panel1 style="display: table; vertical-align: middle;">
+                            <div id="panel1" #panel1 style="display: flex; align-items: center;">
                                 <div style="display: table-cell">Data do Voo&nbsp;</div>
                                 <div style="display: table-cell">
                                     <dx-date-box [value]="filtroDataVoo" type="date" width="115"
@@ -23,9 +23,11 @@
                                 </div>
                                 <div style="display: table-cell">&nbsp;</div>
                                 <div style="display: table-cell">
-                                    <dx-button-group [items]="botoesGBItems" accessKey="vooid" keyExpr="vooid"
-                                        [selectedItemKeys]="[curVoo]" (onItemClick)="onItemClick($event)">
-                                    </dx-button-group>
+                                    <dx-drop-down-button [splitButton]="true" [useSelectMode]="false"
+                                        text="Selecione o Voo" [items]="botoesGBItems"
+                                        [selectedItemKey]="curVoo" (onItemClick)="onItemClick($event)"
+                                        displayExpr="text" keyExpr="vooId" [disabled]="!vooData || vooData.length === 0"
+                                        [useSelectMode]="true" width="285px"></dx-drop-down-button>
                                 </div>
                             </div>
                         </div>
@@ -50,7 +52,6 @@
                             {{ statusData[data.data.StatusId].Descricao}}
                         </div>
                     </dxi-column>
-
                     <dxi-column caption="Peso/Volume">
                         <dxi-column dataField="TotalPecas" caption="Volumes" dataType="number" [width]="70">
                         </dxi-column>

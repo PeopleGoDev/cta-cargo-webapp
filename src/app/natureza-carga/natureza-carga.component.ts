@@ -81,10 +81,7 @@ export class NaturezaCargaComponent implements OnInit {
   async refresh() {
 
     this.loadingVisible = true;
-
-    let empId: number = +this.usuarioInfo.EmpresaId;
-
-    let res = await this.naturezaCargaService.listar(empId);
+    let res = await this.naturezaCargaService.listar();
 
     if (res.Sucesso) {
 
@@ -109,8 +106,6 @@ export class NaturezaCargaComponent implements OnInit {
 
     insertData.Codigo = newData.Codigo.toUpperCase()
     insertData.Descricao = newData.Descricao.toUpperCase()
-    insertData.EmpresaId = +this.usuarioInfo.EmpresaId
-    insertData.UsuarioInsercaoId = +this.usuarioInfo.UsuarioId
 
     let res = await this.naturezaCargaService.inserir(insertData)
 
@@ -139,7 +134,6 @@ export class NaturezaCargaComponent implements OnInit {
     const updateData: NaturezaCargaUpdateRequestDto = new NaturezaCargaUpdateRequestDto()
 
     updateData.NaturezaCargaId= newData.NaturezaCargaId
-    updateData.UsuarioModificadorId = +this.usuarioInfo.UsuarioId
     updateData.Descricao = newData.Descricao.toUpperCase()
 
     let res = await this.naturezaCargaService.atualizar(updateData);

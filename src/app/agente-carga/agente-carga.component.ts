@@ -63,7 +63,7 @@ export class AgenteCargaComponent implements OnInit {
 
   async refreshLista() {
     this.loadingVisible = true;
-    await this.agenteCargaService.listarAgentesDeCarga(this.usuarioInfo.EmpresaId)
+    await this.agenteCargaService.listarAgentesDeCarga()
       .toPromise()
       .then(res => {
         if (res.result.Sucesso) {
@@ -88,7 +88,6 @@ export class AgenteCargaComponent implements OnInit {
     const newData: AgenteDeCargaResponseDto = e.data;
 
     const insertRequest: AgenteDeCargaInsertRequest = {
-      EmpresaId: this.usuarioInfo.EmpresaId,
       Nome: newData.Nome,
       CNPJ: newData.CNPJ,
       Endereco1: newData.Endereco1,
@@ -96,7 +95,6 @@ export class AgenteCargaComponent implements OnInit {
       Cidade: newData.Cidade,
       Estado: newData.Estado,
       Pais: newData.Pais,
-      UsuarioId: this.usuarioInfo.UsuarioId,
       Numero: newData.Numero,
     };
 
@@ -130,7 +128,6 @@ export class AgenteCargaComponent implements OnInit {
       Cidade: newData.Cidade,
       Estado: newData.Estado,
       Pais: newData.Pais,
-      UsuarioId: this.usuarioInfo.UsuarioId,
       Numero: newData.Numero,
     }
 
@@ -232,9 +229,7 @@ export class AgenteCargaComponent implements OnInit {
 
     this.uploadClient.uploadCertificadoDigital(
       this.currentKey,
-      this.usuarioInfo.UsuarioId,
       this.textBoxValue,
-      this.usuarioInfo.EmpresaId,
       LocalFileDestinationMap.AgenteDeCarga,
       fileInfo).toPromise()
       .then((res: any) => {

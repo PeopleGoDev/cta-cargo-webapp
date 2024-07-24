@@ -21,6 +21,8 @@
                     <dxo-pager [showPageSizeSelector]="false" [infoText]="'Página {0} de {1} ({2} itens)'"
                         [showInfo]="true" [visible]="true">
                     </dxo-pager>
+                    <dxo-filter-row [visible]="true"></dxo-filter-row>
+                    <dxo-header-filter [visible]="true"></dxo-header-filter>
                     <dxo-editing mode="popup" [allowUpdating]="true" [allowAdding]="true">
                         <dxo-popup title="Editar/Incluir Porto" [showTitle]="false" [width]="700" [height]="535">
                             <dxi-toolbar-item widget="dxButton" location="after" toolbar="bottom" [options]="{
@@ -51,6 +53,9 @@
                                 <dxi-item dataField="Nome" [editorOptions]="{ maxLength: 100 }">
                                     <dxi-validation-rule type="required"></dxi-validation-rule>
                                 </dxi-item>
+                                <dxi-item dataField="CountryCode" [editorOptions]="{ maxLength: 2 }">
+                                    <dxi-validation-rule type="required"></dxi-validation-rule>
+                                </dxi-item>
                             </dxi-item>
                         </dxo-form>
                     </dxo-editing>
@@ -59,6 +64,7 @@
                     </dxi-column>
                     <dxi-column dataField="Codigo" width="110"></dxi-column>
                     <dxi-column dataField="Nome"></dxi-column>
+                    <dxi-column dataField="CountryCode" width="160" label="Sigla País"></dxi-column>
                 </dx-data-grid>
             </div>
         </div>

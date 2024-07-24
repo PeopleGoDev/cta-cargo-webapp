@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { NavbarComponent } from './navbar.component';
-import { DxPopupModule, DxSelectBoxModule, DxButtonModule } from 'devextreme-angular';
+import { DxPopupModule, DxSelectBoxModule, DxButtonModule, DxTextBoxModule, DxValidatorModule } from 'devextreme-angular';
 
 @NgModule({
     imports: [
@@ -10,7 +10,10 @@ import { DxPopupModule, DxSelectBoxModule, DxButtonModule } from 'devextreme-ang
         CommonModule, 
         DxPopupModule, 
         DxSelectBoxModule,
-        DxButtonModule],
+        DxButtonModule,
+        DxTextBoxModule,
+        DxValidatorModule
+        ],
     declarations: [NavbarComponent],
     exports: [NavbarComponent]
 })

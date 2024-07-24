@@ -9,26 +9,37 @@
             </button>
         </div>
         <div class="collapse navbar-collapse">
-            <ul class="nav navbar-nav navbar-left">
-                <li>
-                    <a routerLink="painel" class="dropdown-toggle" data-toggle="dropdown">
-                        <i class="fa fa-dashboard"></i>
-                        <p class="hidden-lg hidden-md">{{getTitle()}}</p>
-                    </a>
-                </li>
-                <li>
-                    <a routerLink="consulta">
-                        <i class="fa fa-search"></i>
-                        <p class="hidden-lg hidden-md">Consultar</p>
-                    </a>
-                </li>
-            </ul>
-
+            <div class="nav navbar-nav navbar-left">
+                <ng-container *ngIf="certificateExpiresDays < 0; else templateB">
+                    <div class="nav-certificate-expiration">
+                        <div class="warning-certicate-red">Seu certificado venceu em&nbsp;<b>{{ loginInfo?.UsuarioInfo?.CertificateExpiration | date:"dd/MM/yyyy HH:mm"}}</b><br />
+                            <a (click)="showUploadCertificate($event)">Atualizar Certificado</a>
+                        </div>
+                    </div>
+                </ng-container>
+                <ng-template #templateB>
+                    <ng-container *ngIf="loginInfo?.UsuarioInfo?.CertificateExpiration; else templateA">
+                        <div class="nav-certificate-expiration">
+                            <div [className]="warningClass">Seu certificado vence em {{ certificateExpiresDays }}
+                                dia(s)&nbsp;
+                                -&nbsp;<b>{{ loginInfo?.UsuarioInfo?.CertificateExpiration | date:"dd/MM/yyyy HH:mm"}}</b><br />
+                                <a (click)="showUploadCertificate($event)">Atualizar Certificado</a>
+                            </div>
+                        </div>
+                    </ng-container>
+                    <ng-template #templateA>
+                        <div class="nav-certificate-expiration">
+                            <div class="warning-certicate-red">Você não possuí um certificado digital<br />
+                                <a (click)="showUploadCertificate($event)">Adicionar Certificado</a>
+                            </div>
+                        </div>
+                    </ng-template>
+                </ng-template>
+            </div>
             <ul class="nav navbar-nav navbar-right">
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                        <p>
-                            Cadastro
+                        <p>Cadastro
                             <b class="caret"></b>
                         </p>
                     </a>
@@ -57,3 +68,31 @@
         </div>
     </div>
 </nav>
+<dx-popup [width]="400" [height]="280" [showTitle]="true" title="Enviar Certificado Digital" [dragEnabled]="false"
+    [closeOnOutsideClick]="false" [(visible)]="popupVisible">
+    <div *dxTemplate="let data of 'content'">
+        <p>
+            <b>Arqiuvo Selecionado:</b>
+            <span>{{ curfile ? curfile.name : '' }}</span>
+        </p>
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown"
+            (click)="onClickSelecionarCertificado()">Selecinar</a>
+        <input #fileInput type="file" (change)="onFilesAdded()" style="display: none" />
+        <div *ngIf="curfile" class="dx-field">
+            <div class="dx-field-label">Senha Certificado</div>
+            <div class="dx-field-value" autocomplete="off">
+                <dx-text-box [(mode)]="passwordMode" placeholder="Senha do Certificado" [showClearButton]="true"
+                    [(value)]="textBoxValue" autocomplete="new-password">
+                    <dxi-button name="today" location="after" [options]="passwordButton"></dxi-button>
+                    <dx-validator>
+                        <dxi-validation-rule type="required" message="Senha do Certificado Digital é requerida!">
+                        </dxi-validation-rule>
+                    </dx-validator>
+                </dx-text-box>
+                <br />
+                <dx-button text="Salvar" (onClick)="onClickEnviarCertificado($event)"></dx-button>
+            </div>
+        </div>
+        <div *ngIf="arquivoErro" class="alert alert-danger" role="alert">{{ arquivoErro }}</div>
+    </div>
+</dx-popup>

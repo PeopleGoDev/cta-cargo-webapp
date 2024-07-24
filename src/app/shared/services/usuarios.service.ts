@@ -14,9 +14,9 @@ export class UsuariosService {
   constructor(private httpClient: HttpClient) 
   { }
 
-  Listar(empresaId: number): Observable<Result<Array<UsuarioResponseDto>>> {
+  Listar(): Observable<Result<Array<UsuarioResponseDto>>> {
 
-    return this.httpClient.get(`${environment.BaseURL}v1/Usuario/ListarUsuarios?empresaId=${empresaId}`)
+    return this.httpClient.get(`${environment.BaseURL}v1/Usuario/ListarUsuarios`)
       .pipe(
         catchError(err => {
           throw err;

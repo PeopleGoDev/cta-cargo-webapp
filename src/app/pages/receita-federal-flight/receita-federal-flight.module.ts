@@ -1,29 +1,32 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReceitaFederalComponent } from './receita-federal.component';
+import { ReceitaFederalFlightComponent } from './receita-federal-flight.component';
 import { DxButtonModule,
   DxDateBoxModule,
   DxButtonGroupModule,
   DxToolbarModule,
-  DxDataGridModule } from 'devextreme-angular';
+  DxDropDownButtonModule,
+  DxPopupModule} from 'devextreme-angular';
 import { ReceitaFederalClient } from 'app/shared/proxy/ctaapi';
 import { ButtonModule } from 'app/@shared/atoms/button/button.module';
 import { PipesModule } from 'app/shared/util/pipes.module';
+import { FlightDetailComponent } from './flight-detail/flight-detail.component';
 
 @NgModule({
-  declarations: [ReceitaFederalComponent],
+  declarations: [ReceitaFederalFlightComponent, FlightDetailComponent],
   imports: [
     CommonModule,
     DxButtonModule,
     DxDateBoxModule,
     DxButtonGroupModule,
     DxToolbarModule,
-    DxDataGridModule,
+    DxDropDownButtonModule,
     PipesModule,
-    ButtonModule
+    ButtonModule,
+    DxPopupModule
   ],
-  exports: [ ReceitaFederalComponent ],
+  exports: [ReceitaFederalFlightComponent],
   providers: [ReceitaFederalClient]
 })
 
-export class ReceitaFederalModule { }
+export class ReceitaFederalFlightModule { }

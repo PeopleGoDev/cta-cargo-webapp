@@ -15,11 +15,20 @@
                 <dx-toolbar>
                     <dxi-item location="before">
                         <div *dxTemplate>
-                            <div id="panel1" #panel1 style="display: table; vertical-align: middle;">
+                            <div id="panel1" #panel1 style="display: flex; align-items: center;">
                                 <div style="display: table-cell">Data de Processamento&nbsp;</div>
                                 <div style="display: table-cell">
                                     <dx-date-box [value]="filtroDataProcessamento" type="date" width="115"
                                         (onValueChanged)="onDataProcessamentoChanged($event)"></dx-date-box>
+                                </div>
+                                <div style="display: table-cell; width: 10px;">&nbsp;</div>
+                                <div style="display: table-cell;">
+                                    <dx-drop-down-button [splitButton]="true" [useSelectMode]="false"
+                                        text="Selecione o Voo" icon="assets/img/icons/wood-pallet.svg"
+                                        [items]="botoesGBItems" [selectedItemKey]="curAgenteDeCarga"
+                                        (onItemClick)="onItemClick($event)" displayExpr="text" keyExpr="agenteid"
+                                        [disabled]="!botoesGBItems || botoesGBItems.length === 0" [useSelectMode]="true"
+                                        width="385px"></dx-drop-down-button>
                                 </div>
                             </div>
                         </div>
@@ -30,28 +39,14 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-md-12" style="margin-bottom: 10px;">
-                <dx-toolbar>
-                    <dxi-item location="before">
-                        <div *dxTemplate>
-                            <div id="panel1" #panel1 style="display: table; vertical-align: middle;">
-                                <div style="display: table-cell">
-                                    <dx-button-group [items]="botoesGBItems" accessKey="agenteid" keyExpr="agenteid"
-                                        stylingMode="text" [selectedItemKeys]="[curAgenteDeCarga]"
-                                        (onItemClick)="onItemClick($event)">
-                                    </dx-button-group>
-                                </div>
-                            </div>
-                        </div>
-                    </dxi-item>
-                </dx-toolbar>
-            </div>
-        </div>
-        <div class="row">
             <div class="col-md-12">
                 <dx-data-grid id="tasks" [dataSource]="dataHouse" #masterDataGrid keyExpr="HouseId"
                     [columnAutoWidth]="true" [wordWrapEnabled]="true" [showBorders]="true"
-                    (onRowPrepared)="onRowPrepared($event)">
+                    (onRowPrepared)="onRowPrepared($event)"
+                    (onEditorPreparing)="onEditorPreparing($event)"
+                    (onSelectionChanged)="onSelectionChanged($event)"
+                    [(selectedRowKeys)]="selectedItems">
+                    <dxo-selection mode="multiple"></dxo-selection>
                     <dxi-column dataField="Numero" caption="Número" [width]="150" cellTemplate="awbTemplate">
                         <div *dxTemplate="let data of 'awbTemplate'">
                             <i *ngIf="data.data.StatusId == 1" class="dx-icon-check" style="color: green"></i>
@@ -61,7 +56,7 @@
                         </div>
                     </dxi-column>
                     <dxi-column caption="Peso/Volume">
-                        <dxi-column dataField="TotalVolumes" caption="Volumes" dataType="number" [width]="60">
+                        <dxi-column dataField="TotalVolumes" caption="Qde" dataType="number" [width]="60">
                         </dxi-column>
                         <dxi-column dataField="PesoTotalBruto" caption="Peso Total" dataType="number" format="decimal"
                             [editorOptions]="{
@@ -98,17 +93,22 @@
                         </dxi-column>
                     </dxi-column>
                     <dxi-column caption="Outras Informações" [visible]="true">
-                        <dxi-column dataField="SituacaoRFB" caption="Situação House RFB" [width]="170">
-                            <dxo-lookup [dataSource]="statusRFB" displayExpr="Descricao" valueExpr="Id">
-                            </dxo-lookup>
-                        </dxi-column>
-                        <dxi-column dataField="SituacaoAssociacaoRFBId" caption="Situacao Associação RFB" [width]="170">
-                            <dxo-lookup [dataSource]="statusRFB" displayExpr="Descricao" valueExpr="Id">
-                            </dxo-lookup>
+                        <dxi-column dataField="SituacaoRFB" caption="Situação House RFB" [width]="260"
+                            cellTemplate="erroRFBTemplate">
                         </dxi-column>
                     </dxi-column>
                     <div *dxTemplate="let cell of 'erroRFBTemplate'">
                         {{ cell.text ? textToHtml(cell) : ''}}
+                    </div>
+                    <div *dxTemplate="let cell of 'erroRFBTemplate'">
+                        <div *ngIf="cell.value === 3">
+                            <b>{{ statusRFB[cell.value].Descricao }}</b><br />
+                            {{ cell.data.DescricaoErroRFB }}
+                        </div>
+                        <div *ngIf="cell.value !== 3">
+                            {{ statusRFB[cell.value].Descricao }}<br />
+                            {{ cell.data.ProtocoloRFB }}
+                        </div>
                     </div>
                 </dx-data-grid>
             </div>
@@ -116,14 +116,8 @@
         <div class="row">
             <div class="col-md-12" style="margin-top: 20px;">
                 <app-button (buttonClicked)="onClickUpload($event)" [isButtonOrange]="true"
-                    [isDisabled]="!botaoUploadEnabled" [mobileFull]="true" id="modal-create-master-group-link">
+                    [isDisabled]="!(selectedItems?.length > 0)" [mobileFull]="true" id="modal-create-master-group-link">
                     {{botaoUploadLabel}}
-                </app-button>
-            </div>
-            <div class="col-md-12" style="margin-top: 20px;">
-                <app-button (buttonClicked)="onClickUploadAssociacao($event)" [isButtonOrange]="true"
-                    [isDisabled]="!botaoAssociacaoUploadEnabled" [mobileFull]="true" id="modal-create-master-group-link">
-                    {{botaoAssociacaoUploadLabel}}
                 </app-button>
             </div>
         </div>
@@ -134,11 +128,13 @@
     <p>Você tem certeza que deseja submeter os Houses para a Receita Federal?</p>
     <div class="buttons-line">
         <div>
-            <dx-button stylingMode="contained" text="Confirmar" type="normal" [width]="120" (onClick)="popUpConfirm.visible = false">
+            <dx-button stylingMode="contained" text="Confirmar" type="normal" [width]="120"
+                (onClick)="popUpConfirm.visible = false">
             </dx-button>
         </div>
         <div>
-            <dx-button stylingMode="outlined" text="Cancelar" type="normal" [width]="120" (onClick)="popUpConfirm.visible = false">
+            <dx-button stylingMode="outlined" text="Cancelar" type="normal" [width]="120"
+                (onClick)="popUpConfirm.visible = false">
             </dx-button>
         </div>
     </div>

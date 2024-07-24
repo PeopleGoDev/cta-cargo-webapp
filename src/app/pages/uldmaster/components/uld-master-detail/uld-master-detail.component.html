@@ -1,19 +1,20 @@
 <div class="master-detail">
     <div class="master-detail-title"><strong>{{ uld.MasterNumero | master }}</strong></div>
     <div class="master-info-box">
-        <div class="master-info-box-field"><span>Peso&nbsp;
+        <div class="master-info-box-field"><span>Peso&nbsp;-&nbsp;{{ uld.MasterPesoUnidade }}
                 <strong>{{ calculateTotalWeightsPerUld() | number:'1.1-5' }}&nbsp;/&nbsp;{{ uld.MasterPeso |
                     number:'1.1-5' }}</strong></span>
-        </div>
-        <div class="master-info-box-field"><span>Peso Unidade&nbsp;
-                <strong>{{ uld.MasterPesoUnidade }}</strong></span>
-        </div>
-        <div class="master-info-box-field"><span>Peças &nbsp;
-                <strong>{{ calculateTotalPiecesPerUld() }}&nbsp;/&nbsp;{{ uld.MasterPecas }}</strong></span>
         </div>
         <div class="master-info-box-field"><span>Peso %&nbsp;
                 <strong>{{ calculateWeightPerFlight() | percent:'1.2' }}</strong></span>
         </div>
+        <div class="master-info-box-field"><span>Peças
+                <strong>{{ calculateTotalPiecesPerUld() }}&nbsp;/&nbsp;{{ uld.MasterPecas
+                    }}</strong></span>
+        </div>
+        <div class="master-info-box-field"><span>Peças %
+            <strong>{{calculatePercentagePiecesPerUld() | percent:'1.2'}}</strong></span>
+    </div>
     </div>
 
     <div><span class="master-info-box-field">Localização Aeronave</span>

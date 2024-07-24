@@ -11,9 +11,9 @@ export class NaturezaCargaService {
 
     constructor(private httpClient: HttpClient) { }
 
-    async listar(empresaId: number): Promise<Result<Array<NaturezaCargaResponseDto>>> {
+    async listar(): Promise<Result<Array<NaturezaCargaResponseDto>>> {
 
-        return this.httpClient.get<Result<Array<NaturezaCargaResponseDto>>>(`${environment.BaseURL}v1/NaturezaCarga/ListarNaturezaCarga?empresaId=${empresaId}`)
+        return this.httpClient.get<Result<Array<NaturezaCargaResponseDto>>>(`${environment.BaseURL}v1/NaturezaCarga/ListarNaturezaCarga`)
             .toPromise()
             .then(res => {
                 return new Result<Array<NaturezaCargaResponseDto>>(

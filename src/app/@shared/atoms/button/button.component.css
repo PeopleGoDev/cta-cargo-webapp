@@ -16,6 +16,11 @@
     background-color: #e77021;
 }
 
+.a-btn--blue {
+    border-color: #1b37d4;
+    background-color: #1b37d4;
+}
+
 .a-btn--bright {
     color: white;
     border-color: white;

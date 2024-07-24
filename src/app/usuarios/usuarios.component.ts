@@ -1,10 +1,8 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { UsuarioInsertDto, UsuarioResponseDto, UsuarioUpdateDto, UsuarioResetDto } from 'app/shared/model/dto/usuariodto';
 import { UsuariosService } from 'app/shared/services/usuarios.service';
 import notify from 'devextreme/ui/notify';
 import { confirm } from 'devextreme/ui/dialog';
-import { LocalStorageService } from 'app/shared/services/localstorage.service';
-import { CertificadoDigitalClient, CiaAereaClient, CiaAreaListaSimplesResponse, UsuarioInfoResponse } from 'app/shared/proxy/ctaapi';
+import { CertificadoDigitalClient, CiaAereaClient, CiaAreaListaSimplesResponse, UserResetRequest, UsuarioClient, UsuarioInsertRequest, UsuarioResponseDto, UsuarioUpdateRequest } from 'app/shared/proxy/ctaapi';
 import { environment } from 'environments/environment';
 
 @Component({
@@ -28,7 +26,7 @@ export class UsuariosComponent implements OnInit {
       let result = confirm("<i>Deseja realmente resetar a senha do usuário ?</i>", "Você tem certeza?");
       result.then((dialogResult) => {
         if (dialogResult) {
-          this.ResetarSenha();
+          this.resetPassword();
         }
       });
     }
@@ -45,165 +43,152 @@ export class UsuariosComponent implements OnInit {
       });
     }
   };
-  private usuarioInfo: UsuarioInfoResponse;
 
   constructor(private usuariosService: UsuariosService,
     private ciaAereaClient: CiaAereaClient,
-    private localstorageService: LocalStorageService,
-    private certificadoDigitalClient: CertificadoDigitalClient) {
+    private certificadoDigitalClient: CertificadoDigitalClient,
+    private usuarioClient: UsuarioClient) {
     this.onRowDelete = this.onRowDelete.bind(this);
     this.buttonOptions.onClick = this.buttonOptions.onClick.bind(this);
     this.buttonOptionsExcluir.onClick = this.buttonOptionsExcluir.onClick.bind(this);
-    this.ResetarSenha = this.ResetarSenha.bind(this);
+    this.resetPassword = this.resetPassword.bind(this);
   }
 
   ngOnInit(): void {
-
-    this.usuarioInfo = this.localstorageService.getLocalStore().UsuarioInfo;
-
-    const ciasObservable = this.ciaAereaClient.listarCiasAereasSimples(this.usuarioInfo.EmpresaId);
+    const ciasObservable = this.ciaAereaClient.listarCiasAereasSimples();
     ciasObservable.subscribe((ciasData) => {
       this.cias = ciasData.result.Dados;
     }, err => {
       // Notificar erro
     });
 
-    this.RefreshCertificados();
-    this.RefreshLista();
-
+    this.refreshCertificados();
+    this.refreshLista();
   }
 
-  async onRowUpdating(e) {
-    e.cancel = true;
-    this.dataGrid.instance.cancelEditData();
-    const item = this.cias.find(x => x.CiaId == e.key);
+  async onRowUpdating(e: { oldData: any; newData: any; cancel: Promise<unknown>; }) {
     const newData: UsuarioResponseDto = Object.assign(e.oldData, e.newData)
 
-    const updateRequest: UsuarioUpdateDto = new UsuarioUpdateDto(
-      newData.UsuarioId,
-      newData.Nome,
-      newData.Sobrenome,
-      newData.CompanhiaId,
-      newData.AlteraCompanhia,
-      newData.AcessoUsuarios,
-      newData.AcessoClientes,
-      newData.AcessoCompanhias,
-      newData.Bloqueado,
-      this.usuarioInfo.UsuarioId
-    );
+    const updateRequest: UsuarioUpdateRequest = {
+      UsuarioId: newData.UsuarioId,
+      Account: newData.Account,
+      Email: newData.Email,
+      Nome: newData.Nome,
+      Sobrenome: newData.Sobrenome,
+      CompanhiaId: newData.CompanhiaId,
+      AlteraCompanhia: newData.AlteraCompanhia,
+      AcessoUsuarios: newData.AcessoUsuarios,
+      AcessoClientes: newData.AcessoClientes,
+      AcessoCompanhias: newData.AcessoCompanhias,
+      Bloqueado: newData.Bloqueado
+    };
 
-    updateRequest.CertificadoDigitalId = newData.CertificadoDigitalId == null ? null : newData.CertificadoDigitalId;
+    const isCanceled = new Promise((resolve, reject) => {
+      this.usuarioClient.atualizarUsuario(updateRequest)
+        .toPromise()
+        .then(res => {
+          if (res.result.Sucesso) {
+            resolve(false);
+          } else {
+            reject(res.result.Notificacoes[0].Mensagem);
+          }
+        })
+        .catch(err => {
+          reject(err);
+        });
+    });
 
-    let res = await this.usuariosService.Atualizar(updateRequest);
-
-    if (res.Sucesso) {
-      // Atualiza o item da lista de Cia Aéreas
-      for (var i in this.usuarios) {
-        if (this.usuarios[i].UsuarioId == newData.UsuarioId) {
-          this.usuarios[i] = res.Dados;
-          break;
-        }
-      }
-    }
-    else {
-      notify(res.Notificacoes[0].Mensagem, 'error', 3000);
-    }
-
+    e.cancel = isCanceled;
   }
 
-  async onRowInserting(e) {
-    e.cancel = true;
-
+  async onRowInserting(e: { data: UsuarioResponseDto; cancel: Promise<unknown> }) {
     const newData: UsuarioResponseDto = e.data;
 
-    const insertRequest: UsuarioInsertDto = new UsuarioInsertDto(
-      this.usuarioInfo.EmpresaId,
-      newData.Nome,
-      newData.Sobrenome,
-      newData.Email,
-      newData.CompanhiaId,
-      newData.AlteraCompanhia,
-      newData.AcessoUsuarios,
-      newData.AcessoClientes,
-      newData.AcessoCompanhias,
-      this.usuarioInfo.UsuarioId
-    );
-    insertRequest.CertificadoDigitalId = newData.CertificadoDigitalId == null ? null : newData.CertificadoDigitalId;
+    const insertRequest: UsuarioInsertRequest = {
+      Nome: newData.Nome,
+      Sobrenome: newData.Sobrenome,
+      Email: newData.Email,
+      Account: newData.Account,
+      CompanhiaId: newData.CompanhiaId,
+      AlteraCompanhia: newData.AlteraCompanhia,
+      AcessoUsuarios: newData.AcessoUsuarios,
+      AcessoClientes: newData.AcessoClientes,
+      AcessoCompanhias: newData.AcessoCompanhias,
+      CertificadoDigitalId: newData.CertificadoDigitalId
+    };
 
-    let res = await this.usuariosService.Inserir(insertRequest);
+    const isCanceled = new Promise((resolve, reject) => {
+      this.usuarioClient.inserirUsuario(insertRequest)
+        .toPromise()
+        .then(res => {
+          if (res.result.Sucesso) {
+            resolve(false);
+          } else {
+            reject(res.result.Notificacoes[0].Mensagem);
+          }
+        })
+        .catch(err => {
+          reject(err);
+        });
+    });
 
-    if (res.Sucesso) {
-      // Atualiza o item da lista de Cia Aéreas
-      this.usuarios.push(res.Dados);
-      this.dataGrid.instance.cancelEditData();
-    }
-    else {
-      notify(res.Notificacoes[0].Mensagem, 'error', 3000);
-      this.dataGrid.instance.cancelEditData();
-    }
+    e.cancel = isCanceled;
   }
 
   async onRowDelete() {
+    this.usuarioClient.excluirUsuario(this.curgridKey)
+      .toPromise()
+      .then(res => {
+        if (res.result.Sucesso) {
+          let item = this.usuarios.find(x => x.UsuarioId == this.curgridKey);
+          var index = this.usuarios.indexOf(item);
+          this.usuarios.splice(index, 1);
+          this.dataGrid.instance.cancelEditData();
+        } else {
+          notify(res.result.Notificacoes[0].Mensagem, 'error', 3000);
+          this.dataGrid.instance.cancelEditData();
+        }
+      });
 
     let res = await this.usuariosService.Excluir(this.curgridKey);
-
-    if (res.Sucesso) {
-      // Atualiza o item da lista de Cia Aéreas
-      let item = this.usuarios.find(x => x.UsuarioId == this.curgridKey);
-      var index = this.usuarios.indexOf(item);
-      this.usuarios.splice(index, 1);
-      this.dataGrid.instance.cancelEditData();
-    }
-    else {
-      notify(res.Notificacoes[0].Mensagem, 'error', 3000);
-      this.dataGrid.instance.cancelEditData();
-    }
   }
 
-  async ResetarSenha(e) {
+  resetPassword(_e: any) {
     this.dataGrid.instance.cancelEditData();
-    this.loadingVisible = true;
-    const resetUsuario: UsuarioResetDto = new UsuarioResetDto(this.curgridKey);
 
-    let res = await this.usuariosService.Resetar(resetUsuario);
+    const requestReset: UserResetRequest = {
+      UserId: this.curgridKey
+    };
 
-    if (res.Sucesso) {
-      this.loadingVisible = false;
-      notify(res.Dados, 'success', 3000);
-    }
-    else {
-      this.loadingVisible = false;
-      notify(res.Notificacoes[0].Mensagem, 'error', 3000);
-    }
+    this.usuarioClient.resetarUsuario(requestReset)
+      .toPromise()
+      .then(res => {
+        if (res.result.Sucesso) {
+          notify(res.result.Dados, 'success', environment.ErrorTimeout);
+        } else {
+          notify(res.result.Notificacoes[0].Mensagem, 'error', environment.ErrorTimeout);
+        }
+      });
   }
 
-  RefreshLista() {
-    this.loadingVisible = true;
-
-    let res = this.usuariosService.Listar(this.usuarioInfo.EmpresaId)
-      .subscribe(
-        data => {
-          if (data.Sucesso) {
-            this.usuarios = data.Dados;
-            // Atualiza Dados
-          }
-          else {
-            notify(data.Notificacoes[0].Mensagem, 'error', 3000);
-          }
-          this.loadingVisible = false;
-        },
-        err => {
-          notify(err, 'error', 3000);
-          this.loadingVisible = false;
-        }, () => {
-          this.loadingVisible = false;
+  refreshLista() {
+    this.usuarioClient.listarUsuarios()
+      .toPromise()
+      .then(res => {
+        if (res.result.Sucesso) {
+          this.usuarios = res.result.Dados;
         }
-      );
+        else {
+          notify(res.result.Notificacoes[0].Mensagem, 'error', environment.ErrorTimeout);
+        }
+      })
+      .catch(err => {
+        notify(err, 'error', environment.ErrorTimeout);
+      });
   }
 
   onEditorPreparing(e: any): void {
     if (e.row?.isNewRow) {
-      // supress botão excluir e campo bloqueado
       if (e.dataField == "Nome" && e.parentType == "dataRow") {
         this.newrowBotao = false;
       }
@@ -219,7 +204,6 @@ export class UsuariosComponent implements OnInit {
       if (e.dataField == "AcessoCompanhias" && e.parentType == "dataRow") {
         e.editorOptions.value = false;
       }
-
     }
     else {
       if (e.dataField == "Nome" && e.parentType == "dataRow") {
@@ -235,7 +219,7 @@ export class UsuariosComponent implements OnInit {
       widget: 'dxButton',
       options: {
         icon: "refresh",
-        onClick: this.RefreshLista.bind(this)
+        onClick: this.refreshLista.bind(this)
       }
     });
   }
@@ -246,10 +230,10 @@ export class UsuariosComponent implements OnInit {
     }
   }
 
-  RefreshCertificados() {
+  refreshCertificados() {
     this.loadingVisible = true;
 
-    this.certificadoDigitalClient.listarCertificadosDigitais(this.usuarioInfo.EmpresaId)
+    this.certificadoDigitalClient.listarCertificadosDigitais()
       .subscribe(res => {
         if (res.result.Sucesso) {
           this.certificados = res.result.Dados.map(item => {

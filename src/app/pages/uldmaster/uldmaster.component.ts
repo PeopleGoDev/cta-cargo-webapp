@@ -1,18 +1,19 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { AdminLayoutComponent } from 'app/layouts/admin-layout/admin-layout.component';
 import { AWBReference } from 'app/shared/lib';
-import { ListaUldMasterRequest, MasterNumeroUldSumario, UldClient, UldMasterDeleteByIdInput, UldMasterDeleteByTagInput, UldMasterInsertRequest, UldMasterNumeroQuery, UldMasterResponseDto, UldMasterUpdateRequest, UsuarioInfoResponse, VooClient, VooListaResponseDto, VooListarInputDto } from 'app/shared/proxy/ctaapi';
-import { LocalStorageService } from 'app/shared/services/localstorage.service';
+import { ListaUldMasterRequest, MasterNumeroUldSumario, UldClient, UldMasterDeleteByIdInput, UldMasterDeleteByTagInput, UldMasterInsertRequest, UldMasterNumeroQuery, UldMasterNumeroQueryChildren, UldMasterResponseDto, UldMasterUpdateRequest, VooClient, VooListaResponseDto, VooListarInputDto, VooTrechoResponse } from 'app/shared/proxy/ctaapi';
 import notify from 'devextreme/ui/notify';
 import { environment } from 'environments/environment';
 import { MasteruldsumarioComponent } from './components/masteruldsumario/masteruldsumario.component';
 import * as pdfMake from "pdfmake/build/pdfmake";
 import * as pdfFonts from "pdfmake/build/vfs_fonts";
+import { FlightTypeEnum } from 'app/shared/collections/data';
 (pdfMake as any).vfs = pdfFonts.pdfMake.vfs;
 
 import jsPDF from 'jspdf';
 // import html2canvas from 'html2canvas';
 import * as _html2canvas from "html2canvas";
+import { TotalParcialCollection } from 'app/shared/collections/data';
 const html2canvas: any = _html2canvas;
 
 @Component({
@@ -26,7 +27,8 @@ export class UldmasterComponent implements OnInit {
   @ViewChild("sumario") sumarioComponent: MasteruldsumarioComponent;
   @ViewChild("mainContent", { static: true }) mainContent!: ElementRef<HTMLImageElement>;
 
-  curVoo: VooListaResponseDto;
+  curVooDetail: VooListaResponseDto;
+  curTrecho: VooTrechoResponse = undefined;
   filtroDataVoo: Date;
   uldForm: UldMasterResponseDto;
   isPopupVisible: Boolean = false;
@@ -38,23 +40,31 @@ export class UldmasterComponent implements OnInit {
   plusIcon: any;
   excelIcon: any;
   // Data Sources
-  botoesGBItems: any = [];
+  listaVoos: any = [];
+  listaTrechos: VooTrechoResponse[] = [];
   activeSection: string = 'entry';
   public uldLista: UldMasterNumeroQuery[] = [];
   public summaryList: MasterNumeroUldSumario[] = [];
+  pesoUnidade = [{
+    "Codigo": "KGM"
+  }, {
+    "Codigo": "LBS"
+  }];
+  totalParcialData = TotalParcialCollection;
+  flightTypeEnum = FlightTypeEnum;
+  curVoo: number = -1;
+
   // Privados
-  private usuarioInfo: UsuarioInfoResponse;
   private awbref: AWBReference = new AWBReference();
 
 
-  constructor(private localStorageService: LocalStorageService,
-    private vooClient: VooClient,
+  constructor(private vooClient: VooClient,
     private uldClient: UldClient,
     private parentComponent: AdminLayoutComponent) {
 
     pdfMake.vfs = pdfFonts.pdfMake.vfs;
     this.uldLista = [];
-    this.ValidarMasterNumero = this.ValidarMasterNumero.bind(this);
+    this.validarMasterNumero = this.validarMasterNumero.bind(this);
     this.ValidarUldCampo = this.ValidarUldCampo.bind(this);
     this.ValidarUld = this.ValidarUld.bind(this);
     this.AddRow = this.AddRow.bind(this);
@@ -76,7 +86,6 @@ export class UldmasterComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.usuarioInfo = this.localStorageService.getLocalStore().UsuarioInfo;
     this.refreshListaVoos();
   }
 
@@ -89,17 +98,24 @@ export class UldmasterComponent implements OnInit {
       DataVoo: this.filtroDataVoo,
     }
 
-    this.curVoo = undefined;
+    this.listaVoos = []
+    this.listaVoos.push({
+      alignment: "left",
+      text: 'Selecione o Voo',
+      vooId: -1,
+      data: undefined
+    });
+    this.curVoo = -1;
+
+    this.curVooDetail = undefined;
     this.uldLista = [];
-    this.botoesGBItems = [];
+    this.listaTrechos = [];
 
     this.vooClient.listarVoosLista(input)
       .subscribe(res => {
         if (res.result.Sucesso) {
           if (res.result.Dados != null && res.result.Dados.length > 0) {
-            this.botoesGBItems = this.mapearButtonGroup(res.result.Dados);
-            this.curVoo = res.result.Dados[0];
-            this.refreshGrid();
+            this.mapearButtonGroup(res.result.Dados);
           }
         }
         else {
@@ -111,9 +127,9 @@ export class UldmasterComponent implements OnInit {
   }
 
   async refreshGrid() {
-    if (this.curVoo.VooId == -1) return;
+    if (!this.curTrecho) return;
     this.uldLista = [];
-    this.uldClient.listarUldMasterPorVooId(this.curVoo.VooId)
+    this.uldClient.listarUldMasterPorTrechoId(this.curTrecho.Id)
       .subscribe(res => {
         if (res.result.Sucesso) {
           this.uldLista = res.result.Dados;
@@ -127,20 +143,17 @@ export class UldmasterComponent implements OnInit {
   }
 
   mapearButtonGroup(dados: VooListaResponseDto[]) {
-    let arrayBG: any = [];
-    if (dados == null) return arrayBG;
+    if (dados == null) return;
 
-    for (var i in dados) {
-      let item = {
+    for (const i in dados) {
+      this.listaVoos.push({
         icon: "airplane",
         alignment: "left",
-        text: dados[i].Numero,
-        vooid: dados[i].VooId,
+        text: dados[i].Numero + ' - ' + dados[i].CiaAereaNome + ' - ' + this.flightTypeEnum[dados[i].FlightType],
+        vooId: dados[i].VooId,
         data: dados[i],
-      };
-      arrayBG.push(item);
+      });
     }
-    return arrayBG;
   }
 
   onDataVooChanged(e) {
@@ -191,72 +204,190 @@ export class UldmasterComponent implements OnInit {
   }
 
   onRowInserted(e) {
+    e.data.AeroportoOrigem = e.data.AeroportoOrigem ? e.data.AeroportoOrigem.toUpperCase() : undefined;
+    e.data.AeroportoDestino = e.data.AeroportoDestino ? e.data.AeroportoDestino.toUpperCase() : undefined;
+    e.data.DescricaoMercadoria = e.data.DescricaoMercadoria ? e.data.DescricaoMercadoria.toUpperCase() : undefined;
     setTimeout(function () {
       e.component.addRow();
     }, 100);
   }
 
-  ValidarMasterNumero(e) {
+  onRowUpdated(e) {
+    e.data.AeroportoOrigem = e.data.AeroportoOrigem ? e.data.AeroportoOrigem.toUpperCase() : undefined;
+    e.data.AeroportoDestino = e.data.AeroportoDestino ? e.data.AeroportoDestino.toUpperCase() : undefined;
+    e.data.DescricaoMercadoria = e.data.DescricaoMercadoria ? e.data.DescricaoMercadoria.toUpperCase() : undefined;
+  }
+
+  validarMasterNumero(e) {
     return this.awbref.ValidaMasterNumero(e.value);
   }
 
   async onRowInserting(e, item) {
 
-    const newData: UldMasterResponseDto = e.data;
+    const newData: UldMasterNumeroQueryChildren = e.data;
 
     let insertRequests: UldMasterInsertRequest[] = new Array<UldMasterInsertRequest>();
 
+    newData.MasterNumero = newData.MasterNumero.toUpperCase();
+    newData.PesoUnidade = newData.PesoUnidade.toUpperCase();
+    newData.TotalParcial = newData.TotalParcial.toLocaleUpperCase();
+    newData.AeroportoOrigem = newData.AeroportoOrigem ? newData.AeroportoOrigem.toUpperCase() : undefined;
+    newData.AeroportoDestino = newData.AeroportoDestino ? newData.AeroportoDestino.toUpperCase() : undefined;
+    newData.DescricaoMercadoria = newData.DescricaoMercadoria ? newData.DescricaoMercadoria.toUpperCase() : undefined;
+
     const insertRequest: UldMasterInsertRequest = {
-      EmpresaId: +this.usuarioInfo.EmpresaId,
       MasterNumero: newData.MasterNumero,
       Peso: +newData.Peso,
+      PesoUN: newData.PesoUnidade,
       QuantidadePecas: +newData.QuantidadePecas,
       UldCaracteristicaCodigo: item.ULDCaracteristicaCodigo,
       UldId: item.ULDId,
       UldIdPrimario: item.ULDIdPrimario,
-      UsuarioId: +this.usuarioInfo.UsuarioId,
-      VooId: this.curVoo.VooId,
+      TrechoId: this.curTrecho.Id,
+      TipoDivisao: newData.TotalParcial,
+      Transferencia: newData.Transferencia,
+      AeroportoOrigem: newData.AeroportoOrigem,
+      AeroportoDestino: newData.AeroportoDestino,
+      DescricaoMercadoria: newData.DescricaoMercadoria,
     }
 
     insertRequests.push(insertRequest);
 
-    const res = await this.uldClient.inserirUldMaster(insertRequests)
-    return res.subscribe(() => false, () => true);
+    const isCanceled = new Promise((resolve, reject) => {
+
+      if (!newData.MasterNumero || newData.MasterNumero.length < 11) {
+        reject('Número do master invalido. O Master deve conter ao menos 11 caracteres!');
+      } else if (!newData.PesoUnidade || newData.PesoUnidade.length < 3) {
+        reject('Unidade do peso invalido. Utilize uma unidada na lista!')
+      } else if (!newData.Peso || newData.Peso <= 0) {
+        reject('O peso deve ser maior que 0.')
+      } else if (!newData.QuantidadePecas || newData.QuantidadePecas <= 0) {
+        reject('A quantidade deve ser maior que 0.')
+      } else {
+
+        this.uldClient.inserirUldMaster(insertRequests)
+          .toPromise()
+          .then(res => {
+            if (res.result.Sucesso) {
+              newData.UsuarioCriacao = res.result.Dados[0].UsuarioCriacao;
+              newData.DataCricao = res.result.Dados[0].DataCricao;
+              newData.Id = res.result.Dados[0].Id;
+              newData.MasterId = res.result.Dados[0].MasterId;
+              newData.AeroportoOrigem = res.result.Dados[0].AeroportoOrigem;
+              newData.AeroportoDestino = res.result.Dados[0].AeroportoDestino;
+              newData.DescricaoMercadoria = res.result.Dados[0].DescricaoMercadoria;
+              resolve(false);
+            }
+            else {
+              reject(res.result.Notificacoes[0].Mensagem);
+            }
+          })
+          .catch(err => {
+            reject(err);
+          });
+      }
+    });
+
+    e.cancel = isCanceled;
 
   }
 
   async onRowUpdating(e) {
 
-    const newData: UldMasterResponseDto = Object.assign(e.oldData, e.newData)
+    const newData: UldMasterNumeroQueryChildren = Object.assign(e.oldData, e.newData)
+    const newDataUpdate: UldMasterNumeroQueryChildren = e.newData;
+
+    newData.MasterNumero = newData.MasterNumero.toUpperCase();
+    newData.PesoUnidade = newData.PesoUnidade.toUpperCase();
+    newData.TotalParcial = newData.TotalParcial.toLocaleUpperCase();
+    newData.AeroportoOrigem = newData.AeroportoOrigem ? newData.AeroportoOrigem.toUpperCase() : undefined;
+    newData.AeroportoDestino = newData.AeroportoDestino ? newData.AeroportoDestino.toUpperCase() : undefined;
+    newData.DescricaoMercadoria = newData.DescricaoMercadoria ? newData.DescricaoMercadoria.toUpperCase() : undefined;
 
     let updateRequests: UldMasterUpdateRequest[] = new Array<UldMasterUpdateRequest>();
     const updateRequest: UldMasterUpdateRequest = {
+      Id: e.key,
       MasterNumero: newData.MasterNumero,
       Peso: newData.Peso,
+      PesoUN: newData.PesoUnidade,
       QuantidadePecas: newData.QuantidadePecas,
       UldCaracteristicaCodigo: newData.UldCaracteristicaCodigo,
       UldId: newData.UldId,
       UldIdPrimario: newData.UldIdPrimario,
-      UsuarioId: +this.usuarioInfo.UsuarioId,
-      VooId: this.curVoo.VooId,
-      Id: newData.Id,
+      TrechoId: this.curTrecho.Id,
+      TipoDivisao: newData.TotalParcial,
+      Transferencia: newData.Transferencia,
+      AeroportoOrigem: newData.AeroportoOrigem,
+      AeroportoDestino: newData.AeroportoDestino,
+      DescricaoMercadoria: newData.DescricaoMercadoria,
     }
 
     updateRequests.push(updateRequest);
 
-    const res = await this.uldClient.atualizarUldMaster(updateRequests);
-    return res.subscribe(() => false, () => true);
+    const isCanceled = new Promise((resolve, reject) => {
+
+      if (!newData.MasterNumero || newData.MasterNumero.length < 11) {
+        reject('Número do master invalido. O Master deve conter ao menos 11 caracteres!');
+      } else if (!newData.PesoUnidade || newData.PesoUnidade.length < 3) {
+        reject('Unidade do peso invalido. Utilize uma unidada na lista!')
+      } else if (!newData.Peso || newData.Peso <= 0) {
+        reject('O peso deve ser maior que 0.')
+      } else if (!newData.QuantidadePecas || newData.QuantidadePecas <= 0) {
+        reject('A quantidade deve ser maior que 0.')
+      } else {
+
+        this.uldClient.atualizarUldMaster(updateRequests)
+          .toPromise()
+          .then(res => {
+            if (res.result.Sucesso) {
+              //if(newDataUpdate.MasterId)
+              newDataUpdate.MasterId = res.result.Dados[0].MasterId;
+              //if(newDataUpdate.AeroportoOrigem)
+              newDataUpdate.AeroportoOrigem = res.result.Dados[0].AeroportoOrigem;
+              //if(newDataUpdate.AeroportoDestino)
+              newDataUpdate.AeroportoDestino = res.result.Dados[0].AeroportoDestino;
+              //if(newDataUpdate.DescricaoMercadoria)
+              newDataUpdate.DescricaoMercadoria = res.result.Dados[0].DescricaoMercadoria;
+              resolve(false);
+            }
+            else {
+              reject(res.result.Notificacoes[0].Mensagem);
+            }
+          })
+          .catch(err => {
+            reject(err);
+          });
+      }
+    });
+
+    e.cancel = isCanceled;
   }
 
   async onRowRemoving(e) {
 
     let input: UldMasterDeleteByIdInput = {
-      VooId: this.curVoo.VooId,
+      TrechoId: this.curTrecho.Id,
       ListaIds: [e.key]
     }
-    const res = await this.uldClient.excluirUldMaster(input)
-    return res.subscribe(() => false, () => true);
-  
+
+    const isCanceled = new Promise((resolve, reject) => {
+
+      this.uldClient.excluirUldMaster(input)
+        .toPromise()
+        .then(res => {
+          if (res.result.Sucesso) {
+            resolve(false);
+          }
+          else {
+            reject(res.result.Notificacoes[0].Mensagem);
+          }
+        })
+        .catch(err => {
+          reject(err);
+        });
+    });
+
+    e.cancel = isCanceled;
   }
 
   async onGridRowInserting(e) {
@@ -278,16 +409,29 @@ export class UldmasterComponent implements OnInit {
   }
 
   onItemClick(e) {
-    if (e.itemData.vooid == this.curVoo.VooId) return;
-    this.curVoo = e.itemData.data;
+    if (e.itemData.vooId == this.curVoo) return;
+    this.curVoo = e.itemData.vooId;
+    this.listaTrechos = [];
+    this.curTrecho = undefined;
+    this.uldLista = [];
+    if (e.itemData.data.Trechos) {
+      this.listaTrechos = e.itemData.data.Trechos;
+      this.curTrecho = e.itemData.data.Trechos[0];
+    }
+    this.refreshGrid();
+  }
+
+  onTrechoItemClick(e) {
+    if (e.itemData.Id == this.curTrecho.Id) return;
+    this.curTrecho = e.itemData;
     this.refreshGrid();
   }
 
   onVisualizarSumario(e: any) {
-    if (this.curVoo.VooId == -1) return;
+    if (this.curVoo == -1) return;
     this.uldLista = [];
     let input: ListaUldMasterRequest = {
-      vooId: this.curVoo.VooId
+      vooId: this.curVoo
     }
 
     this.uldClient.listarMasterUldSumario(input)
@@ -318,7 +462,7 @@ export class UldmasterComponent implements OnInit {
       ULDId: e.data.ULDId,
       ULDCaracteristicaCodigo: e.data.ULDCaracteristicaCodigo,
       ULDIdPrimario: e.data.ULDIdPrimario,
-      VooId: this.curVoo.VooId
+      VooId: this.curVoo
     }
 
     const res = await this.uldClient.excluirUld(removeData);
@@ -327,7 +471,7 @@ export class UldmasterComponent implements OnInit {
   }
 
   allowEdit(): boolean {
-    return this.curVoo && this.curVoo.SituacaoVoo != 2
+    return this.curVoo && this.curVooDetail?.SituacaoVoo != 2
   }
 
   public print(): void {
@@ -348,6 +492,14 @@ export class UldmasterComponent implements OnInit {
         doc.save('pdf-export');
       }
     });
+  }
+
+  onInitNewRow(e) {
+    e.data.Transferencia = false;
+  }
+
+  onContentReady(e: any) {
+
   }
 
 }

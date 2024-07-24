@@ -19,10 +19,12 @@
                     (onRowPrepared)="onRowPrepared($event)">
                     <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[10, 25, 50, 100]"></dxo-pager>
                     <dxo-editing mode="popup" [allowUpdating]="true" [allowAdding]="true">
-                        <dxo-popup title="Editar/Incluir Usuario" [showTitle]="false" [width]="700" [height]="555">
+                        <dxo-popup title="Editar/Incluir Usuario" [showTitle]="false" [width]="700" [height]="655">
                         </dxo-popup>
                         <dxo-form>
                             <dxi-item itemType="group" caption="Informações do Usuário" [colCount]="2" [colSpan]="2">
+                                <dxi-item dataField="Account" [colCount]="1" [colSpan]="2">
+                                </dxi-item>
                                 <dxi-item dataField="Nome" [editorOptions]="{ maxLength: 30 }">
                                     <dxi-validation-rule type="required"></dxi-validation-rule>
                                 </dxi-item>
@@ -64,29 +66,27 @@
                     <dxo-scrolling mode="virtual"></dxo-scrolling>
                     <dxo-paging [pageSize]="10"></dxo-paging>
                     <dxi-column dataField="UsuarioID" [width]="70" caption="Id" [visible]="false"></dxi-column>
-                    <dxi-column dataField="Nome"></dxi-column>
-                    <dxi-column dataField="Sobrenome"></dxi-column>
-                    <dxi-column dataField="Email"></dxi-column>
+                    <dxi-column dataField="Account" caption="Conta" [width]="170"></dxi-column>
+                    <dxi-column dataField="Nome" [width]="150"></dxi-column>
+                    <dxi-column dataField="Sobrenome" [width]="150"></dxi-column>
+                    <dxi-column dataField="Email" [width]="220"></dxi-column>
                     <dxi-column dataField="CompanhiaId" caption="Companhia Aérea" [width]="170">
                         <dxo-lookup [dataSource]="cias" displayExpr="Nome" valueExpr="CiaId">
                         </dxo-lookup>
                     </dxi-column>
-                    <dxi-column dataField="CertificadoDigitalId" caption="Certificado Digital" [width]="170">
+                    <dxi-column dataField="CertificadoDigitalId" caption="Certificado Digital" [width]="560">
                         <dxo-lookup [dataSource]="certificados" displayExpr="nome" valueExpr="id">
                         </dxo-lookup>
                     </dxi-column>
                     <dxi-column dataField="AlteraCompanhia" [width]="125" dataType="boolean"></dxi-column>
-                    <dxi-column dataField="AcessoUsuarios" dataType="boolean"></dxi-column>
-                    <dxi-column dataField="AcessoClientes" dataType="boolean"></dxi-column>
-                    <dxi-column dataField="AcessoCompanhias" dataType="boolean"></dxi-column>
-                    <dxi-column dataField="DataCriacao"></dxi-column>
-                    <dxi-column dataField="Bloqueado"></dxi-column>
+                    <dxi-column dataField="AcessoUsuarios" [width]="125" dataType="boolean"></dxi-column>
+                    <dxi-column dataField="AcessoClientes" [width]="125" dataType="boolean"></dxi-column>
+                    <dxi-column dataField="AcessoCompanhias" [width]="125"dataType="boolean"></dxi-column>
+                    <dxi-column dataField="DataCriacao" [width]="185"></dxi-column>
+                    <dxi-column dataField="Bloqueado" [width]="125"></dxi-column>
                     <dxo-export [enabled]="true"></dxo-export>
                 </dx-data-grid>
             </div>
         </div>
     </div>
 </div>
-<dx-load-panel #loadPanel shadingColor="rgba(0,0,0,0.4)" [(visible)]="loadingVisible" [showIndicator]="true"
-    [showPane]="true" [shading]="true" [closeOnOutsideClick]="false">
-</dx-load-panel>

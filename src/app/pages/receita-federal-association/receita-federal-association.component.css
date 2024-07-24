@@ -1,0 +1,81 @@
+.grid {
+    border: 1px solid #ddd;
+    -webkit-font-smoothing: antialiased;
+    font-family: sans-serif,OpenSans,Roboto,Helvetica Neue,Arial;
+    font-weight: 400;
+    font-size: 13px;
+}
+
+.table-house-item {
+    display: grid;
+    grid-template-columns: 0.5fr 3fr 2fr 4fr 1fr 1fr 2fr 1fr 1fr 1fr 5fr;
+    color: #000;
+    background-color: #f8f8f8;
+}
+
+.table-header {
+    background-color: #f8f8f8 !important;
+    color: #959595 !important;
+    font-weight: 400;
+}
+
+.table-header-item {
+    border-bottom: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+    color: #959595 !important;
+    padding: 7px;
+}
+
+.table-header-item:last-child {
+    border-bottom: 1px solid #ddd;
+    border-right: 0px solid #ddd;
+    padding: 7px;
+}
+
+.table-item-row {
+    border-right: 1px solid #ddd;
+    background-color: #fff;
+    padding: 7px;
+}
+
+.table-item-row:last-child {
+    border-right: 1px solid #ddd;
+    padding: 7px;
+}
+
+.checkbox {
+    cursor: pointer;
+}
+
+.right {
+    text-align: right;
+}
+
+.left {
+    text-align: left;
+}
+
+.center {
+    text-align: center;
+}
+
+.middle {
+    margin-top: 50%;
+    margin-bottom: 50%;
+}
+
+.summary {
+    font-weight: 500;
+}
+
+.error {
+    color: red;
+}
+
+::ng-deep .dx-dropdownbutton-action.dx-button .dx-button-content {
+    text-align: left;
+}
+
+a {
+    cursor: pointer;
+}

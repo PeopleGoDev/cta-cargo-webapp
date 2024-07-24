@@ -17,7 +17,6 @@
     "@angular-devkit/build-angular": "^0.900.6",
     "@angular/animations": "^9.0.6",
     "@angular/cdk": "^11.0.1",
-    "@angular/cli": "^9.1.12",
     "@angular/common": "^9.0.6",
     "@angular/compiler": "^9.0.6",
     "@angular/compiler-cli": "^9.0.6",
@@ -29,6 +28,7 @@
     "@angular/platform-browser": "^9.0.6",
     "@angular/platform-browser-dynamic": "^9.0.6",
     "@angular/router": "^9.0.6",
+    "@azure/static-web-apps-cli": "^1.1.8",
     "@ng-bootstrap/ng-bootstrap": "^6.2.0",
     "@ngui/map": "^0.30.3",
     "@types/chartist": "^0.11.0",
@@ -44,6 +44,8 @@
     "cpf-cnpj-validator": "^1.0.3",
     "devextreme": "20.2.3",
     "devextreme-angular": "20.2.3",
+    "file-saver": "^2.0.5",
+    "g": "^2.0.1",
     "googleapis": "^33.0.0",
     "html-to-pdfmake": "^2.4.20",
     "html2canvas": "^1.4.1",
@@ -56,15 +58,17 @@
     "ngx-webstorage-service": "^4.1.0",
     "pdfmake": "^0.2.7",
     "perfect-scrollbar": "^1.4.0",
+    "querystring": "^0.2.1",
+    "querystring-es3": "^0.2.1",
     "rxjs": "^6.6.3",
     "rxjs-compat": "^6.5.4",
-    "typescript": "^3.7.5",
     "zone.js": "^0.10.2"
   },
   "devDependencies": {
-    "@angular/cli": "^9.1.12",
+    "@angular/cli": "^9.1.15",
     "@angular/compiler-cli": "^9.0.6",
     "@types/jasmine": "^3.5.9",
+    "@types/lodash": "^4.14.179",
     "@types/node": "^13.9.0",
     "codelyzer": "^5.2.1",
     "devextreme-cldr-data": "^1.0.3",
@@ -80,6 +84,6 @@
     "protractor": "^5.4.3",
     "ts-node": "^8.6.2",
     "tslint": "^6.1.0",
-    "typescript": "^3.7.5"
+    "typescript": "^3.7.7"
   }
 }

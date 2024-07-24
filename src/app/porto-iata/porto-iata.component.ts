@@ -6,7 +6,7 @@ import { environment } from 'environments/environment';
 import notify from 'devextreme/ui/notify';
 import { confirm } from 'devextreme/ui/dialog';
 import { PortoIATAInsertRequestDto, PortoIATAResponseDto, PortoIATAUpdateRequestDto } from 'app/shared/model/dto/portoiatadto';
-import { UsuarioInfoResponse } from 'app/shared/proxy/ctaapi';
+import { PortoIATAClient, PortoIataInsertRequestDto, PortoIataResponseDto, PortoIataUpdateRequestDto, UsuarioInfoResponse } from 'app/shared/proxy/ctaapi';
 
 @Component({
   selector: 'app-porto-iata',
@@ -15,13 +15,14 @@ import { UsuarioInfoResponse } from 'app/shared/proxy/ctaapi';
 })
 export class PortoIataComponent implements OnInit {
   @ViewChild("dataGrid") dataGrid
-  portos: PortoIATAResponseDto[] = []
+  portos: PortoIataResponseDto[] = []
   loadingVisible: boolean = false
   botaoExcluirVisivel: boolean = false
   currentKey: number = 0
   private usuarioInfo: UsuarioInfoResponse;
 
   constructor(private portoIATAService: PortoIATAService,
+    private portoIataClient: PortoIATAClient,
     private localstorageService: LocalStorageService) {
 
     this.onCancelEditor = this.onCancelEditor.bind(this)
@@ -37,7 +38,6 @@ export class PortoIataComponent implements OnInit {
   }
 
   onToolbarPreparing(e: any) {
-
     e.toolbarOptions.items.unshift({
       location: 'after',
       widget: 'dxButton',
@@ -46,7 +46,6 @@ export class PortoIataComponent implements OnInit {
         onClick: this.refresh.bind(this)
       }
     });
-  
   }
 
   onEditorPreparing(e: any) {
@@ -62,7 +61,7 @@ export class PortoIataComponent implements OnInit {
       }
 
       return
-  
+
     }
 
     this.botaoExcluirVisivel = true
@@ -72,104 +71,90 @@ export class PortoIataComponent implements OnInit {
       this.currentKey = e.row.key;
 
       e.editorOptions.readOnly = true
-    
+
     }
 
   }
 
   async refresh() {
-
-    this.loadingVisible = true;
-
-    let empId: number = +this.usuarioInfo.EmpresaId;
-
-    let res = await this.portoIATAService.listar(empId);
-
-    if (res.Sucesso) {
-
-      this.portos = res.Dados;
-    }
-    else {
-
-      notify(res.Notificacoes[0].Mensagem, 'error', environment.ErrorTimeout);
-
-    }
-
-    this.loadingVisible = false;
+    await this.portoIataClient.listarPortosIATA()
+      .subscribe(res => {
+        if (res.result.Sucesso) {
+          this.portos = res.result.Dados;
+        } else {
+          notify(res.result.Notificacoes[0].Mensagem, 'error', environment.ErrorTimeout);
+        }
+      }, err => {
+        notify(err, 'error', environment.ErrorTimeout);
+      })
   }
 
   async onRowInserting(e: any) {
+    let newData: PortoIataResponseDto = e.data
 
-    e.cancel = true
+    newData.Codigo = newData.Codigo.toLocaleUpperCase();
+    newData.Nome = newData.Nome.toLocaleUpperCase();
+    newData.CountryCode = newData.CountryCode.toLocaleUpperCase();
 
-    let newData: PortoIATAResponseDto = e.data
-
-    let insertData: PortoIATAInsertRequestDto = new PortoIATAInsertRequestDto();
-
-    insertData.Codigo = newData.Codigo.toUpperCase()
-    insertData.Nome = newData.Nome.toUpperCase()
-    insertData.EmpresaId = +this.usuarioInfo.EmpresaId
-    insertData.UsuarioInsercaoId = +this.usuarioInfo.UsuarioId
-
-    let res = await this.portoIATAService.inserir(insertData)
-
-    if (res.Sucesso) {
-
-      this.portos.push(res.Dados);
-
-      this.dataGrid.instance.cancelEditData();
-
+    const insertData: PortoIataInsertRequestDto = {
+      Codigo: newData.Codigo,
+      Nome: newData.Nome,
+      CountryCode: newData.CountryCode
     }
-    else {
 
-      notify(res.Notificacoes[0].Mensagem, 'error', environment.ErrorTimeout);
+    const isCanceled = new Promise((resolve, reject) => {
+      this.portoIataClient.inserirPortoIATA(insertData)
+        .toPromise()
+        .then(res => {
+          if (res.result.Sucesso) {
+            resolve(false);
+          }
+          else {
+            reject(res.result.Notificacoes[0].Mensagem);
+          }
+        })
+        .catch(err => {
+          reject(err);
+        });
+    });
 
-    }
+    e.cancel = isCanceled;
   }
 
   async onRowUpdating(e: any) {
 
-    this.loadingVisible = true;
 
-    e.cancel = true;
+    let newDataChange: PortoIataResponseDto = e.newData;
+    if (newDataChange.Nome)
+      newDataChange.Nome = newDataChange.Nome.toLocaleUpperCase();
+    if (newDataChange.CountryCode)
+      newDataChange.CountryCode = newDataChange.CountryCode.toLocaleUpperCase();
 
-    const newData: PortoIATAResponseDto = Object.assign(e.oldData, e.newData)
+    let newData: PortoIataResponseDto = Object.assign(e.oldData, newDataChange);
 
-    const updateData: PortoIATAUpdateRequestDto = new PortoIATAUpdateRequestDto()
-
-    updateData.PortoIATAId = newData.PortoId
-    updateData.UsuarioModificadorId = +this.usuarioInfo.UsuarioId
-    updateData.Nome = newData.Nome.toUpperCase()
-
-    let res = await this.portoIATAService.atualizar(updateData);
-
-    if (res.Sucesso) {
-
-      for (var i in this.portos) {
-
-        if (this.portos[i].PortoId == newData.PortoId) {
-
-          this.portos[i] = res.Dados;
-
-          break;
-
-        }
-
-      }
-
-      this.loadingVisible = false;
-
-      this.dataGrid.instance.cancelEditData();
-
-    }
-    else {
-
-      this.loadingVisible = false;
-
-      notify(res.Notificacoes[0].Mensagem, 'error', environment.ErrorTimeout);
-
+    const updatetData: PortoIataUpdateRequestDto = {
+      PortoIataId: newData.PortoId,
+      Nome: newData.Nome,
+      CountryCode: newData.CountryCode,
     }
 
+    const isCanceled = new Promise((resolve, reject) => {
+      this.portoIataClient.atualizarPortoIATA(updatetData)
+        .toPromise()
+        .then(res => {
+          if (res.result.Sucesso) {
+            resolve(false);
+          }
+          else {
+            reject(res.result.Notificacoes[0].Mensagem);
+          }
+        })
+        .catch(err => {
+          reject(err);
+        });
+    });
+
+    e.cancel = isCanceled;
   }
 
   async onRowDeleting(e: any) {
@@ -185,7 +170,7 @@ export class PortoIataComponent implements OnInit {
       var index = this.portos.indexOf(item);
 
       this.portos.splice(index, 1);
-      
+
       this.loadingVisible = false;
 
       this.dataGrid.instance.cancelEditData();

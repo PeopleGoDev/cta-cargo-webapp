@@ -88,3 +88,16 @@
 .error {
     color:red;
 }
+
+.dx-field {
+    display: grid;
+    grid-template-columns: 100%;
+}
+
+.dx-field-label {
+    width: 100%;
+}
+
+.dx-field-date {
+    text-align: center;
+}

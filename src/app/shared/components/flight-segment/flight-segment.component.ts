@@ -66,7 +66,7 @@ export class FlightSegmentComponent implements OnInit {
   }
 
   removeTrecho(idx) {
-    this.value.splice(idx);
+    this.value.splice(idx,1);
     this.onChanged.emit(this.value);
   }
 

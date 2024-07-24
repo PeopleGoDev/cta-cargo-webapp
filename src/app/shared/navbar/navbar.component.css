@@ -1,0 +1,43 @@
+.nav-certificate-expiration {
+    margin-top: 10px;
+}
+
+.nav-certificate-expiration > div > a {
+    cursor: pointer;
+}
+
+.warning-certicate-red {
+    background-color: #f38b8b;
+    padding: 7px;
+    border-radius: 10px;
+    color: white;
+    min-width: 100px !important;
+    text-align: center;
+}
+
+.warning-certicate-green {
+    background-color: #8bf3b3;
+    padding: 7px;
+    border-radius: 10px;
+    color: black;
+    min-width: 100px !important;
+    text-align: center;
+}
+
+.warning-certicate-blue {
+    background-color: #1dc7ea;
+    padding: 7px;
+    border-radius: 5px;
+    color: black;
+    min-width: 100px !important;
+    text-align: center;
+}
+
+.warning-certicate-yellow {
+    background-color: #f3ee89;
+    padding: 7px;
+    border-radius: 5px;
+    color: black;
+    min-width: 100px !important;
+    text-align: center;
+}

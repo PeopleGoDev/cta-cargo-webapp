@@ -32,7 +32,7 @@ export class VoosComponent implements OnInit {
   isDrawerOpen: boolean = false;
   cloneFlight: any = {};
   flightType = FlightType;
-  
+
   private editDataSaidaReal: Date;
   private editDataChegadaEstimada: Date;
   private editDataChegadaReal: Date;
@@ -93,6 +93,16 @@ export class VoosComponent implements OnInit {
         } as VooTrechoResponse
       });
 
+    if (newData.DataHoraSaidaReal instanceof Date) {
+      const date: any = this.getUTC(newData.DataHoraSaidaReal);
+      newData.DataHoraSaidaReal = date.toISOString().substring(0, 19);
+    }
+
+    if (newData.DataHoraSaidaPrevista instanceof Date) {
+      const date: any = this.getUTC(newData.DataHoraSaidaPrevista);
+      newData.DataHoraSaidaPrevista = date.toISOString().substring(0, 19);
+    }
+
     const updateRequest: VooUpdateRequestDto = {
       VooId: newData.VooId,
       Numero: newData.Numero,
@@ -137,7 +147,17 @@ export class VoosComponent implements OnInit {
           Id: x.Id
         } as VooTrechoResponse
       });
-      
+
+    if (newData.DataHoraSaidaReal instanceof Date) {
+      const date: any = this.getUTC(newData.DataHoraSaidaReal);
+      newData.DataHoraSaidaReal = date.toISOString().substring(0, 19);
+    }
+
+    if (newData.DataHoraSaidaPrevista instanceof Date) {
+      const date: any = this.getUTC(newData.DataHoraSaidaPrevista);
+      newData.DataHoraSaidaPrevista = date.toISOString().substring(0, 19);
+    }
+
     const insertRequest: VooInsertRequestDto = {
       Numero: newData.Numero.toUpperCase(),
       FlightType: newData.FlightType,
@@ -225,11 +245,15 @@ export class VoosComponent implements OnInit {
   }
 
   refreshGrid() {
+    const date1: Date = this.getUTC(this.filtroDataInicial);
+    const date2: Date = this.getUTC(this.filtroDataFinal);
+    const initialDate: any = date1.toISOString().substring(0, 10);
+    const finalDate: any = date2.toISOString().substring(0, 10);
 
     let input: VooListarInputDto = {
-      DataInicial: this.filtroDataInicial,
-      DataFinal: this.filtroDataFinal,
-    }
+      DataInicial: initialDate,
+      DataFinal: finalDate,
+    };
 
     this.vooClient.listarVoos(input)
       .toPromise()

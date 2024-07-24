@@ -24,10 +24,11 @@
                                 <div style="display: table-cell; width: 10px;">&nbsp;</div>
                                 <div style="display: table-cell;">
                                     <dx-drop-down-button [splitButton]="true" [useSelectMode]="false"
-                                        text="Selecione o Voo" icon="assets/img/icons/wood-pallet.svg" [items]="botoesGBItems"
-                                        [selectedItemKey]="curAgenteDeCarga" (onItemClick)="onItemClick($event)"
-                                        displayExpr="text" keyExpr="agenteid" [disabled]="!botoesGBItems || botoesGBItems.length === 0"
-                                        [useSelectMode]="true" width="385px"></dx-drop-down-button>
+                                        text="Selecione o Voo" icon="assets/img/icons/wood-pallet.svg"
+                                        [items]="botoesGBItems" [selectedItemKey]="curAgenteDeCarga"
+                                        (onItemClick)="onItemClick($event)" displayExpr="text" keyExpr="agenteid"
+                                        [disabled]="!botoesGBItems || botoesGBItems.length === 0" [useSelectMode]="true"
+                                        width="385px"></dx-drop-down-button>
                                 </div>
                             </div>
                         </div>
@@ -41,7 +42,11 @@
             <div class="col-md-12">
                 <dx-data-grid id="tasks" [dataSource]="dataHouse" #masterDataGrid keyExpr="HouseId"
                     [columnAutoWidth]="true" [wordWrapEnabled]="true" [showBorders]="true"
-                    (onRowPrepared)="onRowPrepared($event)">
+                    (onRowPrepared)="onRowPrepared($event)"
+                    (onEditorPreparing)="onEditorPreparing($event)"
+                    (onSelectionChanged)="onSelectionChanged($event)"
+                    [(selectedRowKeys)]="selectedItems">
+                    <dxo-selection mode="multiple"></dxo-selection>
                     <dxi-column dataField="Numero" caption="Número" [width]="150" cellTemplate="awbTemplate">
                         <div *dxTemplate="let data of 'awbTemplate'">
                             <i *ngIf="data.data.StatusId == 1" class="dx-icon-check" style="color: green"></i>
@@ -88,51 +93,33 @@
                         </dxi-column>
                     </dxi-column>
                     <dxi-column caption="Outras Informações" [visible]="true">
-                        <dxi-column dataField="SituacaoRFB" caption="Situação House RFB" [width]="260" 
+                        <dxi-column dataField="SituacaoRFB" caption="Situação House RFB" [width]="260"
                             cellTemplate="erroRFBTemplate">
                         </dxi-column>
-                        <!-- <dxi-column dataField="SituacaoAssociacaoRFBId" caption="Situacao Associação RFB" [width]="170" cellTemplate="erroAssociacaoRFBTemplate">
-                        </dxi-column> -->
                     </dxi-column>
                     <div *dxTemplate="let cell of 'erroRFBTemplate'">
                         {{ cell.text ? textToHtml(cell) : ''}}
                     </div>
                     <div *dxTemplate="let cell of 'erroRFBTemplate'">
                         <div *ngIf="cell.value === 3">
-                            <b>{{ statusRFB[cell.value].Descricao }}</b><br/>
+                            <b>{{ statusRFB[cell.value].Descricao }}</b><br />
                             {{ cell.data.DescricaoErroRFB }}
                         </div>
                         <div *ngIf="cell.value !== 3">
-                            {{ statusRFB[cell.value].Descricao }}<br/>
+                            {{ statusRFB[cell.value].Descricao }}<br />
                             {{ cell.data.ProtocoloRFB }}
                         </div>
                     </div>
-                    <!-- <div *dxTemplate="let cell of 'erroAssociacaoRFBTemplate'">
-                        <span *ngIf="cell.value === 3" style="color: red">
-                            <b>{{ statusRFB[cell.value].Descricao }}</b><br/>
-                            {{ cell.data.DescricaoErroAssociacaoRFB }}
-                        </span>
-                        <span *ngIf="cell.value !== 3">
-                            {{ statusRFB[cell.value].Descricao }}<br/>
-                            {{ cell.data.ProtocoloAssociacaoRFB }}
-                        </span>
-                    </div> -->
                 </dx-data-grid>
             </div>
         </div>
         <div class="row">
             <div class="col-md-12" style="margin-top: 20px;">
                 <app-button (buttonClicked)="onClickUpload($event)" [isButtonOrange]="true"
-                    [isDisabled]="!botaoUploadEnabled" [mobileFull]="true" id="modal-create-master-group-link">
+                    [isDisabled]="!(selectedItems?.length > 0)" [mobileFull]="true" id="modal-create-master-group-link">
                     {{botaoUploadLabel}}
                 </app-button>
             </div>
-            <!-- <div class="col-md-12" style="margin-top: 20px;">
-                <app-button (buttonClicked)="onClickUploadAssociacao($event)" [isButtonOrange]="true"
-                    [isDisabled]="!botaoAssociacaoUploadEnabled" [mobileFull]="true" id="modal-create-master-group-link">
-                    {{botaoAssociacaoUploadLabel}}
-                </app-button>
-            </div> -->
         </div>
     </div>
 </div>
@@ -141,11 +128,13 @@
     <p>Você tem certeza que deseja submeter os Houses para a Receita Federal?</p>
     <div class="buttons-line">
         <div>
-            <dx-button stylingMode="contained" text="Confirmar" type="normal" [width]="120" (onClick)="popUpConfirm.visible = false">
+            <dx-button stylingMode="contained" text="Confirmar" type="normal" [width]="120"
+                (onClick)="popUpConfirm.visible = false">
             </dx-button>
         </div>
         <div>
-            <dx-button stylingMode="outlined" text="Cancelar" type="normal" [width]="120" (onClick)="popUpConfirm.visible = false">
+            <dx-button stylingMode="outlined" text="Cancelar" type="normal" [width]="120"
+                (onClick)="popUpConfirm.visible = false">
             </dx-button>
         </div>
     </div>

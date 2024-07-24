@@ -35,9 +35,9 @@ export class ReceitaFederalAssociationComponent implements OnInit {
     private localStorageService: LocalStorageService,
     private houseClient: HouseClient,
     private receitaFederalClient: ReceitaFederalClient,
-    private statusService: StatusService) { 
-      this.statusRFB = this.statusService.getStatusRFB();
-    }
+    private statusService: StatusService) {
+    this.statusRFB = this.statusService.getStatusRFB();
+  }
 
   ngOnInit(): void {
     this.filtroDataProcessamento = new Date();
@@ -58,7 +58,7 @@ export class ReceitaFederalAssociationComponent implements OnInit {
     this.curAgenteDeCarga = -1;
     this.botoesGBItems = null;
 
-    await this.agenteDeCargaClient.listarAgentesDeCargaSimples(this.usuarioInfo.EmpresaId)
+    await this.agenteDeCargaClient.listarAgentesDeCargaSimples()
       .subscribe(res => {
         if (res.result.Sucesso) {
           this.botoesGBItems = this.mapearButtonGroup(res.result.Dados);
@@ -151,8 +151,16 @@ export class ReceitaFederalAssociationComponent implements OnInit {
     let arrayBG: any = [];
     if (dados == null) return arrayBG;
 
-    for (var i in dados) {
-      let item = {
+    for (var i in dados.sort(function (a, b) {
+      if (a.Nome > b.Nome) {
+        return 1;
+      }
+      if (a.Nome < b.Nome) {
+        return -1;
+      }
+      return 0;
+    })) {
+      const item = {
         icon: 'assets/img/icons/wood-pallet.svg',
         alignment: "left",
         text: dados[i].Nome,
@@ -225,13 +233,13 @@ export class ReceitaFederalAssociationComponent implements OnInit {
   onCheckAllChange(event) {
     if (event.target.checked) {
       this.dataHouse.forEach(element => {
-        if(!element.disabled)
+        if (!element.disabled)
           element.checked = true;
       });
       this.sumCheckedItens();
     } else {
       this.dataHouse.forEach(element => {
-        if(!element.disabled)
+        if (!element.disabled)
           element.checked = false;
       });
       this.totalChecked = 0;
@@ -273,15 +281,16 @@ export class ReceitaFederalAssociationComponent implements OnInit {
 
   removeAssociation(item) {
     this.receitaFederalClient.cancelarAssociacaoHouseMaster(item.Id)
-    .subscribe(res => {
-      if(res.result.Sucesso) {
-        notify("Exclusão de associação submetida com sucesso!", 'success', environment.ErrorTimeout);
-      }
-      else {
-        notify(res.result.Notificacoes[0].Mensagem, 'error', environment.ErrorTimeout);
-      }
-    }, err => {
-      notify(err, 'error', environment.ErrorTimeout)
-    });
+      .subscribe(res => {
+        if (res.result.Sucesso) {
+          notify("Exclusão de associação submetida com sucesso!", 'success', environment.ErrorTimeout);
+        }
+        else {
+          notify(res.result.Notificacoes[0].Mensagem, 'error', environment.ErrorTimeout);
+        }
+      }, err => {
+        notify(err, 'error', environment.ErrorTimeout)
+      });
   }
+
 }

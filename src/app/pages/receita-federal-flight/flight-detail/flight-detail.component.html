@@ -53,7 +53,7 @@
             </div>
             <div class="upload-detail">
                 <div><b>Horário</b></div>
-                <div>{{ voo?.DataHoraSaidaReal | date:'dd/MM/yyy HH:mm' }}</div>
+                <div>{{ actualTime | date:'dd/MM/yyy HH:mm' }}</div>
                 <ng-container *ngIf="!voo?.GhostFlight">
                     <div><b>Status RFB</b></div>
                     <div>{{ displayedStatus[voo?.SituacaoRFBId] }}</div>
@@ -75,3 +75,24 @@
         <div class="panel-item-empty-content">Sem Dados</div>
     </div>
 </div>
+<dx-popup [width]="360" [height]="320" [showCloseButton]="true" [(visible)]="popupVisible"
+    title="Submeter Voo Atual">
+    <div *dxTemplate="let data of 'content'">
+        <div class="dx-field">
+            <div class="dx-field-label">Confirme da data e hora da saída real do voo.</div>
+            <div class="dx-field-date">
+                <br />
+                <div style="width: 50%;">
+                    <dx-date-box [(value)]="actualTime" type="datetime"
+                        [inputAttr]="{ 'aria-label': 'Date And Time' }">
+                    </dx-date-box>
+                </div>
+            </div>
+        </div>
+        <br />
+        <app-button (buttonClicked)="onActualConfirmClick($event)" [mobileFull]="true" [isButtonOrange]="true"
+            id="modal-create-master-group-link">
+            Submeter Agora
+        </app-button>
+    </div>
+</dx-popup>

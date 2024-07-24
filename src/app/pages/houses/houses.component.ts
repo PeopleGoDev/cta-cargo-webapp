@@ -221,7 +221,7 @@ export class HousesComponent implements OnInit {
     this.botoesGBItems = null;
 
     this.agenteDeCargaClient
-      .listarAgentesDeCargaSimples(this.usuarioInfo.EmpresaId)
+      .listarAgentesDeCargaSimples()
       .subscribe(
         (res) => {
           if (res.result.Sucesso) {

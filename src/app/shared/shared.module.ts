@@ -12,7 +12,11 @@ import { FlightSegmentModule } from './components/flight-segment/flight-segment.
 import { SpecialInstructionModule } from './components/special-instruction/special-instruction.module';
 
 @NgModule({
-  declarations: [InputComponent, SelectComponent, MasterDetailComponent, TitleComponent],
+  declarations: [
+    InputComponent, 
+    SelectComponent, 
+    MasterDetailComponent, 
+    TitleComponent],
   imports: [
     CommonModule,
     ButtonModule,
@@ -22,7 +26,11 @@ import { SpecialInstructionModule } from './components/special-instruction/speci
     SpecialInstructionModule,
     FlightSegmentModule
   ], 
-  exports: [InputComponent, SelectComponent, MasterDetailComponent, TitleComponent],
+  exports: [
+    InputComponent, 
+    SelectComponent, 
+    MasterDetailComponent, 
+    TitleComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class SharedModule { }

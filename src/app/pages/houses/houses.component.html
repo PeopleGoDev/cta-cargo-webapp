@@ -208,13 +208,13 @@
                                     </dxi-item>
                                 </dxi-item>
                                 <dxi-item itemType="group">
+                                    <dxi-item dataField="ValorFretePPUN" [editorOptions]="{ maxLength: 3 }">
+                                        <dxi-validation-rule type="required"></dxi-validation-rule>
+                                    </dxi-item>
                                     <dxi-item dataField="ValorFretePP">
                                         <dxi-validation-rule type="required"></dxi-validation-rule>
                                     </dxi-item>
                                     <dxi-item dataField="ValorFreteFC">
-                                        <dxi-validation-rule type="required"></dxi-validation-rule>
-                                    </dxi-item>
-                                    <dxi-item dataField="ValorFretePPUN" [editorOptions]="{ maxLength: 3 }">
                                         <dxi-validation-rule type="required"></dxi-validation-rule>
                                     </dxi-item>
                                 </dxi-item>
@@ -327,11 +327,11 @@
                         <dxi-column dataField="ValorFreteFCUN" caption="Moeda" alignment="right"></dxi-column>
                     </dxi-column>
                     <dxi-column caption="Outras Informações">
-                        <dxi-column dataField="CodigoRecintoAduaneiro" caption="Recinto Aduaneito"></dxi-column>
+                        <dxi-column dataField="CodigoRecintoAduaneiro" caption="Rec. Aduaneiro N." width="150"></dxi-column>
                         <dxi-column dataField="NaturezaCarga" caption="Natureza Carga" width="150"
                             editCellTemplate="dataSICellTemplate" cssClass="word-wrap">
                         </dxi-column>
-                        <dxi-column dataField="DataEmissaoXML" dataType="datetime"></dxi-column>
+                        <dxi-column dataField="DataEmissaoXML" dataType="datetime" caption="Data/Hora Emissão"></dxi-column>
                     </dxi-column>
                     <div *dxTemplate="let cell of 'dataSICellTemplate'">
                         <app-special-instruction [(value)]="cell.value" [readOnly]="readOnlyEdition"

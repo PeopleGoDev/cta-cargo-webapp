@@ -82,7 +82,6 @@ export class CiaaereasComponent implements OnInit {
       Cidade: newData.Cidade,
       Estado: newData.Estado,
       Pais: newData.Pais,
-      UsuarioId: this.usuarioInfo.UsuarioId,
       Numero: newData.Numero,
     };
 
@@ -109,7 +108,6 @@ export class CiaaereasComponent implements OnInit {
     const newData: CiaAereaResponseDto = e.data;
 
     const insertRequest: CiaAereaInsertRequest = {
-      EmpresaId: this.usuarioInfo.EmpresaId,
       Nome: newData.Nome,
       CNPJ: newData.CNPJ,
       Endereco1: newData.Endereco1,
@@ -117,7 +115,6 @@ export class CiaaereasComponent implements OnInit {
       Cidade: newData.Cidade,
       Estado: newData.Estado,
       Pais: newData.Pais,
-      UsuarioId: this.usuarioInfo.UsuarioId,
       Numero: newData.Numero,
     };
 
@@ -208,9 +205,7 @@ export class CiaaereasComponent implements OnInit {
 
     this.uploadClient.uploadCertificadoDigital(
       this.currentRow,
-      this.usuarioInfo.UsuarioId,
       this.textBoxValue,
-      this.usuarioInfo.EmpresaId,
       LocalFileDestinationMap.CiaAerea,
       fileInfo).toPromise()
       .then((res: any) => {
@@ -236,7 +231,7 @@ export class CiaaereasComponent implements OnInit {
   async refreshLista() {
     this.loadingVisible = true;
 
-    await this.ciaAereaClient.listarCiasAereas(this.usuarioInfo.EmpresaId)
+    await this.ciaAereaClient.listarCiasAereas()
       .toPromise()
       .then(res => {
         if (res.result.Sucesso) {

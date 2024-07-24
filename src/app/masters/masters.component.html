@@ -272,8 +272,15 @@
                     <dxi-column type="buttons" width="70" caption="Editar">
                         <dxi-button name="edit" hint="Editar" icon="edit" [visible]="isEditVisible"></dxi-button>
                         <dxi-button name="edit" hint="Visualizar" icon="find" [visible]="isViewVisible"></dxi-button>
+                        <dxi-button name="verificarStatus" hint="Checar Receita Federal" icon="pulldown" [visible]="isCheckUpload"></dxi-button>
                         <dxi-button name="verificarStatus" hint="Verificar Status da Carga RFB" icon="refresh"
                             [onClick]="onClickVerificarStatus" [visible]="isCheckStatusAvailable"></dxi-button>
+                        
+                    </dxi-column>
+                    <dxi-column dataField="SituacaoRFB" caption="RFB" width="70" cellTemplate="rfbTemplate">
+                        <div *dxTemplate="let data of 'rfbTemplate'" class="row-column-rfb-icons">
+                            <i class="dx-icon-pulldown dx-icon-custom-style" *ngIf="isCheckUpload(data.data)"></i>
+                        </div>
                     </dxi-column>
                     <dxi-column dataField="Numero" caption="MAWB/AWB" width="180" cellTemplate="awbTemplate"
                         cssClass="word-wrap">
@@ -465,6 +472,15 @@
                                 hint="Liberar Master para Edição"
                                 [disabled]="rfbProcessedRows.length === 0 || (rfbProcessedRows.length > 0 && rfbNonProcessedRows.length > 0)"
                                 (click)="releaseMasterEdition($event)">
+                            </dx-button>
+                        </div>
+                    </dxi-item>
+                    <dxi-item location="before">
+                        <div *dxTemplate>
+                            <dx-button stylingMode="contained" icon="remove" text="Submeter/Verificar Exclusão do Master"
+                                type="normal" hint="Excluir RFB"
+                                [disabled]="rfbSubmitExclusionRows.length === 0 || rfbSubmitExclusionRows.length != selectedRows.length"
+                                (click)="onSubmitExclusion($event)">
                             </dx-button>
                         </div>
                     </dxi-item>

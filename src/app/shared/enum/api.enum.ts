@@ -3,7 +3,8 @@ import { FileDestinationMap, RecordStatus } from "../proxy/ctaapi";
 export class LocalFileDestinationMap {
     static CiaAerea: FileDestinationMap = FileDestinationMap._0;
     static AgenteDeCarga: FileDestinationMap = FileDestinationMap._1;
-    static enum: string[] = ['Companhia Aérea', 'Agente de Carga'];
+    static User: FileDestinationMap = FileDestinationMap._2;
+    static enum: string[] = ['Companhia Aérea', 'Agente de Carga', 'User'];
   }
   
   export class LocalRecordStatus {

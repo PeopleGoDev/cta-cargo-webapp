@@ -1,7 +1,6 @@
 export class UsuarioInsertDto {
 
     constructor(
-        public EmpresaId: number,
         public Nome: string,
         public Sobrenome: string,
         public Email: string,
@@ -9,8 +8,7 @@ export class UsuarioInsertDto {
         public AlteraCompanhia: boolean,
         public AcessoUsuarios: boolean,
         public AcessoClientes: boolean,
-        public AcessoCompanhias: boolean,
-        public UsuarioInsercaoId: number
+        public AcessoCompanhias: boolean
     ) {
 
     }
@@ -28,8 +26,7 @@ export class UsuarioUpdateDto {
         public AcessoUsuarios: boolean,
         public AcessoClientes: boolean,
         public AcessoCompanhias: boolean,
-        public Bloqueado: boolean,
-        public UsuarioModificadorId: number
+        public Bloqueado: boolean
     ) {
 
     }

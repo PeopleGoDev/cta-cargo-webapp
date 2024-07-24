@@ -21,6 +21,8 @@
                     <dxo-pager [showPageSizeSelector]="false" [infoText]="'Página {0} de {1} ({2} itens)'"
                         [showInfo]="true" [visible]="true">
                     </dxo-pager>
+                    <dxo-filter-row [visible]="true"></dxo-filter-row>
+                    <dxo-header-filter [visible]="true"></dxo-header-filter>
                     <dxo-editing mode="popup" [allowUpdating]="true" [allowAdding]="true">
                         <dxo-popup title="Editar/Incluir Porto" [showTitle]="false" [width]="700" [height]="535">
                             <dxi-toolbar-item widget="dxButton" location="after" toolbar="bottom" [options]="{

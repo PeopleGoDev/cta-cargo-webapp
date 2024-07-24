@@ -431,7 +431,7 @@ export class UldmasterComponent implements OnInit {
     if (this.curVoo == -1) return;
     this.uldLista = [];
     let input: ListaUldMasterRequest = {
-      vooId: this.curVooDetail.VooId
+      vooId: this.curVoo
     }
 
     this.uldClient.listarMasterUldSumario(input)

@@ -8,7 +8,7 @@ import { environment } from 'environments/environment';
 import { confirm } from 'devextreme/ui/dialog';
 import { StatusService } from 'app/shared/services/status.service';
 import { StatusVoo } from 'app/shared/model/statusvoo';
-import { AtualizarMasterReenviarRequest, ExcluirMastersByIdRequest, FileParameter, MasterClient, MasterFileResponseDto, MasterInsertRequestDto, MasterListarRequest, MasterResponseDto, MasterUpdateRequestDto, Notificacao, VooClient, VooListaResponseDto, VooListarInputDto } from 'app/shared/proxy/ctaapi';
+import { AtualizarMasterReenviarRequest, ExcluirMastersByIdRequest, FileParameter, MasterClient, MasterExclusaoRFBInput, MasterFileResponseDto, MasterInsertRequestDto, MasterListarRequest, MasterResponseDto, MasterUpdateRequestDto, Notificacao, ReceitaFederalClient, VooClient, VooListaResponseDto, VooListarInputDto } from 'app/shared/proxy/ctaapi';
 import { LocalSituacaoRfb } from 'app/shared/enum/api.enum';
 import { DxDataGridComponent, DxFileUploaderComponent } from 'devextreme-angular';
 import { CubicUnitCollection, FlightTypeEnum, TotalParcialCollection } from 'app/shared/collections/data';
@@ -76,12 +76,14 @@ export class MastersComponent implements OnInit {
   errorImportMessage: string;
   // Privados
   flightTypeEnum = FlightTypeEnum;
+  rfbSubmitExclusionRows: number[] = [];
 
   constructor(private localstorageService: LocalStorageService,
     private consolidadoDiretoService: ConsolidadoDiretoService,
     private statusService: StatusService,
     private masterClient: MasterClient,
-    private vooClient: VooClient) {
+    private vooClient: VooClient,
+    private receitaFederalClient: ReceitaFederalClient) {
 
     this.listaOpcoes = [{
       "Id": 0,
@@ -390,9 +392,7 @@ export class MastersComponent implements OnInit {
 
   }
 
-  async onRowInserting(e) {
-
-    e.cancel = true;
+  async onRowInserting(e: { cancel: boolean; data: MasterResponseDto; }) {
 
     let newData: MasterResponseDto = e.data;
 
@@ -435,7 +435,7 @@ export class MastersComponent implements OnInit {
       NaturezaCarga: newData.NaturezaCarga,
     }
 
-    await this.masterClient.inserirMaster(insertRequest)
+    this.masterClient.inserirMaster(insertRequest)
       .subscribe(res => {
         if (res.result.Sucesso) {
           this.mastersData.push(res.result.Dados);
@@ -530,12 +530,16 @@ export class MastersComponent implements OnInit {
   selectionChangedHandler() {
     this.rfbProcessedRows = [];
     this.rfbNonProcessedRows = [];
+    this.rfbSubmitExclusionRows = [];
     if (this.selectedRows.length) {
       this.selectedRows.forEach(x => {
         const item = this.mastersData.find(y => y.MasterId == x);
         switch (item.SituacaoRFB) {
           case LocalSituacaoRfb.Processed:
-            this.rfbProcessedRows.push(x);
+            if (item.RFBCancelationStatus === 0)
+              this.rfbProcessedRows.push(x);
+            this.rfbSubmitExclusionRows.push(x);
+            //this.rfbProcessedRows.push(x);
             break;
           case LocalSituacaoRfb.NoSubmitted:
           case LocalSituacaoRfb.ProcessedDeletion:
@@ -591,25 +595,13 @@ export class MastersComponent implements OnInit {
     return ((e.row.data.SituacaoRFB === 2 || e.row.data.SituacaoRFB === 1 || e.row.data.SituacaoRFB === 4) && !e.row.data.Reenviar);
   }
 
+  isCheckUpload(e) {
+    return (e.SituacaoRFB === 2 &&  e.RFBCancelationStatus === 1);
+  }
+
   permitirEdicao() {
     return this.mastersData == null ? false : true;
   }
-
-  // mapearButtonGroup(dados: VooListaResponseDto[]) {
-  //   let arrayBG: any = [];
-  //   if (dados == null) return arrayBG;
-  //   for (var i in dados) {
-  //     let item = {
-  //       icon: "airplane",
-  //       alignment: "left",
-  //       text: dados[i].Numero + ' - ' + dados[i].CiaAereaNome + ' - ' + this.flightTypeEnum[dados[i].FlightType],
-  //       vooid: dados[i].VooId,
-  //       data: dados[i],
-  //     };
-  //     arrayBG.push(item);
-  //   }
-  //   return arrayBG;
-  // }
 
   autoMapper(dados: VooListaResponseDto[]) {
     if (dados == null) return;
@@ -664,7 +656,6 @@ export class MastersComponent implements OnInit {
   }
 
   onEditSave(e: any) {
-
     this.dataGrid.instance.saveEditData().then(() => {
 
       if (!this.dataGrid.instance.hasEditData()) {
@@ -674,7 +665,6 @@ export class MastersComponent implements OnInit {
       }
 
     });
-
   }
 
   onEditCancel(e: any) {
@@ -710,7 +700,6 @@ export class MastersComponent implements OnInit {
   }
 
   validarNaturezaOperacao(e: any): boolean {
-
     if (e && e.value.length === 0) {
       return true;
     }
@@ -720,7 +709,6 @@ export class MastersComponent implements OnInit {
     }
 
     return false;
-
   }
 
   onCustomValueHandler(e, cell) {
@@ -737,7 +725,6 @@ export class MastersComponent implements OnInit {
   }
 
   onUploadImportFile() {
-
     if (this.curImportFile < 0) {
       this.errorImportMessage = "Selecione um template!";
       return;
@@ -770,6 +757,41 @@ export class MastersComponent implements OnInit {
 
   onFileUploadValueChanged(e: any) {
     this.errorImportMessage = undefined;
+  }
+
+  async onSubmitExclusion(e: any) {
+
+    if (this.rfbSubmitExclusionRows.length === 0)
+      return;
+
+    let result = confirm("<i>Deseja submeter/verificar a exclusão do master na RFB ?</i>", "Confirma?");
+    result.then(async (dialogResult) => {
+      if (dialogResult) {
+
+        const body: MasterExclusaoRFBInput = {
+          MasterId: this.rfbSubmitExclusionRows[0]
+        };
+
+        await this.receitaFederalClient.submeterMasterExclusion(body)
+          .subscribe(res => {
+            if (res.result.Sucesso) {
+              const idx = this.mastersData.findIndex(x => x.MasterId === this.rfbSubmitExclusionRows[0]);
+              if (idx > -1) {
+                this.mastersData[idx] = res.result.Dados;
+                this.dataGrid.instance.repaintRows([idx]);
+              }
+              this.selectionChangedHandler();
+              notify('Exclusão submetida com sucesso', 'success', environment.ErrorTimeout);
+            } else {
+              notify(
+                res.result.Notificacoes[0].Mensagem,
+                "error",
+                environment.ErrorTimeout
+              );
+            }
+          })
+      }
+    });
   }
 
 }

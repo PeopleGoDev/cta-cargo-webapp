@@ -131,12 +131,13 @@ export class ReceitaFederalFlightComponent implements OnInit {
     this.botaoUploadEnabled = (data?.SituacaoRFBId !== 2 || (data?.SituacaoRFBId === 2 && data?.Reenviar));
   }
 
-  async uploadCompleto() {
-    let input: FlightUploadRequest = {
-      FlightId: this.curVoo
+  async uploadCompleto(e: Date) {
+    const request: FlightUploadRequest = {
+      FlightId: this.curVoo,
+      DepartureTime: e
     }
 
-    this.receitaFederalClient.submeterVooCompleto(input)
+    this.receitaFederalClient.submeterVooCompleto(request)
       .subscribe(res => {
         if (res.result.Sucesso) {
           this.refreshVooDetalhe();
@@ -237,11 +238,21 @@ export class ReceitaFederalFlightComponent implements OnInit {
 
   }
 
-  onClickUpload(e: any) {
+  onClickUpload(e) {
     let result = confirm("Você está prestes a enviar os dados para a Receita Federal. Confirma ?", "Você tem certeza ?");
     result.then((dialogResult) => {
       if (dialogResult) {
-        this.uploadCompleto();
+        let actualDate;
+
+        if (e instanceof Date) {
+          const date: any = this.getUTC(e);
+          actualDate = date.toISOString().substring(0, 19);
+        }
+    
+        if (typeof e == 'string')
+            actualDate = e;
+
+        this.uploadCompleto(actualDate);
       }
     });
   }
@@ -255,4 +266,7 @@ export class ReceitaFederalFlightComponent implements OnInit {
     });
   }
 
+  private getUTC(date: Date) {
+    return new Date(date.getTime() - (date.getTimezoneOffset() * 60000));
+  }
 }

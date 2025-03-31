@@ -36,4 +36,12 @@ export class LocalStorageService {
     this.storage.set(STORAGE_KEY, undefined);
   }
 
+  public setScreenState<T>(key: string, data: T) {
+    this.storage.set(key, data);
+  }
+
+  public getScreenState<T>(key: string) : T {
+    const result: T = JSON.parse(localStorage.getItem(key));
+    return result;
+  }
 }

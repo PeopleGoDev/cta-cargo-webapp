@@ -3814,8 +3814,18 @@ table.text-center th {
 
 .login-box,
 .register-box {
-    width: 360px;
+    width: 460px;
     margin: 7% auto;
+}
+
+.login-company-box,
+.register-company-box {
+    width: 460px;
+    margin: 7% auto;
+    background: #fff;
+    padding: 20px;
+    border-top: 0;
+    color: #666;
 }
 
 @media (max-width: 768px) {

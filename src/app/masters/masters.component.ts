@@ -263,9 +263,6 @@ export class MastersComponent implements OnInit {
 
     this.mastersData = [];
 
-    if (this.curVoo === -1)
-      return;
-
     let input: MasterListarRequest;
 
     switch (this.curListaOpcoes) {

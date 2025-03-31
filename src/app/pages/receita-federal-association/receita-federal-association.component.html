@@ -23,11 +23,9 @@
                                 </div>
                                 <div style="display: table-cell; width: 10px;">&nbsp;</div>
                                 <div style="display: table-cell;">
-                                    <dx-drop-down-button [splitButton]="true" [useSelectMode]="false"
-                                        text="Selecione o Voo" icon="assets/img/icons/wood-pallet.svg" [items]="botoesGBItems"
-                                        [selectedItemKey]="curAgenteDeCarga" (onItemClick)="onItemClick($event)"
-                                        displayExpr="text" keyExpr="agenteid" [disabled]="!botoesGBItems || botoesGBItems.length === 0"
-                                        [useSelectMode]="true" width="385px"></dx-drop-down-button>
+                                    <dx-select-box [dataSource]="botoesGBItems" displayExpr="text" valueExpr="agenteid"
+                                        [inputAttr]="{ 'aria-label': 'Product' }" width="385px"
+                                        [value]="curAgenteDeCarga" (onItemClick)="onItemClick($event)"></dx-select-box>
                                 </div>
                             </div>
                         </div>
@@ -43,13 +41,14 @@
                     <div class="table-house-item">
                         <div class="table-header-item center">
                             <div class="middle"><input type="checkbox" class="checkbox" [checked]="checkedAll"
-                                    [disabled]="dataHouse?.length === 0" (change)="onCheckAllChange($event)"></div>
+                                    [disabled]="selectedAssociation?.disabled" (change)="onCheckAllChange($event)">
+                            </div>
                         </div>
                         <div class="table-header-item">Master</div>
+                        <div class="table-header-item center">Data Processamento</div>
                         <div class="table-header-item">Status</div>
                         <div class="table-header-item">House Number</div>
                         <div class="table-header-item right">Total Pacotes</div>
-                        <div class="table-header-item right">Total Peças</div>
                         <div class="table-header-item right">Peso</div>
                         <div class="table-header-item right">Peso Unidade</div>
                         <div class="table-header-item right">Origem</div>
@@ -57,79 +56,286 @@
                         <div class="table-header-item right">Protocolo/Status</div>
 
                         <ng-container *ngFor="let item of dataHouse; let idx=index">
-
                             <div class="table-item-row center"><input type="checkbox" class="checkbox"
-                                    [disabled]="item.disabled" [checked]="item.checked" [value]="idx"
-                                    (change)="onCheckChange($event)"></div>
-                            <div class="table-item-row summary" [class.error]="item.Houses[0].AssociationStatusId === 3">{{ item.Number | master }}</div>
-                            <div class="table-item-row summary" [class.error]="item.Houses[0].AssociationStatusId === 3">{{ statusRFB[item.Houses[0].AssociationStatusId].Descricao }}</div>
-                            <div class="table-item-row summary" [class.error]="item.Houses[0].AssociationStatusId === 3">Master Header - House(s) Summary</div>
-                            <div class="table-item-row right summary" [class.error]="item.Houses[0].AssociationStatusId === 3">{{ item.Summary?.PackageQuantity }}</div>
-                            <div class="table-item-row right summary" [class.error]="item.Houses[0].AssociationStatusId === 3">{{ item.Summary?.TotalPieceQuantity }}</div>
-                            <div class="table-item-row right summary" [class.error]="item.Houses[0].AssociationStatusId === 3">{{ item.Summary?.TotalWeight | number:'1.4-4' }}
+                                    [disabled]="selectedAssociation?.associations[idx].disabled"
+                                    [checked]="selectedAssociation?.associations[idx].checked" [value]="idx"
+                                    (change)="onCheckChange($event, idx)"></div>
+                            <div class="table-item-row summary" [class.error]="item.RFBCreationStatus === 3">{{
+                                item.Number | master }}
                             </div>
-                            <div class="table-item-row right summary" [class.error]="item.Houses[0].AssociationStatusId === 3">{{ item.Summary?.TotalWeightUnit }}</div>
-                            <div class="table-item-row right summary" [class.error]="item.Houses[0].AssociationStatusId === 3">{{ item.Summary?.OriginLocation }}</div>
-                            <div class="table-item-row right summary" [class.error]="item.Houses[0].AssociationStatusId === 3">{{ item.Summary?.DestinationLocation }}</div>
-                            <div class="table-item-row right summary" [class.error]="item.Houses[0].AssociationStatusId === 3">{{ item.Houses[0].AssociationProtocol }}
-                                <ng-container *ngIf="item.RFBCreationStatus === 3">
-                                    <br/>{{ item.Houses[0].AssociationErrorDescription }}
-                                </ng-container>
-                                <ng-container *ngIf="item.RFBCreationStatus === 2">
-                                    <br/><a  *ngIf="item.RFBCancelationStatus === 0" [routerLink]="" (click)="removeAssociationHandle(item)">Desfazer Associação</a>
-                                    <a *ngIf="item.RFBCancelationStatus === 1" [routerLink]="" (click)="verifyAssociationHandle(item)">Verificar Desassociação</a>
-                                </ng-container>
+                            <div class="table-item-row center summary">
+                                {{ item.ProcessDate | date: 'dd/MM/yyyy'}}
                             </div>
-
+                            <div class="table-item-row summary" [class.error]="item.CreateRFPStatus === 3">{{
+                                statusRFB[item.CreateRFPStatus].Descricao }}</div>
+                            <div class="table-item-row summary">House(s) Summary</div>
+                            <div class="table-item-row right summary">{{
+                                item.Summary?.PackageQuantity }}</div>
+                            <div class="table-item-row right summary">{{ item.Summary?.TotalWeight |
+                                number:'1.4-4' }}
+                            </div>
+                            <div class="table-item-row right summary">{{
+                                item.Summary?.TotalWeightUnit }}</div>
+                            <div class="table-item-row right summary">{{ item.Summary?.OriginLocation
+                                }}</div>
+                            <div class="table-item-row right summary">{{
+                                item.Summary?.DestinationLocation }}</div>
+                            <div class="table-item-row right summary">{{
+                                item.Summary?.RFBCreationProtocol }}</div>
                             <ng-container *ngFor="let house of item.Houses; let idx1=index">
                                 <div class="table-item-row"></div>
+                                <div class="table-item-row">
+                                    <ng-container
+                                        *ngIf="idx1 == 0 && (item.CreateRFPStatus === 0 || item.CreateRFPStatus === 3)">
+                                        <a (click)="onEditAssociation(item)">Editar Associação</a>
+                                    </ng-container>
+                                    <ng-container *ngIf="idx1 == 0 && item.CreateRFPStatus === 3">
+                                        {{ item.CreateRFBErrorCode }} - {{
+                                        item.CreateRFBErrorDescription }}
+                                    </ng-container>
+                                    <ng-container *ngIf="idx1 == 0 && item.CreateRFPStatus == 2">
+                                        <a *ngIf="item.CancelationRFPStatus == 0" [routerLink]=""
+                                            (click)="removeAssociationHandle(item)">Cancelar Associação</a>
+                                        <a *ngIf="item.CancelationRFPStatus == 1" [routerLink]=""
+                                            (click)="verifyAssociationHandle(item)">Verificar Desassociação</a>
+                                    </ng-container>
+                                </div>
                                 <div class="table-item-row"></div>
                                 <div class="table-item-row"></div>
-                                <div class="table-item-row" [class.error]="item.Houses[0].AssociationStatusId === 3">{{ house.Number }} ({{ house.ProcessDate | date:
-                                    'dd/MM/yyyy'
-                                    }})</div>
-                                <div class="table-item-row right" [class.error]="item.Houses[0].AssociationStatusId === 3">{{ house.PackageQuantity }}</div>
-                                <div class="table-item-row right" [class.error]="item.Houses[0].AssociationStatusId === 3">{{ house.TotalPieceQuantity }}</div>
-                                <div class="table-item-row right" [class.error]="item.Houses[0].AssociationStatusId === 3">{{ house.TotalWeight | number:'1.4-4' }}</div>
-                                <div class="table-item-row right" [class.error]="item.Houses[0].AssociationStatusId === 3">{{ house.TotalWeightUnit }}</div>
-                                <div class="table-item-row right" [class.error]="item.Houses[0].AssociationStatusId === 3">{{ house.OriginLocation }}</div>
-                                <div class="table-item-row right" [class.error]="item.Houses[0].AssociationStatusId === 3">{{ house.DestinationLocation }}</div>
-                                <div class="table-item-row right" [class.error]="item.Houses[0].AssociationStatusId === 3">
+                                <div class="table-item-row" [class.error]="item.Houses[0].AssociationStatusId === 3"
+                                    [class.gray]="item.Houses[idx1].RFBStatus != 2"><label class="checkbox-container">{{
+                                        house.Number }} ({{
+                                        house.ProcessDate | date: 'dd/MM/yyyy' }})</label></div>
+                                <div class="table-item-row right"
+                                    [class.error]="item.Houses[idx1].AssociationStatusId === 3"
+                                    [class.gray]="item.Houses[idx1].RFBStatus != 2">{{ house.PackageQuantity }}</div>
+                                <div class="table-item-row right"
+                                    [class.error]="item.Houses[idx1].AssociationStatusId === 3"
+                                    [class.gray]="item.Houses[idx1].RFBStatus != 2">{{ house.TotalWeight |
+                                    number:'1.4-4' }}</div>
+                                <div class="table-item-row right"
+                                    [class.error]="item.Houses[idx1].AssociationStatusId === 3"
+                                    [class.gray]="item.Houses[idx1].RFBStatus != 2">{{ house.TotalWeightUnit }}</div>
+                                <div class="table-item-row right"
+                                    [class.error]="item.Houses[idx1].AssociationStatusId === 3"
+                                    [class.gray]="item.Houses[idx1].RFBStatus != 2">{{ house.OriginLocation }}</div>
+                                <div class="table-item-row right"
+                                    [class.error]="item.Houses[idx1].AssociationStatusId === 3"
+                                    [class.gray]="item.Houses[idx1].RFBStatus != 2">{{ house.DestinationLocation }}
+                                </div>
+                                <div class="table-item-row right"
+                                    [class.error]="item.Houses[idx1].AssociationStatusId === 3"
+                                    [class.gray]="item.Houses[idx1].RFBStatus != 2">
                                     {{ house.AssociationProtocol }}</div>
                             </ng-container>
                         </ng-container>
                     </div>
                 </div>
             </div>
-            <div class="row">
-                <div class="col-md-12" style="margin-top: 20px;">
-                    <app-button (buttonClicked)="onClickUpload($event)" [isButtonOrange]="true"
-                        [isDisabled]="totalChecked === 0" [mobileFull]="true" id="modal-create-master-group-link">
-                        {{botaoUploadLabel}}
-                    </app-button>
-                </div>
-                <!-- <div class="col-md-12" style="margin-top: 20px;">
-                <app-button (buttonClicked)="onClickUploadAssociacao($event)" [isButtonOrange]="true"
-                    [isDisabled]="!botaoAssociacaoUploadEnabled" [mobileFull]="true" id="modal-create-master-group-link">
-                    {{botaoAssociacaoUploadLabel}}
+        </div>
+        <div class="row">
+            <div class="col-md-12" style="margin-top: 20px;">
+                <app-button (buttonClicked)="onClickUpload()" [isButtonOrange]="true"
+                    [isDisabled]="selectedAssociation?.disabled" [mobileFull]="true"
+                    id="modal-create-master-group-link">
+                    {{botaoUploadLabel}}
                 </app-button>
-            </div> -->
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12" style="margin-top: 20px;">
+                <div class="grid">
+                    <div class="table-open-house-item">
+                        <div class="table-header-item">Master</div>
+                        <div class="table-header-item center">Data Processamento</div>
+                        <div class="table-header-item">House Number</div>
+                        <div class="table-header-item right">Total Pacotes</div>
+                        <div class="table-header-item right">Peso</div>
+                        <div class="table-header-item right">Peso Unidade</div>
+                        <div class="table-header-item right">Origem</div>
+                        <div class="table-header-item right">Destino</div>
+                        <ng-container *ngFor="let master of openMaster; let idx=index">
+                            <ng-container *ngFor="let item of master.Houses; let idx2=index">
+                                <ng-container *ngIf="idx2 == 0; else templateA">
+                                    <div class="table-item-row summary">{{ item.MasterNumber | master }}</div>
+                                </ng-container>
+                                <ng-template #templateA>
+                                    <div class="table-item-row summary">&nbsp;</div>
+                                </ng-template>
+                                <div class="table-item-row center summary">{{ item.ProcessDate | date: 'dd/MM/yyyy'}}
+                                </div>
+                                <div class="table-item-row summary">
+                                    <input type="checkbox" class="checkbox" [value]="idx2"
+                                        ([ngModel])="selectedOpenHouse[idx].houses[idx2].checked"
+                                        [checked]="selectedOpenHouse[idx].houses[idx2].checked"
+                                        (click)="openHouseCheckClick($event, idx, idx2)">&nbsp;{{
+                                    item.Number }}
+                                </div>
+                                <div class="table-item-row right summary">{{ item.PackageQuantity }}</div>
+                                <div class="table-item-row right summary">{{ item.TotalWeight | number:'1.4-4' }}</div>
+                                <div class="table-item-row right summary">{{ item.TotalWeightUnit }}</div>
+                                <div class="table-item-row right summary">{{ item.OriginLocation }}</div>
+                                <div class="table-item-row right summary">{{ item.DestinationLocation }}</div>
+                            </ng-container>
+                            <div class="table-item-row"></div>
+                            <div class="table-item-row"></div>
+                            <div class="table-item-row"><app-button (buttonClicked)="openNewAssociation($event, idx)"
+                                    [isButtonOrange]="true" [isDisabled]="selectedOpenHouse[idx].disabled"
+                                    [mobileFull]="true" id="modal-create-master-group-link">
+                                    Associar
+                                </app-button></div>
+                            <div class="table-item-row"></div>
+                            <div class="table-item-row"></div>
+                            <div class="table-item-row"></div>
+                            <div class="table-item-row"></div>
+                            <div class="table-item-row"></div>
+                        </ng-container>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-    <dx-popup #popconfirm [width]="400" [height]="280" [showTitle]="true" title="Atenção!" [dragEnabled]="false"
-        [closeOnOutsideClick]="false" [showCloseButton]="true" container=".dx-viewport">
-        <p>Você tem certeza que deseja submeter os Houses para a Receita Federal?</p>
-        <div class="buttons-line">
-            <div>
-                <dx-button stylingMode="contained" text="Confirmar" type="normal" [width]="120"
-                    (onClick)="popUpConfirm.visible = false">
-                </dx-button>
+</div>
+<dx-popup #popconfirm [width]="400" [height]="280" [showTitle]="true" title="Atenção!" [dragEnabled]="false"
+    [closeOnOutsideClick]="false" [showCloseButton]="true" container=".dx-viewport">
+    <p>Você tem certeza que deseja submeter os Houses para a Receita Federal?</p>
+    <div class="buttons-line">
+        <div>
+            <dx-button stylingMode="contained" text="Confirmar" type="normal" [width]="120"
+                (onClick)="popUpConfirm.visible = false">
+            </dx-button>
+        </div>
+        <div>
+            <dx-button stylingMode="outlined" text="Cancelar" type="normal" [width]="120"
+                (onClick)="popUpConfirm.visible = false">
+            </dx-button>
+        </div>
+    </div>
+</dx-popup>
+<dx-popup #popmasterdate [width]="700" [height]="480" [showTitle]="true" title="Associar House" [dragEnabled]="false"
+    [closeOnOutsideClick]="false" [showCloseButton]="true" [(visible)]="popupVisible">
+    <div class="row">
+        <div class="col-md-12" style="margin-top: 20px;">
+            <div class="grid">
+                <div class="table-popup-open-house-item">
+                    <div class="table-header-item">Master</div>
+                    <div class="table-header-item center">Data Processamento</div>
+                    <div class="table-header-item">House Number</div>
+                    <div class="table-header-item right">Total Pacotes</div>
+                    <div class="table-header-item right">Peso</div>
+                    <div class="table-header-item right">Peso Unidade</div>
+                    <div class="table-header-item right">Origem</div>
+                    <div class="table-header-item right">Destino</div>
+                    <ng-container *ngFor="let item of selectedHouses?.Houses; let idx=index">
+                        <div class="table-item-row summary">{{ item.MasterNumber | master }}</div>
+                        <div class="table-item-row center summary">{{ item.ProcessDate | date: 'dd/MM/yyyy'}}</div>
+                        <div class="table-item-row summary">{{ item.Number }}</div>
+                        <div class="table-item-row right summary">{{ item.PackageQuantity }}</div>
+                        <div class="table-item-row right summary">{{ item.TotalWeight | number:'1.4-4' }}</div>
+                        <div class="table-item-row right summary">{{ item.TotalWeightUnit }}</div>
+                        <div class="table-item-row right summary">{{ item.OriginLocation }}</div>
+                        <div class="table-item-row right summary">{{ item.DestinationLocation }}</div>
+                    </ng-container>
+                </div>
             </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12" style="margin-top: 20px;">
+            <p>Entre com a data de emissão do Master</p>
             <div>
-                <dx-button stylingMode="outlined" text="Cancelar" type="normal" [width]="120"
-                    (onClick)="popUpConfirm.visible = false">
+                <dx-date-box [(value)]="changeMasterDate" type="date" width="115"></dx-date-box>
+            </div>
+        </div>
+    </div>
+    <div class="buttons">
+        <div class="buttons-line">
+            <dx-button stylingMode="contained" text="Confirmar" type="normal" [width]="120"
+                (onClick)="onSubmitAssociation()">
+            </dx-button>
+        </div>
+        <div class="space"></div>
+        <div class="buttons-line">
+            <dx-button stylingMode="outlined" text="Cancelar" type="normal" [width]="120"
+                (onClick)="popMasterDate.visible = false">
+            </dx-button>
+        </div>
+    </div>
+</dx-popup>
+<dx-popup #popupEditMasterDate [width]="700" [height]="580" [showTitle]="true" title="Editar Associação"
+    [dragEnabled]="false" [closeOnOutsideClick]="false" [showCloseButton]="true" [(visible)]="popupEditVisible">
+    <div class="row">
+        <div class="col-md-12" style="margin-top: 20px;">
+            <p>Numero da Associação (DocumentId)</p>
+            <div>
+                {{selectedAssociated?.DocumentId}}
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12" style="margin-top: 20px;">
+            <p>Numero do Master</p>
+            <div>
+                {{selectedAssociated?.Number}}
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12" style="margin-top: 20px;">
+            <div class="grid">
+                <div class="table-popup-open-editassociation-item">
+                    <div class="table-header-item center">Data Processamento</div>
+                    <div class="table-header-item">House Number</div>
+                    <div class="table-header-item right">Total Pacotes</div>
+                    <div class="table-header-item right">Peso</div>
+                    <div class="table-header-item right">Peso Unidade</div>
+                    <div class="table-header-item right">Origem</div>
+                    <div class="table-header-item right">Destino</div>
+                    <div class="table-header-item center">Ação</div>
+                    <ng-container *ngFor="let item of selectedAssociated?.Houses; let idx=index">
+                        <div class="table-item-row center summary">{{ item.ProcessDate | date: 'dd/MM/yyyy'}}</div>
+                        <div class="table-item-row summary">{{ item.Number }}</div>
+                        <div class="table-item-row right summary">{{ item.PackageQuantity }}</div>
+                        <div class="table-item-row right summary">{{ item.TotalWeight | number:'1.4-4' }}</div>
+                        <div class="table-item-row right summary">{{ item.TotalWeightUnit }}</div>
+                        <div class="table-item-row right summary">{{ item.OriginLocation }}</div>
+                        <div class="table-item-row right summary">{{ item.DestinationLocation }}</div>
+                        <div class="table-item-row center">
+                            <ng-container *ngIf="selectedAssociated?.Houses?.length > 1">
+                                <a (click)="removeItemEditAssociacao(idx)">Excluir</a></ng-container>
+                        </div>
+                    </ng-container>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6" style="margin-top: 20px;">
+            <p>Entre com a data de emissão do Master</p>
+            <div>
+                <dx-date-box [(value)]="changeMasterDate" type="date" width="115"></dx-date-box>
+            </div>
+        </div>
+        <div class="col-md-6 right" style="margin-top: 20px;">
+            <p>Desfazer a Associação</p>
+            <div class="right">
+                <dx-button stylingMode="contained" text="Desfazer Associação" type="normal" [width]="180"
+                    (onClick)="onSubmitRemoveAssociation()">
                 </dx-button>
             </div>
         </div>
-    </dx-popup>
+    </div>
+    <div class="buttons">
+        <div class="buttons-line">
+            <dx-button stylingMode="contained" text="Atualizar" type="normal" [width]="120"
+                (onClick)="onSubmitEditAssociation()">
+            </dx-button>
+        </div>
+        <div class="space"></div>
+        <div class="buttons-line">
+            <dx-button stylingMode="outlined" text="Cancelar" type="normal" [width]="120"
+                (onClick)="popupEditMasterDate.visible = false">
+            </dx-button>
+        </div>
+    </div>
+</dx-popup>

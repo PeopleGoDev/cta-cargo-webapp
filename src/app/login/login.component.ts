@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { LocalStorageService } from 'app/shared/services/localstorage.service';
 import notify from 'devextreme/ui/notify';
-import { AccountClient, UsuarioLoginRequest } from 'app/shared/proxy/ctaapi';
+import { AccountClient, UserSelectCompany, UsuarioLoginRequest } from 'app/shared/proxy/ctaapi';
 
 @Component({
   selector: 'app-login',
@@ -19,6 +19,9 @@ export class LoginComponent implements OnInit {
   buttonText: string = "Entrar";
   loadingVisible: boolean = false;
   alterarSenha: boolean = false;
+  selecionaEmpresa: boolean = false;
+  companies: UserSelectCompany[];
+  selectedCompanyId: number = -1;
 
   constructor(
     private route: ActivatedRoute,
@@ -36,8 +39,15 @@ export class LoginComponent implements OnInit {
 
   onSubmit() {
 
+    if (!this.selecionaEmpresa)
+      this.loginUserPassword();
+
+  }
+
+  loginUserPassword() {
+
     this.loadingVisible = true;
-    let loginInput: UsuarioLoginRequest= {
+    let loginInput: UsuarioLoginRequest = {
       Email: this.usuario,
       Senha: this.senha
     }
@@ -50,19 +60,24 @@ export class LoginComponent implements OnInit {
 
     this.accountClient.autenticar(loginInput)
       .subscribe(res => {
-          this.loadingVisible = false;
-          if (res.result.Sucesso) {
-            if (res.result.Dados.AlterarSenha != undefined && res.result.Dados.AlterarSenha == true) {
-              this.alterarSenha = true;
-            }
-            else {
-              this.localstorage.storeOnLocalStorage(res.result.Dados);
-              this.router.navigate(['/portal']);
-            }
+        this.loadingVisible = false;
+        if (res.result.Sucesso) {
+          if (res.result.Dados.AlterarSenha) {
+            this.alterarSenha = true;
           }
-          else
-            notify(res.result.Notificacoes[0].Mensagem, 'error', 3000);
-        },
+          else if (res.result.Dados.SelectCompany) {
+            this.localstorage.storeOnLocalStorage(res.result.Dados);
+            this.companies = res.result.Dados.SelectCompanies;
+            this.selecionaEmpresa = true;
+          }
+          else {
+            this.localstorage.storeOnLocalStorage(res.result.Dados);
+            this.router.navigate(['/portal']);
+          }
+        }
+        else
+          notify(res.result.Notificacoes[0].Mensagem, 'error', 3000);
+      },
         err => {
           notify(err, 'error', 3000);
           this.loadingVisible = false;
@@ -70,4 +85,27 @@ export class LoginComponent implements OnInit {
       );
   }
 
+  loginSwitchCompany() {
+    this.loadingVisible = true;
+
+    this.accountClient.switchCompany(this.selectedCompanyId)
+      .subscribe(res => {
+        this.loadingVisible = false;
+        if (res.result.Sucesso) {
+          this.localstorage.storeOnLocalStorage(res.result.Dados);
+          this.router.navigate(['/portal']);
+        }
+        else
+          notify(res.result.Notificacoes[0].Mensagem, 'error', 3000);
+      },
+        err => {
+          notify(err, 'error', 3000);
+          this.loadingVisible = false;
+        }
+      );
+  }
+
+  onCompanySelected(e: any) {
+    this.selectedCompanyId = e.addedItems[0].Id;
+  }
 }

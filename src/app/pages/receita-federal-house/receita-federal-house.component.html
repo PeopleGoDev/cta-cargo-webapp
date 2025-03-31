@@ -23,12 +23,15 @@
                                 </div>
                                 <div style="display: table-cell; width: 10px;">&nbsp;</div>
                                 <div style="display: table-cell;">
-                                    <dx-drop-down-button [splitButton]="true" [useSelectMode]="false"
+                                    <!-- <dx-drop-down-button [splitButton]="true" [useSelectMode]="false"
                                         text="Selecione o Voo" icon="assets/img/icons/wood-pallet.svg"
                                         [items]="botoesGBItems" [selectedItemKey]="curAgenteDeCarga"
                                         (onItemClick)="onItemClick($event)" displayExpr="text" keyExpr="agenteid"
                                         [disabled]="!botoesGBItems || botoesGBItems.length === 0" [useSelectMode]="true"
-                                        width="385px"></dx-drop-down-button>
+                                        width="385px"></dx-drop-down-button> -->
+                                    <dx-select-box [dataSource]="botoesGBItems" displayExpr="text" valueExpr="agenteid"
+                                        [inputAttr]="{ 'aria-label': 'Product' }" width="385px" [disabled]="botoesGBItems?.length === 0"
+                                        (onItemClick)="onItemClick($event)"></dx-select-box>
                                 </div>
                             </div>
                         </div>
@@ -42,10 +45,8 @@
             <div class="col-md-12">
                 <dx-data-grid id="tasks" [dataSource]="dataHouse" #masterDataGrid keyExpr="HouseId"
                     [columnAutoWidth]="true" [wordWrapEnabled]="true" [showBorders]="true"
-                    (onRowPrepared)="onRowPrepared($event)"
-                    (onEditorPreparing)="onEditorPreparing($event)"
-                    (onSelectionChanged)="onSelectionChanged($event)"
-                    [(selectedRowKeys)]="selectedItems">
+                    (onRowPrepared)="onRowPrepared($event)" (onEditorPreparing)="onEditorPreparing($event)"
+                    (onSelectionChanged)="onSelectionChanged($event)" [(selectedRowKeys)]="selectedItems">
                     <dxo-selection mode="multiple"></dxo-selection>
                     <dxi-column dataField="Numero" caption="Número" [width]="150" cellTemplate="awbTemplate">
                         <div *dxTemplate="let data of 'awbTemplate'">

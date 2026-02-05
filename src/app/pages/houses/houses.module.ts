@@ -13,9 +13,11 @@ import { DxDataGridModule ,
   DxValidationGroupModule,
   DxTagBoxModule, 
   DxAutocompleteModule,
-  DxSwitchModule} from 'devextreme-angular';
+  DxSwitchModule,
+  DxPopupModule,
+  DxTextAreaModule} from 'devextreme-angular';
 import { PipesModule } from 'app/shared/util/pipes.module';
-import { CertificadoDigitalClient, NcmClient, PortoIATAClient } from 'app/shared/proxy/ctaapi';
+import { CertificadoDigitalClient, PortoIATAClient } from 'app/shared/proxy/ctaapi';
 import { NcmSelectorModule } from 'app/shared/components/ncm-selector/ncm-selector.module';
 import { SpecialInstructionModule } from 'app/shared/components/special-instruction/special-instruction.module';
 
@@ -36,6 +38,8 @@ import { SpecialInstructionModule } from 'app/shared/components/special-instruct
     DxTagBoxModule,
     DxAutocompleteModule,
     DxSwitchModule,
+    DxPopupModule,
+    DxTextAreaModule,
     NcmSelectorModule,
     SpecialInstructionModule,
     PipesModule

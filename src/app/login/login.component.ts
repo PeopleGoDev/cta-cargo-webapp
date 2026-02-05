@@ -53,7 +53,7 @@ export class LoginComponent implements OnInit {
     }
 
     if (this.alterarSenha == true) {
-      loginInput.AlterarSenhar = true;
+      loginInput.AlterarSenha = true;
       loginInput.NovaSenha = this.novasenha;
       loginInput.NovaSenhaConfirmacao = this.novasenhaconfirmacao;
     }

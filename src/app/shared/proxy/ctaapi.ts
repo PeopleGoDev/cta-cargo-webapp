@@ -28,7 +28,7 @@ export class AccountClient {
 
     /**
      * @param body (optional) 
-     * @return Success
+     * @return OK
      */
     autenticar(body: UsuarioLoginRequest | undefined): Observable<SwaggerResponse<UsuarioLoginResponseApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/Account/Autenticar";
@@ -82,7 +82,7 @@ export class AccountClient {
     }
 
     /**
-     * @return Success
+     * @return OK
      */
     switchCompany(id: number): Observable<SwaggerResponse<UsuarioLoginResponseApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/Account/SwitchCompany/{id}";
@@ -148,7 +148,7 @@ export class AgenteDeCargaClient {
 
     /**
      * @param agenteId (optional) 
-     * @return Success
+     * @return OK
      */
     obterAgenteDeCargaPorId(agenteId: number | undefined): Observable<SwaggerResponse<AgenteDeCargaResponseDtoApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/AgenteDeCarga/ObterAgenteDeCargaPorId?";
@@ -202,7 +202,7 @@ export class AgenteDeCargaClient {
     }
 
     /**
-     * @return Success
+     * @return OK
      */
     listarAgentesDeCarga(): Observable<SwaggerResponse<AgenteDeCargaResponseDtoIEnumerableApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/AgenteDeCarga/ListarAgentesDeCarga";
@@ -253,7 +253,7 @@ export class AgenteDeCargaClient {
 
     /**
      * @param body (optional) 
-     * @return Success
+     * @return OK
      */
     inserirAgenteDeCarga(body: AgenteDeCargaInsertRequest | undefined): Observable<SwaggerResponse<AgenteDeCargaResponseDtoApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/AgenteDeCarga/InserirAgenteDeCarga";
@@ -308,7 +308,7 @@ export class AgenteDeCargaClient {
 
     /**
      * @param body (optional) 
-     * @return Success
+     * @return OK
      */
     atualizarAgenteDeCarga(body: AgenteDeCargaUpdateRequest | undefined): Observable<SwaggerResponse<AgenteDeCargaResponseDtoApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/AgenteDeCarga/AtualizarAgenteDeCarga";
@@ -363,7 +363,7 @@ export class AgenteDeCargaClient {
 
     /**
      * @param agenteId (optional) 
-     * @return Success
+     * @return OK
      */
     excluirAgenteDeCarga(agenteId: number | undefined): Observable<SwaggerResponse<AgenteDeCargaResponseDtoApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/AgenteDeCarga/ExcluirAgenteDeCarga?";
@@ -417,7 +417,7 @@ export class AgenteDeCargaClient {
     }
 
     /**
-     * @return Success
+     * @return OK
      */
     listarAgentesDeCargaSimples(): Observable<SwaggerResponse<AgenteDeCargaListaSimplesResponseIEnumerableApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/AgenteDeCarga/ListarAgentesDeCargaSimples";
@@ -465,6 +465,59 @@ export class AgenteDeCargaClient {
         }
         return _observableOf<SwaggerResponse<AgenteDeCargaListaSimplesResponseIEnumerableApiResponse>>(new SwaggerResponse(status, _headers, null as any));
     }
+
+    /**
+     * @return OK
+     */
+    getCode(taxId: string): Observable<SwaggerResponse<StringApiResponse>> {
+        let url_ = this.baseUrl + "/api/v1/AgenteDeCarga/get-code/{taxId}";
+        if (taxId === undefined || taxId === null)
+            throw new Error("The parameter 'taxId' must be defined.");
+        url_ = url_.replace("{taxId}", encodeURIComponent("" + taxId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetCode(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetCode(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SwaggerResponse<StringApiResponse>>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SwaggerResponse<StringApiResponse>>;
+        }));
+    }
+
+    protected processGetCode(response: HttpResponseBase): Observable<SwaggerResponse<StringApiResponse>> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as StringApiResponse;
+            return _observableOf(new SwaggerResponse(status, _headers, result200));
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SwaggerResponse<StringApiResponse>>(new SwaggerResponse(status, _headers, null as any));
+    }
 }
 
 @Injectable()
@@ -479,7 +532,7 @@ export class CertificadoDigitalClient {
     }
 
     /**
-     * @return Success
+     * @return OK
      */
     listarCertificadosDigitais(): Observable<SwaggerResponse<CertificadoDigitalResponseDtoIEnumerableApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/CertificadoDigital/ListarCertificadosDigitais";
@@ -529,7 +582,7 @@ export class CertificadoDigitalClient {
     }
 
     /**
-     * @return Success
+     * @return OK
      */
     getValidCertificate(): Observable<SwaggerResponse<DigitalCertificateUserRelatedResponseApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/CertificadoDigital/get-valid-certificate";
@@ -592,7 +645,7 @@ export class CiaAereaClient {
 
     /**
      * @param ciaId (optional) 
-     * @return Success
+     * @return OK
      */
     obterCiaAereaPorId(ciaId: number | undefined): Observable<SwaggerResponse<CiaAereaResponseDtoApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/CiaAerea/ObterCiaAereaPorId?";
@@ -646,7 +699,7 @@ export class CiaAereaClient {
     }
 
     /**
-     * @return Success
+     * @return OK
      */
     listarCiasAereas(): Observable<SwaggerResponse<CiaAereaResponseDtoIEnumerableApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/CiaAerea/ListarCiasAereas";
@@ -697,7 +750,7 @@ export class CiaAereaClient {
 
     /**
      * @param body (optional) 
-     * @return Success
+     * @return OK
      */
     inserirCiaAerea(body: CiaAereaInsertRequest | undefined): Observable<SwaggerResponse<CiaAereaResponseDtoApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/CiaAerea/InserirCiaAerea";
@@ -752,7 +805,7 @@ export class CiaAereaClient {
 
     /**
      * @param body (optional) 
-     * @return Success
+     * @return OK
      */
     atualizarCiaAerea(body: CiaAereaUpdateRequest | undefined): Observable<SwaggerResponse<CiaAereaResponseDtoApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/CiaAerea/AtualizarCiaAerea";
@@ -807,7 +860,7 @@ export class CiaAereaClient {
 
     /**
      * @param ciaId (optional) 
-     * @return Success
+     * @return OK
      */
     excluirCiaAerea(ciaId: number | undefined): Observable<SwaggerResponse<CiaAereaResponseDtoApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/CiaAerea/ExcluirCiaAerea?";
@@ -861,7 +914,7 @@ export class CiaAereaClient {
     }
 
     /**
-     * @return Success
+     * @return OK
      */
     listarCiasAereasSimples(): Observable<SwaggerResponse<CiaAreaListaSimplesResponseIEnumerableApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/CiaAerea/ListarCiasAereasSimples";
@@ -924,7 +977,7 @@ export class HouseClient {
 
     /**
      * @param houseId (optional) 
-     * @return Success
+     * @return OK
      */
     obterHousePorId(houseId: number | undefined): Observable<SwaggerResponse<HouseResponseDtoApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/House/ObterHousePorId?";
@@ -979,7 +1032,7 @@ export class HouseClient {
 
     /**
      * @param body (optional) 
-     * @return Success
+     * @return OK
      */
     listarHouses(body: HouseListarRequest | undefined): Observable<SwaggerResponse<HouseResponseDtoIEnumerableApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/House/ListarHouses";
@@ -1034,7 +1087,7 @@ export class HouseClient {
 
     /**
      * @param body (optional) 
-     * @return Success
+     * @return OK
      */
     listhouseassociationupload(body: HouseListarRequest | undefined): Observable<SwaggerResponse<MasterHouseAssociationUploadResponse[]>> {
         let url_ = this.baseUrl + "/api/v1/House/listhouseassociationupload";
@@ -1089,7 +1142,7 @@ export class HouseClient {
 
     /**
      * @param body (optional) 
-     * @return Success
+     * @return OK
      */
     listarHousesPorDataCriacao(body: MasterHousePorDataCriacaoRequest | undefined): Observable<SwaggerResponse<HouseResponseDtoIEnumerableApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/House/ListarHousesPorDataCriacao";
@@ -1144,7 +1197,7 @@ export class HouseClient {
 
     /**
      * @param body (optional) 
-     * @return Success
+     * @return OK
      */
     inserirHouse(body: HouseInsertRequestDto | undefined): Observable<SwaggerResponse<HouseResponseDtoApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/House/InserirHouse";
@@ -1199,7 +1252,7 @@ export class HouseClient {
 
     /**
      * @param body (optional) 
-     * @return Success
+     * @return OK
      */
     atualizarHouse(body: HouseUpdateRequestDto | undefined): Observable<SwaggerResponse<HouseResponseDtoApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/House/AtualizarHouse";
@@ -1254,7 +1307,7 @@ export class HouseClient {
 
     /**
      * @param houseId (optional) 
-     * @return Success
+     * @return OK
      */
     atualizarReenviarHouse(houseId: number | undefined): Observable<SwaggerResponse<HouseResponseDtoApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/House/AtualizarReenviarHouse?";
@@ -1309,7 +1362,7 @@ export class HouseClient {
 
     /**
      * @param houseId (optional) 
-     * @return Success
+     * @return OK
      */
     atualizarReenviarAssociacaoHouse(houseId: number | undefined): Observable<SwaggerResponse<HouseResponseDtoApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/House/AtualizarReenviarAssociacaoHouse?";
@@ -1364,7 +1417,7 @@ export class HouseClient {
 
     /**
      * @param houseId (optional) 
-     * @return Success
+     * @return OK
      */
     excluirHouse(houseId: number | undefined): Observable<SwaggerResponse<HouseResponseDtoApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/House/ExcluirHouse?";
@@ -1419,7 +1472,7 @@ export class HouseClient {
 
     /**
      * @param body (optional) 
-     * @return Success
+     * @return OK
      */
     adicionarMasterHouseAssociacao(body: AddMasterHouseAssociationRequest | undefined): Observable<SwaggerResponse<MasterHouseAssociationResponseListApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/House/adicionar-master-house-associacao";
@@ -1474,7 +1527,7 @@ export class HouseClient {
 
     /**
      * @param body (optional) 
-     * @return Success
+     * @return OK
      */
     atualizarMasterHouseAssociacao(body: UpdateMasterHouseAssociationRequest | undefined): Observable<SwaggerResponse<MasterHouseAssociationResponseListApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/House/atualizar-master-house-associacao";
@@ -1529,7 +1582,7 @@ export class HouseClient {
 
     /**
      * @param body (optional) 
-     * @return Success
+     * @return OK
      */
     desfazerMasterHouseAssociacao(body: RemoveMasterHouseAssociationRequest | undefined): Observable<SwaggerResponse<MasterHouseAssociationResponseListApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/House/desfazer-master-house-associacao";
@@ -1584,7 +1637,7 @@ export class HouseClient {
 
     /**
      * @param body (optional) 
-     * @return Success
+     * @return OK
      */
     forUploadList(body: HouseListarRequest | undefined): Observable<SwaggerResponse<MasterHouseAssoationForUploadResponse>> {
         let url_ = this.baseUrl + "/api/v1/House/for-upload-list";
@@ -1651,7 +1704,7 @@ export class MasterClient {
 
     /**
      * @param masterId (optional) 
-     * @return Success
+     * @return OK
      */
     obterMasterPorId(masterId: number | undefined): Observable<SwaggerResponse<MasterResponseDtoApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/Master/ObterMasterPorId?";
@@ -1706,7 +1759,7 @@ export class MasterClient {
 
     /**
      * @param body (optional) 
-     * @return Success
+     * @return OK
      */
     listarMasters(body: MasterListarRequest | undefined): Observable<SwaggerResponse<MasterResponseDtoIEnumerableApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/Master/ListarMasters";
@@ -1761,7 +1814,7 @@ export class MasterClient {
 
     /**
      * @param body (optional) 
-     * @return Success
+     * @return OK
      */
     listarMastersPorDataCriacao(body: MasterHousePorDataCriacaoRequest | undefined): Observable<SwaggerResponse<MasterResponseDtoIEnumerableApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/Master/ListarMastersPorDataCriacao";
@@ -1816,7 +1869,7 @@ export class MasterClient {
 
     /**
      * @param vooId (optional) 
-     * @return Success
+     * @return OK
      */
     listarMastersVoo(vooId: number | undefined): Observable<SwaggerResponse<MasterVooResponseDtoIEnumerableApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/Master/ListarMastersVoo?";
@@ -1871,7 +1924,7 @@ export class MasterClient {
 
     /**
      * @param vooId (optional) 
-     * @return Success
+     * @return OK
      */
     listarMastersListaPorVooId(vooId: number | undefined): Observable<SwaggerResponse<MasterListaResponseDtoIEnumerableApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/Master/ListarMastersListaPorVooId?";
@@ -1926,7 +1979,7 @@ export class MasterClient {
 
     /**
      * @param body (optional) 
-     * @return Success
+     * @return OK
      */
     inserirMaster(body: MasterInsertRequestDto | undefined): Observable<SwaggerResponse<MasterResponseDtoApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/Master/InserirMaster";
@@ -1981,7 +2034,7 @@ export class MasterClient {
 
     /**
      * @param body (optional) 
-     * @return Success
+     * @return OK
      */
     atualizarMaster(body: MasterUpdateRequestDto | undefined): Observable<SwaggerResponse<MasterResponseDtoApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/Master/AtualizarMaster";
@@ -2036,7 +2089,7 @@ export class MasterClient {
 
     /**
      * @param body (optional) 
-     * @return Success
+     * @return OK
      */
     atualizarReeviarMaster(body: AtualizarMasterReenviarRequest | undefined): Observable<SwaggerResponse<MasterResponseDtoIEnumerableApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/Master/AtualizarReeviarMaster";
@@ -2091,7 +2144,7 @@ export class MasterClient {
 
     /**
      * @param body (optional) 
-     * @return Success
+     * @return OK
      */
     excluirMaster(body: ExcluirMastersByIdRequest | undefined): Observable<SwaggerResponse<StringApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/Master/ExcluirMaster";
@@ -2145,7 +2198,7 @@ export class MasterClient {
     }
 
     /**
-     * @return Success
+     * @return OK
      */
     listarArquivosImportacao(): Observable<SwaggerResponse<MasterFileResponseDtoListApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/Master/ListarArquivosImportacao";
@@ -2198,7 +2251,7 @@ export class MasterClient {
      * @param vooId (optional) 
      * @param fileImportId (optional) 
      * @param file (optional) 
-     * @return Success
+     * @return OK
      */
     uploadImportFile(vooId: number | undefined, fileImportId: number | undefined, file: FileParameter | undefined): Observable<SwaggerResponse<MasterResponseDtoListApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/Master/UploadImportFile";
@@ -2276,7 +2329,7 @@ export class NaturezaCargaClient {
 
     /**
      * @param naturezaCargaId (optional) 
-     * @return Success
+     * @return OK
      */
     obterNaturezaCargaPorId(naturezaCargaId: number | undefined): Observable<SwaggerResponse<NaturezaCargaResponseDtoApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/NaturezaCarga/ObterNaturezaCargaPorId?";
@@ -2330,7 +2383,7 @@ export class NaturezaCargaClient {
     }
 
     /**
-     * @return Success
+     * @return OK
      */
     listarNaturezaCarga(): Observable<SwaggerResponse<NaturezaCargaResponseDtoIEnumerableApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/NaturezaCarga/ListarNaturezaCarga";
@@ -2381,7 +2434,7 @@ export class NaturezaCargaClient {
 
     /**
      * @param body (optional) 
-     * @return Success
+     * @return OK
      */
     inserirNaturezaCarga(body: NaturezaCargaInsertRequestDto | undefined): Observable<SwaggerResponse<NaturezaCargaResponseDtoApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/NaturezaCarga/InserirNaturezaCarga";
@@ -2436,7 +2489,7 @@ export class NaturezaCargaClient {
 
     /**
      * @param body (optional) 
-     * @return Success
+     * @return OK
      */
     atualizarNaturezaCarga(body: NaturezaCargaUpdateRequestDto | undefined): Observable<SwaggerResponse<NaturezaCargaResponseDtoApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/NaturezaCarga/AtualizarNaturezaCarga";
@@ -2491,7 +2544,7 @@ export class NaturezaCargaClient {
 
     /**
      * @param naturezaCargaId (optional) 
-     * @return Success
+     * @return OK
      */
     excluirNaturezaCarga(naturezaCargaId: number | undefined): Observable<SwaggerResponse<NaturezaCargaResponseDtoApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/NaturezaCarga/ExcluirNaturezaCarga?";
@@ -2546,7 +2599,7 @@ export class NaturezaCargaClient {
 
     /**
      * @param q (optional) 
-     * @return Success
+     * @return OK
      */
     search(q: string | undefined): Observable<SwaggerResponse<NaturezaCarga[]>> {
         let url_ = this.baseUrl + "/api/v1/NaturezaCarga/search?";
@@ -2601,7 +2654,7 @@ export class NaturezaCargaClient {
 
     /**
      * @param body (optional) 
-     * @return Success
+     * @return OK
      */
     searchcodes(body: string[] | undefined): Observable<SwaggerResponse<NaturezaCarga[]>> {
         let url_ = this.baseUrl + "/api/v1/NaturezaCarga/searchcodes";
@@ -2668,7 +2721,7 @@ export class NcmClient {
 
     /**
      * @param q (optional) 
-     * @return Success
+     * @return OK
      */
     search(q: string | undefined): Observable<SwaggerResponse<NCM[]>> {
         let url_ = this.baseUrl + "/api/v1/Ncm/search?";
@@ -2723,7 +2776,7 @@ export class NcmClient {
 
     /**
      * @param body (optional) 
-     * @return Success
+     * @return OK
      */
     searchcodes(body: string[] | undefined): Observable<SwaggerResponse<NCM[]>> {
         let url_ = this.baseUrl + "/api/v1/Ncm/searchcodes";
@@ -2790,7 +2843,7 @@ export class PortoIATAClient {
 
     /**
      * @param portoIATAId (optional) 
-     * @return Success
+     * @return OK
      */
     obterPortoIATAPorId(portoIATAId: number | undefined): Observable<SwaggerResponse<PortoIataResponseDtoApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/PortoIATA/ObterPortoIATAPorId?";
@@ -2844,7 +2897,7 @@ export class PortoIATAClient {
     }
 
     /**
-     * @return Success
+     * @return OK
      */
     listarPortosIATA(): Observable<SwaggerResponse<PortoIataResponseDtoIEnumerableApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/PortoIATA/ListarPortosIATA";
@@ -2895,7 +2948,7 @@ export class PortoIATAClient {
 
     /**
      * @param body (optional) 
-     * @return Success
+     * @return OK
      */
     inserirPortoIATA(body: PortoIataInsertRequestDto | undefined): Observable<SwaggerResponse<PortoIataResponseDtoApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/PortoIATA/InserirPortoIATA";
@@ -2950,7 +3003,7 @@ export class PortoIATAClient {
 
     /**
      * @param body (optional) 
-     * @return Success
+     * @return OK
      */
     atualizarPortoIATA(body: PortoIataUpdateRequestDto | undefined): Observable<SwaggerResponse<PortoIataResponseDtoApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/PortoIATA/AtualizarPortoIATA";
@@ -3005,7 +3058,7 @@ export class PortoIATAClient {
 
     /**
      * @param portoIATAId (optional) 
-     * @return Success
+     * @return OK
      */
     excluirPortoIATA(portoIATAId: number | undefined): Observable<SwaggerResponse<PortoIataResponseDtoApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/PortoIATA/ExcluirPortoIATA?";
@@ -3072,7 +3125,7 @@ export class ReceitaFederalClient {
 
     /**
      * @param body (optional) 
-     * @return Success
+     * @return OK
      */
     submeterVooCompleto(body: FlightUploadRequest | undefined): Observable<SwaggerResponse<StringApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/ReceitaFederal/SubmeterVooCompleto";
@@ -3127,7 +3180,7 @@ export class ReceitaFederalClient {
 
     /**
      * @param body (optional) 
-     * @return Success
+     * @return OK
      */
     submitscheduledflight(body: FlightUploadRequest | undefined): Observable<SwaggerResponse<StringApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/ReceitaFederal/submitscheduledflight";
@@ -3182,7 +3235,7 @@ export class ReceitaFederalClient {
 
     /**
      * @param body (optional) 
-     * @return Success
+     * @return OK
      */
     submeterMasterVooCompleto(body: FlightUploadRequest | undefined): Observable<SwaggerResponse<FileUploadResponseIEnumerableApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/ReceitaFederal/SubmeterMasterVooCompleto";
@@ -3237,7 +3290,7 @@ export class ReceitaFederalClient {
 
     /**
      * @param body (optional) 
-     * @return Success
+     * @return OK
      */
     submeterMasterSelecionado(body: FlightUploadRequest | undefined): Observable<SwaggerResponse<FileUploadResponseIEnumerableApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/ReceitaFederal/SubmeterMasterSelecionado";
@@ -3292,7 +3345,7 @@ export class ReceitaFederalClient {
 
     /**
      * @param body (optional) 
-     * @return Success
+     * @return OK
      */
     verificarProtocoloVoo(body: FlightUploadRequest | undefined): Observable<SwaggerResponse<StringApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/ReceitaFederal/VerificarProtocoloVoo";
@@ -3347,7 +3400,7 @@ export class ReceitaFederalClient {
 
     /**
      * @param body (optional) 
-     * @return Success
+     * @return OK
      */
     submeterMasterExclusion(body: MasterExclusaoRFBInput | undefined): Observable<SwaggerResponse<MasterResponseDtoApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/ReceitaFederal/SubmeterMasterExclusion";
@@ -3402,7 +3455,7 @@ export class ReceitaFederalClient {
 
     /**
      * @param body (optional) 
-     * @return Success
+     * @return OK
      */
     submeterHouseAgenteDeCarga(body: SubmeterRFBHouseRequest | undefined): Observable<SwaggerResponse<StringApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/ReceitaFederal/SubmeterHouseAgenteDeCarga";
@@ -3457,7 +3510,7 @@ export class ReceitaFederalClient {
 
     /**
      * @param body (optional) 
-     * @return Success
+     * @return OK
      */
     submeterHouseAgenteDeCargaPorIds(body: SubmeterRFBHouseByIdsRequest | undefined): Observable<SwaggerResponse<StringApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/ReceitaFederal/SubmeterHouseAgenteDeCargaPorIds";
@@ -3512,7 +3565,7 @@ export class ReceitaFederalClient {
 
     /**
      * @param body (optional) 
-     * @return Success
+     * @return OK
      */
     submeterAssociacaoHouseMaster(body: SubmeterRFBMasterHouseRequest | undefined): Observable<SwaggerResponse<StringApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/ReceitaFederal/SubmeterAssociacaoHouseMaster";
@@ -3573,7 +3626,7 @@ export class ReceitaFederalClient {
 
     /**
      * @param body (optional) 
-     * @return Success
+     * @return OK
      */
     submitHouseMasterAssociation(body: SubmitRFBMasterHouseRequest | undefined): Observable<SwaggerResponse<StringApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/ReceitaFederal/submit-house-master-association";
@@ -3634,7 +3687,7 @@ export class ReceitaFederalClient {
 
     /**
      * @param body (optional) 
-     * @return Success
+     * @return OK
      */
     submitAssociationRemove(body: SubmitAssociatonRequest | undefined): Observable<SwaggerResponse<MasterHouseAssociationUploadResponseListApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/ReceitaFederal/submit-association-remove";
@@ -3695,7 +3748,7 @@ export class ReceitaFederalClient {
 
     /**
      * @param body (optional) 
-     * @return Success
+     * @return OK
      */
     checkAssociationRemove(body: SubmitAssociatonRequest | undefined): Observable<SwaggerResponse<MasterHouseAssociationUploadResponseListApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/ReceitaFederal/check-association-remove";
@@ -3756,7 +3809,7 @@ export class ReceitaFederalClient {
 
     /**
      * @param houseId (optional) 
-     * @return Success
+     * @return OK
      */
     cancelarHouse(houseId: number | undefined): Observable<SwaggerResponse<HouseResponseDtoApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/ReceitaFederal/CancelarHouse?";
@@ -3829,7 +3882,7 @@ export class UldClient {
 
     /**
      * @param uldId (optional) 
-     * @return Success
+     * @return OK
      */
     pegarUldMasterPorId(uldId: number | undefined): Observable<SwaggerResponse<UldMasterResponseDtoApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/Uld/PegarUldMasterPorId?";
@@ -3884,7 +3937,7 @@ export class UldClient {
 
     /**
      * @param masterId (optional) 
-     * @return Success
+     * @return OK
      */
     listarUldMasterPorMasterId(masterId: number | undefined): Observable<SwaggerResponse<UldMasterResponseDtoListApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/Uld/ListarUldMasterPorMasterId?";
@@ -3939,7 +3992,7 @@ export class UldClient {
 
     /**
      * @param vooId (optional) 
-     * @return Success
+     * @return OK
      */
     listarUldMasterPorVooId(vooId: number | undefined): Observable<SwaggerResponse<UldMasterNumeroQueryIEnumerableApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/Uld/ListarUldMasterPorVooId?";
@@ -3994,7 +4047,7 @@ export class UldClient {
 
     /**
      * @param trechoId (optional) 
-     * @return Success
+     * @return OK
      */
     listarUldMasterPorTrechoId(trechoId: number | undefined): Observable<SwaggerResponse<UldMasterNumeroQueryIEnumerableApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/Uld/ListarUldMasterPorTrechoId?";
@@ -4049,7 +4102,7 @@ export class UldClient {
 
     /**
      * @param body (optional) 
-     * @return Success
+     * @return OK
      */
     listarUldMasterPorLinha(body: ListaUldMasterRequest | undefined): Observable<SwaggerResponse<UldMasterResponseDtoIEnumerableApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/Uld/ListarUldMasterPorLinha";
@@ -4104,7 +4157,7 @@ export class UldClient {
 
     /**
      * @param body (optional) 
-     * @return Success
+     * @return OK
      */
     listarMasterUldSumario(body: ListaUldMasterRequest | undefined): Observable<SwaggerResponse<MasterNumeroUldSumarioIEnumerableApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/Uld/ListarMasterUldSumario";
@@ -4159,7 +4212,7 @@ export class UldClient {
 
     /**
      * @param body (optional) 
-     * @return Success
+     * @return OK
      */
     inserirUldMaster(body: UldMasterInsertRequest[] | undefined): Observable<SwaggerResponse<UldMasterResponseDtoListApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/Uld/InserirUldMaster";
@@ -4214,7 +4267,7 @@ export class UldClient {
 
     /**
      * @param body (optional) 
-     * @return Success
+     * @return OK
      */
     patchUldMaster(body: UldMasterPatchRequest | undefined): Observable<SwaggerResponse<UldMasterNumeroPatchQueryApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/Uld/PatchUldMaster";
@@ -4269,7 +4322,7 @@ export class UldClient {
 
     /**
      * @param body (optional) 
-     * @return Success
+     * @return OK
      */
     atualizarUldMaster(body: UldMasterUpdateRequest[] | undefined): Observable<SwaggerResponse<UldMasterResponseDtoListApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/Uld/AtualizarUldMaster";
@@ -4324,7 +4377,7 @@ export class UldClient {
 
     /**
      * @param body (optional) 
-     * @return Success
+     * @return OK
      */
     excluirUldMaster(body: UldMasterDeleteByIdInput | undefined): Observable<SwaggerResponse<StringApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/Uld/ExcluirUldMaster";
@@ -4379,7 +4432,7 @@ export class UldClient {
 
     /**
      * @param body (optional) 
-     * @return Success
+     * @return OK
      */
     excluirUld(body: UldMasterDeleteByTagInput | undefined): Observable<SwaggerResponse<StringApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/Uld/ExcluirUld";
@@ -4449,7 +4502,7 @@ export class UploadClient {
      * @param senha (optional) 
      * @param certificadoDestino (optional) 
      * @param file (optional) 
-     * @return Success
+     * @return OK
      */
     uploadCertificadoDigital(id: number | undefined, senha: string | undefined, certificadoDestino: FileDestinationMap | undefined, file: FileParameter | undefined): Observable<SwaggerResponse<UploadCertificadoResponseDtoApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/Upload/UploadCertificadoDigital";
@@ -4531,7 +4584,7 @@ export class UsuarioClient {
 
     /**
      * @param usuarioId (optional) 
-     * @return Success
+     * @return OK
      */
     obterUsuarioPorId(usuarioId: number | undefined): Observable<SwaggerResponse<UsuarioResponseDtoApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/Usuario/ObterUsuarioPorId?";
@@ -4585,7 +4638,7 @@ export class UsuarioClient {
     }
 
     /**
-     * @return Success
+     * @return OK
      */
     listarUsuarios(): Observable<SwaggerResponse<UsuarioResponseDtoIEnumerableApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/Usuario/ListarUsuarios";
@@ -4636,7 +4689,7 @@ export class UsuarioClient {
 
     /**
      * @param body (optional) 
-     * @return Success
+     * @return OK
      */
     inserirUsuario(body: UsuarioInsertRequest | undefined): Observable<SwaggerResponse<UsuarioResponseDtoApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/Usuario/InserirUsuario";
@@ -4691,7 +4744,7 @@ export class UsuarioClient {
 
     /**
      * @param body (optional) 
-     * @return Success
+     * @return OK
      */
     atualizarUsuario(body: UsuarioUpdateRequest | undefined): Observable<SwaggerResponse<UsuarioResponseDtoApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/Usuario/AtualizarUsuario";
@@ -4746,7 +4799,7 @@ export class UsuarioClient {
 
     /**
      * @param body (optional) 
-     * @return Success
+     * @return OK
      */
     resetarUsuario(body: UserResetRequest | undefined): Observable<SwaggerResponse<StringApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/Usuario/ResetarUsuario";
@@ -4801,7 +4854,7 @@ export class UsuarioClient {
 
     /**
      * @param usuarioId (optional) 
-     * @return Success
+     * @return OK
      */
     excluirUsuario(usuarioId: number | undefined): Observable<SwaggerResponse<UsuarioResponseDtoApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/Usuario/ExcluirUsuario?";
@@ -4868,7 +4921,7 @@ export class VooClient {
 
     /**
      * @param vooId (optional) 
-     * @return Success
+     * @return OK
      */
     obterVooPorId(vooId: number | undefined): Observable<SwaggerResponse<VooResponseDtoApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/Voo/ObterVooPorId?";
@@ -4923,7 +4976,7 @@ export class VooClient {
 
     /**
      * @param vooId (optional) 
-     * @return Success
+     * @return OK
      */
     obterVooUploadPorId(vooId: number | undefined): Observable<SwaggerResponse<VooUploadResponseApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/Voo/ObterVooUploadPorId?";
@@ -4978,7 +5031,7 @@ export class VooClient {
 
     /**
      * @param body (optional) 
-     * @return Success
+     * @return OK
      */
     listarVoos(body: VooListarInputDto | undefined): Observable<SwaggerResponse<VooResponseDtoIEnumerableApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/Voo/ListarVoos";
@@ -5033,7 +5086,7 @@ export class VooClient {
 
     /**
      * @param body (optional) 
-     * @return Success
+     * @return OK
      */
     listarVoosLista(body: VooListarInputDto | undefined): Observable<SwaggerResponse<VooListaResponseDtoIEnumerableApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/Voo/ListarVoosLista";
@@ -5088,7 +5141,7 @@ export class VooClient {
 
     /**
      * @param body (optional) 
-     * @return Success
+     * @return OK
      */
     inserirVoo(body: VooInsertRequestDto | undefined): Observable<SwaggerResponse<VooResponseDtoApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/Voo/InserirVoo";
@@ -5143,7 +5196,7 @@ export class VooClient {
 
     /**
      * @param body (optional) 
-     * @return Success
+     * @return OK
      */
     atualizarVoo(body: VooUpdateRequestDto | undefined): Observable<SwaggerResponse<VooResponseDtoApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/Voo/AtualizarVoo";
@@ -5198,7 +5251,7 @@ export class VooClient {
 
     /**
      * @param vooId (optional) 
-     * @return Success
+     * @return OK
      */
     atualizarReenviarVoo(vooId: number | undefined): Observable<SwaggerResponse<VooResponseDtoApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/Voo/AtualizarReenviarVoo?";
@@ -5253,7 +5306,7 @@ export class VooClient {
 
     /**
      * @param vooId (optional) 
-     * @return Success
+     * @return OK
      */
     excluirVoo(vooId: number | undefined): Observable<SwaggerResponse<VooResponseDtoApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/Voo/ExcluirVoo?";
@@ -5308,7 +5361,7 @@ export class VooClient {
 
     /**
      * @param vooId (optional) 
-     * @return Success
+     * @return OK
      */
     listarVooTrechos(vooId: number | undefined): Observable<SwaggerResponse<VooTrechoResponseIEnumerableApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/Voo/ListarVooTrechos?";
@@ -5363,7 +5416,7 @@ export class VooClient {
 
     /**
      * @param body (optional) 
-     * @return Success
+     * @return OK
      */
     clonesegmentforflight(body: CloneFlightForDeparturingRequest | undefined): Observable<SwaggerResponse<VooResponseDtoApiResponse>> {
         let url_ = this.baseUrl + "/api/v1/Voo/clonesegmentforflight";
@@ -6614,7 +6667,7 @@ export interface UsuarioInsertRequest {
 export interface UsuarioLoginRequest {
     Email?: string | undefined;
     Senha?: string | undefined;
-    AlterarSenhar?: boolean;
+    AlterarSenha?: boolean | undefined;
     NovaSenha?: string | undefined;
     NovaSenhaConfirmacao?: string | undefined;
 }

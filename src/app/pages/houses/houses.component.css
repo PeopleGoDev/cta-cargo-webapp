@@ -29,3 +29,27 @@
 ::ng-deep .dx-switch-handle:before {
     background-color: #ddd!important;
 }
+
+.import-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* Target the internal input element of the dx-text-area */
+#myTextArea ::ng-deep .dx-texteditor-input {
+  white-space: nowrap; /* Prevents text from wrapping */
+  overflow-x: auto;    /* Displays a horizontal scrollbar when content overflows */
+}
+
+/* For modern Angular versions (v15+) or if ViewEncapsulation.None is used */
+#myTextArea .dx-texteditor-input {
+  white-space: nowrap;
+  overflow-x: auto;
+}
+
+.import-footer-buttons {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}

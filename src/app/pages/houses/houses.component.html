@@ -51,6 +51,8 @@
                             </div>
                         </div>
                     </dxi-item>
+                    <dxi-item location="after" widget="dxButton" [options]="pasteIcon">
+                    </dxi-item>
                     <dxi-item location="after" widget="dxButton" [options]="refreshIcon">
                     </dxi-item>
                     <dxi-item location="after" widget="dxButton" [options]="plusIcon">
@@ -66,7 +68,8 @@
                     [repaintChangesOnly]="true" [hoverStateEnabled]="true" [showBorders]="true" [columnAutoWidth]="true"
                     (onToolbarPreparing)="onToolbarPreparing($event)" (onRowUpdating)="onRowUpdating($event)"
                     [(selectedRowKeys)]="selectedRows" (onSelectionChanged)="selectionChangedHandler()"
-                    (onRowInserting)="onRowInserting($event)" (onEditorPreparing)="onEditorPreparing($event)">
+                    (onInitNewRow)="onInitNewRow($event)" (onRowInserting)="onRowInserting($event)"
+                    (onEditorPreparing)="onEditorPreparing($event)">
                     <dxo-filter-row [visible]="true"></dxo-filter-row>
                     <dxo-header-filter [visible]="true"></dxo-header-filter>
                     <dxo-selection mode="single" showCheckBoxesMode="none"></dxo-selection>
@@ -327,11 +330,13 @@
                         <dxi-column dataField="ValorFreteFCUN" caption="Moeda" alignment="right"></dxi-column>
                     </dxi-column>
                     <dxi-column caption="Outras Informações">
-                        <dxi-column dataField="CodigoRecintoAduaneiro" caption="Rec. Aduaneiro N." width="150"></dxi-column>
+                        <dxi-column dataField="CodigoRecintoAduaneiro" caption="Rec. Aduaneiro N."
+                            width="150"></dxi-column>
                         <dxi-column dataField="NaturezaCarga" caption="Natureza Carga" width="150"
                             editCellTemplate="dataSICellTemplate" cssClass="word-wrap">
                         </dxi-column>
-                        <dxi-column dataField="DataEmissaoXML" dataType="datetime" caption="Data/Hora Emissão"></dxi-column>
+                        <dxi-column dataField="DataEmissaoXML" dataType="datetime"
+                            caption="Data/Hora Emissão"></dxi-column>
                     </dxi-column>
                     <div *dxTemplate="let cell of 'dataSICellTemplate'">
                         <app-special-instruction [(value)]="cell.value" [readOnly]="readOnlyEdition"
@@ -380,3 +385,28 @@
         </div>
     </div>
 </div>
+<dx-popup [width]="860" [height]="420" [showCloseButton]="true" [(visible)]="popupVisible" title="Importar Dados">
+    <div *dxTemplate="let data of 'content'">
+        <div class="import-layout">
+            <div>
+                <dx-text-area id="myTextArea" height="290px" [(value)]="textAreaContent"
+                    [autoResizeEnabled]="false"></dx-text-area>
+            </div>
+            <div>
+                <div class="import-footer-buttons">
+                    <div>
+                        <dx-button stylingMode="outlined" text="Selecionar Arquivo" type="normal" [width]="170"
+                            (onClick)="selectFile()">
+                        </dx-button>
+                        <input type="file" #fileInput hidden accept=".csv" (change)="onFileSelected($event)" style="display: none;"/>
+                    </div>
+                    <div>
+                        <dx-button stylingMode="outlined" text="Verificar" type="normal" [width]="120"
+                            (onClick)="processLines($event)">
+                        </dx-button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</dx-popup>

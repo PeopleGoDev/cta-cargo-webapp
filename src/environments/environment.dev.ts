@@ -4,4 +4,6 @@ export const environment = {
   ErrorTimeout: 15000,
   BaseURL: "https://api-cct-homolog.azurewebsites.net/api/",
   BaseUrlApiCta: "https://api-cct-homolog.azurewebsites.net",
+  // BaseURL: "https://localhost:63180/api/",
+  // BaseUrlApiCta: "https://localhost:63180",
 };

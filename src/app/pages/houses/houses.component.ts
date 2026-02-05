@@ -38,6 +38,7 @@ export class HousesComponent implements OnInit {
   @ViewChild("dataGrid", { static: false }) dataGrid: DxDataGridComponent;
   @ViewChild("panel1") panel1Element: ElementRef;
   @ViewChild("panel2") panel2Element: ElementRef;
+  @ViewChild('fileInput') fileInput: ElementRef<HTMLInputElement> | undefined;
 
   curAgenteDeCarga: number = -1;
   agenteDeCarga: AgenteDeCargaListaSimplesResponse = null;
@@ -61,6 +62,7 @@ export class HousesComponent implements OnInit {
   textoHouse: string;
   // Icones
   selectFiltro: any;
+  pasteIcon: any;
   refreshIcon: any;
   plusIcon: any;
   excelIcon: any;
@@ -72,6 +74,9 @@ export class HousesComponent implements OnInit {
   rfbSubmitExclusionRows: number[] = [];
   dataSource: any;
   showThirdParty: boolean = false;
+  popupVisible: boolean = false;
+  textAreaContent: string = '';
+  newHouse: HouseResponseDto | undefined;
 
   constructor(
     private houseClient: HouseClient,
@@ -101,6 +106,12 @@ export class HousesComponent implements OnInit {
       displayExpr: "Descricao",
       valueExpr: "Id",
       onValueChanged: this.handleSelectBoxChanged.bind(this),
+    };
+
+    this.pasteIcon = {
+      icon: "paste",
+      hint: "Colar",
+      onClick: this.showPastePopup.bind(this),
     };
 
     this.refreshIcon = {
@@ -786,6 +797,138 @@ export class HousesComponent implements OnInit {
       return;
     }
     cell.setValue(null);
+  }
+
+  showPastePopup() {
+    this.popupVisible = true;
+  }
+
+  processLines(e: Event): void {
+    const lines = this.textAreaContent.split('\r\n');
+    let freightFowarderTaxid;
+    let valid: boolean = false;
+    this.newHouse = {}
+
+    for (let i = 0; i < lines.length; i++) {
+
+      if (lines[i].substring(0, 1) === "\"") {
+        lines[i] = this.removeFirstAndLastSlice(lines[i]);
+      }
+      const data = lines[i].split(';');
+
+      if (i === 0 && data.length >= 2 && data[0] === '1' && data[2] === 'XFZB') {
+        freightFowarderTaxid = data[1].replace(/\D/g, '');
+        valid = true;
+      }
+
+      if (!valid)
+        break;
+
+      if (data[0] === '2' && data.length >= 9) {
+        this.newHouse.AeroportoOrigem = data[2];
+        this.newHouse.AeroportoDestino = data[3];
+        this.newHouse.Numero = data[7];
+        this.newHouse.MasterNumeroXML = data[1];
+        if (this.newHouse.MasterNumeroXML)
+          this.newHouse.MasterNumeroXML = this.newHouse.MasterNumeroXML.replace(/-/g, "");
+      }
+
+      if (data[0] === '3' && data.length >= 74) {
+        this.newHouse.RemetenteNome = data[5];
+        this.newHouse.RemetenteEndereco = data[6];
+        this.newHouse.RemetenteCidade = data[10];
+        this.newHouse.RemetentePaisCodigo = data[11];
+
+        this.newHouse.ConsignatarioCNPJ = data[27];
+        if (this.newHouse.ConsignatarioCNPJ)
+          this.newHouse.ConsignatarioCNPJ = this.newHouse.ConsignatarioCNPJ.replace(/\D/g, '');
+        this.newHouse.ConsignatarioNome = data[16];
+        this.newHouse.ConsignatarioEndereco = data[17];
+        this.newHouse.ConsignatarioCidade = data[21];
+        this.newHouse.ConsignatarioPaisCodigo = data[22];
+
+        this.newHouse.DescricaoMercadoria = data[55];
+        this.newHouse.TotalVolumes = +data[56];
+        this.newHouse.PesoTotalBruto = +data[57];
+        this.newHouse.PesoTotalBrutoUN = data[58];
+
+        this.newHouse.ValorFreteFCUN = data[59];
+        this.newHouse.ValorFretePPUN = data[59];
+        this.newHouse.ValorFretePP = +data[61];
+        this.newHouse.ValorFreteFC = +data[62];
+
+        this.newHouse.DataEmissaoXML = this.convertDdMmYyyy(data[69]);
+      }
+    }
+
+    if (valid) {
+      this.getFreightFowarderCode(freightFowarderTaxid)
+    }
+  }
+
+  removeFirstAndLastSlice(str: string): string {
+    if (str.length >= 2) {
+      return str.slice(1, -1);
+    }
+    return "";
+  }
+
+  onInitNewRow(e: any): void {
+    if (this.newHouse) {
+      Object.assign(e.data, this.newHouse);
+      this.textAreaContent = '';
+      this.newHouse = null;
+    }
+  }
+
+  convertDdMmYyyy(dateString: string): Date {
+    const dateParts = dateString.split('/');
+
+    const day = parseInt(dateParts[0], 10);
+    const month = parseInt(dateParts[1], 10) - 1; // Subtract 1 for 0-based index
+    const year = parseInt(dateParts[2], 10);
+
+    return new Date(year, month, day);
+  }
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      const file = input.files[0];
+      const reader = new FileReader();
+
+      reader.onload = (e: any) => {
+        this.textAreaContent = e.target.result;
+      };
+
+      reader.readAsText(file);
+    }
+  }
+
+  selectFile(): void {
+    this.fileInput?.nativeElement.click();
+  }
+
+  getFreightFowarderCode(taxid: string) {
+    if(!taxid)
+      return;
+
+    this.agenteDeCargaClient.getCode(taxid)
+      .subscribe({
+        next: (res) => {
+          if (res.result.Sucesso) {
+            this.newHouse.AgenteDeCargaNumero = res.result.Dados
+          }
+          this.openNewHouse();
+        }
+      })
+  }
+
+  openNewHouse() {
+    this.popupVisible = false;
+    setTimeout(() => {
+      this.dataGrid.instance.addRow();
+    }, 200);
   }
 
 }

@@ -1,0 +1,14 @@
+# Deploy Homologação
+ng build -c=dev
+swa deploy .\dist --env Production -d f09ac3edd577ec5646216ddc4d3068d746bfd5ec4b0ee3c1bfdb77d3c09638bb3-ca6429d7-0ac2-4dfe-a1c3-99e4e0eed2b800f101593
+
+
+# Deploy Produção
+ng build --prod
+swa deploy .\dist --env production -d 2a230487eb23504821043daa378c0d63361343c187553e06709025750b838be02-0c980e8d-a234-4ec6-8019-ba77d4ec669301e33927
+
+
+# Deploy CCT
+swa deploy .\dist\cct-importacao --env production -d b0c697c46a1cca0616b23d816745a882e909ea40a25fec7eae35a6a629caccc75-4e702e0d-11eb-4ae0-8021-f473ae1e28ee01e226916
+
+
